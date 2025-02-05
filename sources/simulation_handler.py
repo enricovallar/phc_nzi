@@ -79,7 +79,7 @@ class Simulation:
         """
         Parse the output file, extract frequency data, and write them to separate files.
         """
-        prefixes = ["tmfreqs:", "tefreqs:", "gaps:"]
+        prefixes = ["tmfreqs:", "tefreqs:", "zevenfreqs:", "zoddfreqs:", "gaps:"]
         def strip_prefix(line: str, prefixes: list[str]) -> str:
             for prefix in prefixes:
                 if line.startswith(prefix):
@@ -97,6 +97,10 @@ class Simulation:
                     for line in lines if "tmfreqs:" in line]
         te_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
                     for line in lines if "tefreqs:" in line]
+        zeven_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
+                       for line in lines if "zevenfreqs:" in line]
+        zodd_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
+                      for line in lines if "zoddfreqs:" in line]
         gaps_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
                       for line in lines if "gaps:" in line]
 
@@ -109,6 +113,16 @@ class Simulation:
         with open(te_file, "w") as f_te:
             f_te.writelines(te_lines)
         print(f"Extracted {len(te_lines)} lines of data for the TE mode")
+        
+        zeven_file = os.path.join(self.directory, f"{self.simulation_name}.zeven.dat")
+        with open(zeven_file, "w") as f_zeven:
+            f_zeven.writelines(zeven_lines)
+        print(f"Extracted {len(zeven_lines)} lines of data for the zeven frequencies")
+
+        zodd_file = os.path.join(self.directory, f"{self.simulation_name}.zodd.dat")
+        with open(zodd_file, "w") as f_zodd:
+            f_zodd.writelines(zodd_lines)
+        print(f"Extracted {len(zodd_lines)} lines of data for the zodd frequencies")
 
         gaps_file = os.path.join(self.directory, f"{self.simulation_name}.gaps.dat")
         with open(gaps_file, "w") as f_gaps:

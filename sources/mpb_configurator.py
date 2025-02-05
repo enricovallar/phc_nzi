@@ -190,7 +190,7 @@ class MPBSchemeConfigurator():
         if isinstance(self.resolution, int):
             return [f"(set! resolution {self.resolution})"]
         else:
-            return [f"(set! resolution (vector3 {self.resolution[0]} {self.resolution[1]} {self.resolution[2]})"]
+            return [f"(set! resolution (vector3 {self.resolution[0]} {self.resolution[1]} {self.resolution[2]}))"]
         
     def generate_mesh_size_command(self):
         if self.mesh_size:
