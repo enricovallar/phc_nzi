@@ -75,7 +75,7 @@ class Lattice:
         return self._mp_lattice 
     
     def to_scheme(self):
-        return f"(make lattice (size {self._size[0]} {self._size[1]}) " + \
+        return f"(make lattice (size {self._size[0]} {self._size[1]} {self._size[2]})  " + \
                f"(basis1  (vector3 {self._mp_lattice.basis1[0]} {self._mp_lattice.basis1[1]} {self._mp_lattice.basis1[2]})) " + \
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
