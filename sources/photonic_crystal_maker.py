@@ -225,6 +225,8 @@ class PhotonicCrystal:
         command_geometry = f"(set! geometry {commands_partial[1]})"
         return "\n".join([command_lattice, command_geometry])
     
+
+
 #example usage of the classes
 if __name__ == "__main__":
     atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": 0.5, "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
