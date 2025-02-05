@@ -18,7 +18,9 @@ class Lattice:
         'TXY': 'diatomic triangular lattice, atoms to be defined by user',
     }
 
-    def __init__(self, type: str, size: tuple | int):
+    NO_SIZE = "no-size"
+
+    def __init__(self, type: str, size: tuple | int = (1, 1, "no-size")):
         self._type = type
         self._size = size
         self._make_lattice()
@@ -71,10 +73,10 @@ class Lattice:
         if self._type == "TXY": 
             return (mp.Vector3(1/3, 1/3), mp.Vector3(2/3, 2/3))
         
-    def to_mp(self):
+    def to_python(self) -> mp.Lattice:
         return self._mp_lattice 
     
-    def to_scheme(self):
+    def to_scheme(self) -> str:
         return f"(make lattice (size {self._size[0]} {self._size[1]} {self._size[2]})  " + \
                f"(basis1  (vector3 {self._mp_lattice.basis1[0]} {self._mp_lattice.basis1[1]} {self._mp_lattice.basis1[2]})) " + \
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
@@ -85,7 +87,7 @@ class Lattice:
 
 
 class Geometry:
-
+    """ This class is a wrapper for meep geometry objects. It can be used to create meep geometry objects and convert them to Scheme strings. """
     valid_scheme_geometries = {
         mp.Cylinder: "cylinder",
         mp.Sphere: "sphere",
@@ -112,62 +114,81 @@ class Geometry:
                     value = value.to_scheme()
                 else:
                     raise ValueError("Material must be of type Material")
+            elif isinstance(value, (int, float)):
+                value = value
+            elif isinstance(value, mp.Vector3):
+                value = f"(vector3 {value.x} {value.y} {value.z})"
             else:
-                if isinstance(value, int):
-                    value = value
-                elif isinstance(value, float):
-                    value = value
-                elif isinstance(value, mp.Vector3):
-                    value = f"(vector3 {value[0]} {value[1]} {value[2]})"
-                else:
-                    raise ValueError(f"Please check the value of {param}") 
-            command = f"({param} {value})"
-            commands.append(command)
+                raise ValueError(f"Invalid value type for {param}")
+            commands.append(f"({param} {value})")
         return commands
 
     def to_scheme(self):
         params_commands = self._params_to_scheme()
-
-        command = f"(make {self.to_valid_scheme_geometry()} "
-        for param in params_commands:
-            command += param
+        command = f"(make {self.to_valid_scheme_geometry_definition()} "
+        command += "\n  ".join(params_commands)
         command += ")"
         return command
     
 
-    def to_valid_scheme_geometry(self):
+    def to_valid_scheme_geometry_definition(self):
         if self.mp_geom_type in Geometry.valid_scheme_geometries:
             return Geometry.valid_scheme_geometries[self.mp_geom_type]
         else:
             raise ValueError(f"Invalid geometry type: {self.mp_geom_type}, use one of meep geometry types available in the python interface")
         
+    def to_python(self):
+        return self.build()
     
-    
-
         
+class GeometryGroup:
+    def __init__(self, *geometries):
+        self._geometries = geometries
+
+
+    def to_scheme(self):
+        commands = []
+        for geometry in self._geometries:
+            commands.append(geometry.to_scheme())
+        commands_string =  "\n".join(commands)
+        commands_string = f"(list {commands_string}\n)"
+        return commands_string
+
+
 
 class Material: 
+    """ This class is a wrapper for meep material objects. It can be used to create meep material objects and convert them to Scheme strings. """
     def __init__(self, epsilon: float):
         self._epsilon = epsilon
 
     def to_scheme(self):
         return f"(make dielectric (epsilon {self._epsilon}))"
     
+    def to_python(self):
+        return mp.Medium(epsilon=self._epsilon) 
+    
     @property
     def epsilon(self):
         return self._epsilon
     
     
-    
-    
-
-    
 
 class PhotonicCrystal:
-    def __init__(self, atoms: list, lattice: Lattice, material: Material):
+    """
+    This class is a wrapper for  some of mpb objects. It can be used to create photonics crystal objects and convert them to Scheme strings.
+    """
+    def __init__(self, atoms: list, lattice: Lattice, background_material: Material = Material(epsilon=1)):
+        """Create a photonic crystal object.
 
+        Args:
+            background_material (Material): The background material of the photonic crystal.
+            atoms (list): A list of Geometry objects that represent the atoms in the photonic crystal.
+            lattice (Lattice): The lattice of the photonic crystal.
+        """
+        
         if all(isinstance(atom, Geometry) for atom in atoms):
             self._atoms = atoms
+            self._geometry_group = GeometryGroup(*atoms)
         else:
             raise ValueError("All atoms must be of type Geometry")
         
@@ -176,18 +197,40 @@ class PhotonicCrystal:
         else:
             raise ValueError("Lattice must be of type Lattice") 
         
-        if isinstance(material, Material):
-            self._material = material
+        if isinstance(background_material, Material):
+            self._background_material = background_material
         else:
             raise ValueError("Material must be of type Material")  
-        
-        self._make_mpb_geometry()
 
+    def to_scheme_list(self) -> list:
+        """Convert the photonic crystal to a Scheme string.
         
-        
-    def _make_mpb_geometry(self):
-        geometry = []
-        for atom in self._atoms:
-            geometry.append(atom.build())   
-
+        Returns:
+            list: A list of Scheme commands that define the photonic crystal. 
+            The first command is the lattice definition, the second command is the geometry group definition.
+        """
+        commands = []
+        commands.append(self._lattice.to_scheme())
+        commands.append(self._geometry_group.to_scheme())
+        return commands
     
+    def to_scheme(self) -> str:
+        """Convert the photonic crystal to a Scheme string.
+        
+        Returns:
+            str: A Scheme string that defines the photonic crystal. 
+        """
+        commands_partial = self.to_scheme_list()
+        command_lattice = f"(set! geometry-lattice {commands_partial[0]})"
+        command_geometry = f"(set! geometry {commands_partial[1]})"
+        return "\n".join([command_lattice, command_geometry])
+    
+#example usage of the classes
+if __name__ == "__main__":
+    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": 0.5, "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
+    lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
+    material = Material(epsilon=12)
+    photonic_crystal = PhotonicCrystal([atom_geometry], lattice)
+    print(photonic_crystal.to_scheme())
+
+
