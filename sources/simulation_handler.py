@@ -71,6 +71,49 @@ class Simulation:
             self.extract_frequencies()
 
 
+    def run_hpc(self, print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, path_to_mpb: str = "mpb-mpi"):
+        """
+        Run simulation by writing the scheme configuration (when config is provided)
+        or using an existing scheme script.
+        """
+        os.makedirs(self.directory, exist_ok=True)
+        if self.config is not None:
+            scheme_path = os.path.join(self.directory, self.scheme_filename)
+            scheme = self.config.generate_scheme_config(scheme_path)
+            if print_config:
+                print(scheme)
+            with open(scheme_path, "w") as f:
+                f.write(scheme)
+            cmd_script = self.scheme_filename
+        else:
+            if scheme_script is None:
+                raise ValueError("scheme_script must be provided if config is not set.")
+            scheme_path = os.path.join(self.directory, os.path.basename(scheme_script))
+            if not os.path.exists(scheme_path):
+                with open(scheme_script, "r") as src, open(scheme_path, "w") as dst:
+                    dst.write(src.read())
+            cmd_script = scheme_script
+
+        # Run the simulation within the simulation directory using module load and mpb in one command
+        cmd = f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && {path_to_mpb} {cmd_script}"
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
+        print(result.stdout)
+        print(result.stderr)
+
+        # Save output and error files
+        output_path = os.path.join(self.directory, self.output_filename)
+        error_path = os.path.join(self.directory, self.error_filename)
+        with open(output_path, "w") as f_out:
+            f_out.write(result.stdout)
+        with open(error_path, "w") as f_err:
+            f_err.write(result.stderr)
+
+        print("Simulation completed")
+
+        if load_epsilon:
+            self.load_epsilon()
+        if extract_frequencies:
+            self.extract_frequencies()
         
         
         
