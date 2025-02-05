@@ -1,42 +1,53 @@
-from photonicCrystal import *
+from photonic_crystal_maker import *
 import meep as mp
 from meep import mpb   
 
-class MPBConfiguration():
-    def __init__(self, simulation_type: str = "te", resolution: int | mp.Vector3 = 32, num_bands: int = 8, k_point_interpolation_factor = 4,
-                 geometry_lattice:  Lattice = None, geometry: list = None):
-        self._simulation_type = None
+class MPBSchemeConfigurator():
+    def __init__(self, phc: PhotonicCrystal,  simulation_types: list = ["te"], resolution: int | mp.Vector3 = 32, num_bands: int = 8, 
+                 k_point_interpolation_factor: int = 4, mesh_size: int | None = None, target_freq: float = None, tolerance: float = None, 
+                 k_points: list = [mp.Vector3(0, 0, 0)]):
+        # PhotonicCrystal object is used to generate the geometry and lattice
+        if type(phc) == PhotonicCrystal:    
+            self._phc = phc
+        else:
+            raise ValueError("Photonic crystal must be of type PhotonicCrystal")
+         
+        # Simulation internal parameters are set to None by default
+        self._simulation_type = None 
         self._resolution = None
         self._num_bands = None
+        self._k_points_interpolation_factor = None
         self._mesh_size = None
         self._target_freq = None
         self._tolerance = None
-        self._geometry_lattice = None
-        self._geometry = None
         self._k_points = None
-        self._k_point_interpolation_factor = None
-        
-        
-        
-        self.simulation_type = simulation_type
+
+
+        # Initializing the internal parameters checking the types
+        self.simulation_types = simulation_types 
         self.resolution = resolution
         self.num_bands = num_bands
-        self.geometry_lattice = geometry_lattice
-        self.geometry = geometry
         self.k_points_interpolation_factor = k_point_interpolation_factor
+        self.mesh_size = mesh_size
+        self.target_freq = target_freq
+        self.tolerance = tolerance
+        self.k_points = k_points
+
         
 
     
 
     @property
-    def simulation_type(self):
-        return self._simulation_type
-    @simulation_type.setter
-    def simulation_type(self, value):
-        if value in ['te', 'tm', 'zeven', 'zodd']:
-            self._simulation_type = value
+    def simulation_types(self):
+        return self._simulation_types
+
+    @simulation_types.setter
+    def simulation_types(self, value):
+        allowed_types = ['te', 'tm', 'zeven', 'zodd']
+        if isinstance(value, list) and all(item in allowed_types or item is None for item in value):
+            self._simulation_types = value
         else:
-            raise ValueError("Simulation type must be one of 'te', 'tm', 'zeven', 'zodd' or None.")
+            raise ValueError("Simulation types must be a list with each element being one of 'te', 'tm', 'zeven', 'zodd' or None.")
 
     @property
     def resolution(self):
@@ -62,28 +73,61 @@ class MPBConfiguration():
         else:
             raise ValueError("Number of bands must be an integer")
         
+
+
     @property
-    def geometry_lattice(self):
-        return self._geometry_lattice
-    
-    @geometry_lattice.setter
-    def geometry_lattice(self, value):
-        if isinstance(value, Lattice):
-            self._geometry_lattice = value
+    def mesh_size(self):
+        return self._mesh_size
+
+    @mesh_size.setter
+    def mesh_size(self, value):
+        if isinstance(value, int):
+            self._mesh_size = value
+        elif value is None:
+            self._mesh_size = value
         else:
-            raise ValueError("Geometry lattice must be of type Lattice")
-    
+            raise ValueError("Mesh size must be an integer or None")
+
     @property
-    def geometry(self):
-        return self._geometry
-    
-    @geometry.setter
-    def geometry(self, value: list):
-        if all(isinstance(geom_element, Geometry) for geom_element in value):
-            self._geometry = value
+    def target_freq(self):
+        return self._target_freq
+
+    @target_freq.setter
+    def target_freq(self, value):
+        if isinstance(value, float):
+            self._target_freq = value
+        elif value is None: 
+            self._target_freq = value
         else:
-            raise ValueError("All geometry elements must be of type Geometry")
+            raise ValueError("Target frequency must be a float or None")
+
+    @property
+    def tolerance(self):
+        return self._tolerance
+
+    @tolerance.setter
+    def tolerance(self, value):
+        if isinstance(value, float):
+            self._tolerance = value
+        elif value is None:
+            self._tolerance = value
+        else:
+            raise ValueError("Tolerance must be a float or None")   
+        
+    @property
+    def k_points_interpolation_factor(self):
+        return self._k_points_interpolation_factor
     
+    @k_points_interpolation_factor.setter    
+    def k_points_interpolation_factor(self, value):
+        if isinstance(value, int):
+            self._k_points_interpolation_factor = value
+        elif value is None:
+            self._k_points_interpolation_factor = value
+        else:
+            raise ValueError("K-point interpolation factor must be an integer or None")
+        
+
     @property
     def k_points(self):
         return self._k_points   
@@ -95,49 +139,8 @@ class MPBConfiguration():
         else:
             raise ValueError("All k-points must be of type meep Vector3")  
 
-    @property
-    def mesh_size(self):
-        return self._mesh_size
 
-    @mesh_size.setter
-    def mesh_size(self, value):
-        if isinstance(value, int):
-            self._mesh_size = value
-        else:
-            raise ValueError("Mesh size must be an integer")
-
-    @property
-    def target_freq(self):
-        return self._target_freq
-
-    @target_freq.setter
-    def target_freq(self, value):
-        if isinstance(value, float):
-            self._target_freq = value
-        else:
-            raise ValueError("Target frequency must be a float")
-
-    @property
-    def tolerance(self):
-        return self._tolerance
-
-    @tolerance.setter
-    def tolerance(self, value):
-        if isinstance(value, float):
-            self._tolerance = value
-        else:
-            raise ValueError("Tolerance must be a float")    
-        
-    @property
-    def k_points_interpolation_factor(self):
-        return self._k_points_interpolation_factor
-    
-    @k_points_interpolation_factor.setter    
-    def k_points_interpolation_factor(self, value):
-        if isinstance(value, int):
-            self._k_points_interpolation_factor = value
-        else:
-            raise ValueError("K-point interpolation factor must be an integer") 
+     
         
     
     def build_commands(self):
@@ -155,15 +158,11 @@ class MPBConfiguration():
         # Interpolate k-points 
         commands += self.generate_k_points_interpolation_command()
         
-       
-        
-        # Set the geometry
-        commands += self.generate_geometry_command()
-        # Set the geometry lattice
-        commands += self.generate_geometry_lattice_command()
+        # Set the lattice and geometry
+        commands += self.generate_lattice_and_geometry_commands()
 
         # Set the simulation type
-        commands += self.generate_runner_command()
+        commands += self.generate_runner_commands()
 
         return commands
     
@@ -178,10 +177,12 @@ class MPBConfiguration():
                 script += command + "\n" 
         print(f"Scheme configuration written to {filename}")
         return script
-
-        
-        
     
+    def print_scheme_config(self):
+        commands = self.build_commands()
+        for command in commands:
+            print(command)  
+
     def generate_number_of_bands_command(self): 
         return [f"(set! num-bands {self.num_bands})"]
     
@@ -195,24 +196,12 @@ class MPBConfiguration():
         if self.mesh_size:
             return [f"(set! mesh-size {self.mesh_size})"]
         else:
-            return [""]
+            return []
         
-    def generate_geometry_lattice_command(self):
-        return [f"(set! geometry-lattice {self.geometry_lattice.to_scheme()})"]
-    
-    def generate_geometry_command(self): 
-        commands = []   
-        if self._geometry:
-            # Assume self.geometry is a list of valid Scheme strings for geometry objects.
-            geom_str = f"(list\n"
-            for geom in self._geometry:
-                if isinstance(geom, Geometry):
-                    geom_str += f"    {geom.to_scheme()}\n"
-            geom_str += ")"
-            commands.append(f"(set! geometry {geom_str})")
-        else:
-            raise ValueError("Geometry must be provided")
-        return commands
+    def generate_lattice_and_geometry_commands(self):
+        return [self._phc.to_scheme()]
+
+
     
     def generate_k_points_command(self):    
         if self._k_points:
@@ -225,28 +214,30 @@ class MPBConfiguration():
         if self._k_points:
             return [f"(set! k-points (interpolate {self._k_points_interpolation_factor} k-points))"]
         else:
-            raise ValueError("K-points must be provided")
+            return []
         
-    def generate_runner_command(self):
-        if self.simulation_type == "tm":
-            return ["(run-tm)"]
-        elif self.simulation_type == "te":
-            return ["(run-te)"]
-        elif self.simulation_type == "zeven":
-            return ["(run-zeven)"]
-        elif self.simulation_type == "zodd":
-            return ["(run-zodd)"]
-        else:
-            return ["(run)"]
+    def generate_runner_commands(self):
+        commands = []
+        for sim_type in dict.fromkeys(self.simulation_types):
+            if sim_type == "tm":
+                commands.append("(run-tm)")
+            elif sim_type == "te":
+                commands.append("(run-te)")
+            elif sim_type == "zeven":
+                commands.append("(run-zeven)")
+            elif sim_type == "zodd":
+                commands.append("(run-zodd)")
+            else:
+                print(f"simulation type: {sim_type}")
+                commands.append("(run)")
+        return commands
         
 
-import h5py    
+# Example usage
+if __name__ == "__main__":
+    atom = Geometry(mp.Cylinder, {"radius": 0.2, "height": 0.5, "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
+    lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
 
-class H5Loader():
-
-    def load_h5(self, filename):
-        with h5py.File(filename, "r") as f:
-            data = {}
-            for key in f.keys():
-                data[key] = f[key][()]
-        
+    phc = PhotonicCrystal([atom], lattice)
+    mpb_config = MPBSchemeConfigurator(phc, simulation_types=["te", "tm"], resolution=32, num_bands=8, k_point_interpolation_factor=4, mesh_size=16, target_freq=0.5, tolerance=1e-6, k_points=[mp.Vector3(0, 0, 0)])
+    mpb_config.print_scheme_config()
