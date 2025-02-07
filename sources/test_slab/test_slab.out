@@ -16,13 +16,13 @@ Reciprocal lattice vectors (/ 2 pi):
      (0, -0, 0.25)
 Geometric objects:
      block, center = (0,0,0)
-          size (1e+20,1e+20,0.5)
+          size (1,1,0.5)
           axes (1,0,0), (0,1,0), (0,0,1)
           epsilon = 9.61, mu = 1
      cylinder, center = (0,0,0)
           radius 0.2, height 0.5, axis (0, 0, 1)
           epsilon = 1, mu = 1
-Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Geometric object tree has depth 4 and 19 object nodes (vs. 2 actual objects)
 Initializing epsilon function...
 Allocating fields...
 11 k-points:
@@ -45,16 +45,13 @@ Outputting test_slab-epsilon...
 solve_kpoint (0.5,0,0):
 zevenfreqs:, k index, k1, k2, k3, kmag/2pi, zeven band 1, zeven band 2, zeven band 3
 Solving for bands 1 to 3...
-    linmin: converged after 6 iterations.
-    linmin: converged after 11 iterations.
-    linmin: converged after 5 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 8 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
-    linmin: converged after 3 iterations.
-    linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
@@ -63,6 +60,7 @@ Solving for bands 1 to 3...
     linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -74,7 +72,8 @@ Solving for bands 1 to 3...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 1 to 3 after 29 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 3 after 28 iterations.
 zevenfreqs:, 1, 0.5, 0, 0, 0.5, 0.226402, 0.262485, 0.432926
 elapsed time for k point: 2 seconds.
 solve_kpoint (0.4,0,0):
@@ -118,7 +117,7 @@ Solving for bands 1 to 3...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 3 after 13 iterations.
 zevenfreqs:, 3, 0.3, 0, 0, 0.3, 0.168456, 0.313101, 0.335573
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.2,0,0):
 Solving for bands 1 to 3...
     linmin: converged after 4 iterations.
@@ -136,7 +135,7 @@ Solving for bands 1 to 3...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 3 after 13 iterations.
 zevenfreqs:, 4, 0.2, 0, 0, 0.2, 0.125807, 0.251925, 0.259614
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.1,0,0):
 Solving for bands 1 to 3...
     linmin: converged after 6 iterations.
@@ -262,8 +261,8 @@ Finished solving for bands 1 to 3 after 16 iterations.
 zevenfreqs:, 11, 0, 0.5, 0, 0.5, 0.226404, 0.262495, 0.432928
 elapsed time for k point: 2 seconds.
 Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.22640440112754373 at #(0.0 0.5 0.0)
-Band 2 range: 0.17438628570504872 at #(0.0 0.0 0.0) to 0.3131077666824861 at #(0.0 0.30000000000000004 0.0)
-Band 3 range: 0.17438921206507324 at #(0.0 0.0 0.0) to 0.43292796936436534 at #(0.0 0.5 0.0)
+Band 2 range: 0.1743862857050488 at #(0.0 0.0 0.0) to 0.3131077666824854 at #(0.0 0.30000000000000004 0.0)
+Band 3 range: 0.17438921206507338 at #(0.0 0.0 0.0) to 0.4329279693643654 at #(0.0 0.5 0.0)
 total elapsed time for run: 12 seconds.
 done.
 init-params: initializing eigensolver data
@@ -284,13 +283,13 @@ Reciprocal lattice vectors (/ 2 pi):
      (0, -0, 0.25)
 Geometric objects:
      block, center = (0,0,0)
-          size (1e+20,1e+20,0.5)
+          size (1,1,0.5)
           axes (1,0,0), (0,1,0), (0,0,1)
           epsilon = 9.61, mu = 1
      cylinder, center = (0,0,0)
           radius 0.2, height 0.5, axis (0, 0, 1)
           epsilon = 1, mu = 1
-Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Geometric object tree has depth 4 and 19 object nodes (vs. 2 actual objects)
 Initializing epsilon function...
 11 k-points:
      (0.5,0,0)
@@ -312,21 +311,21 @@ Outputting test_slab-epsilon...
 solve_kpoint (0.5,0,0):
 zoddfreqs:, k index, k1, k2, k3, kmag/2pi, zodd band 1, zodd band 2, zodd band 3
 Solving for bands 1 to 3...
+    linmin: converged after 7 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 6 iterations.
-    linmin: converged after 12 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 5 iterations.
+    linmin: converged after 6 iterations.
     linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -503,8 +502,8 @@ Solving for bands 1 to 3...
 Finished solving for bands 1 to 3 after 13 iterations.
 zoddfreqs:, 11, 0, 0.5, 0, 0.5, 0.331031, 0.339436, 0.410417
 elapsed time for k point: 0 seconds.
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.3310314663614878 at #(0.0 0.5 0.0)
-Band 2 range: 0.23463325170464094 at #(0.0 0.0 0.0) to 0.36202101120012325 at #(0.4 0.0 0.0)
-Band 3 range: 0.2346368842362946 at #(0.0 0.0 0.0) to 0.41041662996957684 at #(0.0 0.5 0.0)
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.33103146636148756 at #(0.0 0.5 0.0)
+Band 2 range: 0.23463325170464086 at #(0.0 0.0 0.0) to 0.36202101119707436 at #(0.4 0.0 0.0)
+Band 3 range: 0.23463688423629459 at #(0.0 0.0 0.0) to 0.4104166299695771 at #(0.0 0.5 0.0)
 total elapsed time for run: 9 seconds.
 done.

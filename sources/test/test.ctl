@@ -2,9 +2,11 @@
 (set! resolution 32)
 (set! k-points (list (vector3 0.0 0.0 0.0) (vector3 0.5 0.0 0.0) (vector3 0.5 0.5 0.0) (vector3 0.0 0.0 0.0)))
 (set! k-points (interpolate 4 k-points))
+(define-param r 0.35)
 (set! geometry-lattice (make lattice (size 1 1 no-size)  (basis1  (vector3 1.0 0.0 0.0)) (basis2  (vector3 0.0 1.0 0.0)) ))
-(set! geometry (list (make cylinder (radius 0.2)
-  (height 0.6)
+(set! geometry (list 
+ (make cylinder (radius r)
+  (height 1e+20)
   (material (make dielectric (epsilon 12)))
   (center (vector3 0.0 0.0 0.0)))
 ))
