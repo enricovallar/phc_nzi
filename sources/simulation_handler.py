@@ -74,11 +74,19 @@ class Simulation:
             self.extract_frequencies()
 
 
-    def run_hpc(self,   print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, 
-                path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}, print_output: bool = False, print_error: bool = False):   
+
+
+    def _preliminary_setup(self, scheme_script: str | None = None, print_config: bool = False) -> str:
         """
-        Run simulation by writing the scheme configuration (when config is provided)
-        or using an existing scheme script.
+        Perform the preliminary setup for the simulation.
+        This includes ensuring the simulation directory exists and writing (or copying) the scheme configuration/script.
+        
+        Parameters:
+            scheme_script: Path to an existing scheme script if self.config is not provided.
+            print_config: If True, print the generated scheme configuration.
+        
+        Returns:
+            cmd_script: The filename of the scheme file to run.
         """
         os.makedirs(self.directory, exist_ok=True)
         if self.config is not None:
@@ -97,44 +105,107 @@ class Simulation:
                 with open(scheme_script, "r") as src, open(scheme_path, "w") as dst:
                     dst.write(src.read())
             cmd_script = scheme_script
+        return cmd_script
 
-        # Run the simulation within the simulation directory using module load and mpb in one command
+    def run_hpc(self, print_config: bool = False, scheme_script: str | None = None, 
+                load_epsilon: bool = True, extract_frequencies: bool = True, 
+                path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
+                print_output: bool = False, print_error: bool = False):
+        """
+        Run simulation by writing the scheme configuration (if provided) or using an existing scheme script.
+        This method performs the preliminary setup, builds the simulation command (using the module load environment),
+        runs the simulation synchronously via subprocess, saves output and error files, and then performs post‐processing
+        (loading epsilon data and extracting frequencies).
+        """
+        cmd_script = self._preliminary_setup(scheme_script=scheme_script, print_config=print_config)
         command_line_params_str = " ".join([f"{key}={value}" for key, value in command_line_params.items()])
         cmd = f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && {path_to_mpb} {command_line_params_str} {cmd_script}"
         print(f"Running command: {cmd}")
         
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
-        print(result.stdout) if print_output else None  
-        print(result.stderr) if print_error else None   
-
-        # Save output and error files
+        if print_output:
+            print(result.stdout)
+        if print_error:
+            print(result.stderr)
+        
+        # Save the submission result (if desired) to the output/error files.
+        # Note: In synchronous mode, the simulation's output is produced immediately.
         output_path = os.path.join(self.directory, self.output_filename)
         error_path = os.path.join(self.directory, self.error_filename)
         with open(output_path, "w") as f_out:
             f_out.write(result.stdout)
         with open(error_path, "w") as f_err:
             f_err.write(result.stderr)
-
+        
         print("Simulation completed")
-
         if load_epsilon:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
 
-
-    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str | None = None, 
+    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str | None = None,
                     load_epsilon: bool = True, extract_frequencies: bool = True, 
-                    path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}, 
+                    path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
                     print_output: bool = False, print_error: bool = False,
-                    queue: str = "normal", num_procs: int = 16, poll_interval: int = 30):
-        # (Setup code is the same as before)
-        # Build the LSF submission command:
+                    queue: str = "fotonano", num_procs: int = 4, 
+                    initial_wait: int = 2, poll_interval: int = 5, output_timeout: int = 300,
+                    span_option: str = "hosts", span_value: int = 1):
+        """
+        Run simulation on the DTU HPC system using LSF job submission.
+        This method uses the preliminary setup to prepare the scheme file, builds an LSF submission command
+        that includes DTU preamble options, submits the job using mpb-mpi, and waits until the job is finished.
+        It waits an initial period before polling the job status using bstat, and then continues polling
+        until the job finishes. Once the designated output and error files are available (and non-empty),
+        post-processing (loading epsilon data and extracting frequencies) is executed.
+        
+        This version always uses mpb-mpi. The command is prefixed with:
+            mpirun -np $LSB_DJOB_NUMPROC
+        so that all allocated cores are used.
+        
+        Parameters:
+            print_config: If True, print the scheme configuration.
+            scheme_script: Path to an existing scheme script if config is not provided.
+            load_epsilon: Whether to load epsilon data after simulation.
+            extract_frequencies: Whether to extract frequency data after simulation.
+            path_to_mpb: Path to the mpb executable (default "mpb-mpi").
+            command_line_params: Dictionary of command-line parameters to pass.
+            print_output: If True, print the standard output from job submission.
+            print_error: If True, print the standard error from job submission.
+            queue: LSF queue to use (default "fotonano").
+            num_procs: Number of processors requested (default 4).
+            initial_wait: Seconds to wait before the first status check (default 2 seconds).
+            poll_interval: Seconds between subsequent status checks (default 5 seconds).
+            output_timeout: Maximum time in seconds to wait for output files to appear (default 300 seconds).
+            span_option: One of "hosts", "ptile", or "block" to specify the LSF span resource option.
+            span_value: The integer value associated with the chosen span option.
+            
+        Returns:
+            None
+        """
+        # Preliminary setup.
+        cmd_script = self._preliminary_setup(scheme_script=scheme_script, print_config=print_config)
+        command_line_params_str = " ".join([f"{key}={value}" for key, value in command_line_params.items()])
+        
+        # Build the resource string based on span_option.
+        if span_option == "hosts":
+            span_str = f'span[hosts={span_value}]'
+        elif span_option == "ptile":
+            span_str = f'span[ptile={span_value}]'
+        elif span_option == "block":
+            span_str = f'span[block={span_value}]'
+        else:
+            raise ValueError("Invalid span option. Use one of 'hosts', 'ptile', or 'block'.")
+        
+        # For mpb-mpi, we always use the MPI prefix.
+        mpi_prefix = "mpirun -np $LSB_DJOB_NUMPROC "
+        
+        # Build the LSF submission command using DTU preamble options.
         cmd = (
             f"bsub -J {self.simulation_name} -q {queue} -n {num_procs} "
+            f'-R "{span_str}" -R "rusage[mem=4GB]" -M 5GB -W 24:00 '
             f"-oo {self.output_filename} -eo {self.error_filename} "
             f"'source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
-            f"{path_to_mpb} {' '.join([f'{k}={v}' for k, v in command_line_params.items()])} {cmd_script}'"
+            f"{mpi_prefix}{path_to_mpb} {command_line_params_str} {cmd_script}'"
         )
         print(f"Running LSF job command: {cmd}")
         
@@ -144,37 +215,54 @@ class Simulation:
         if print_error:
             print(result.stderr)
         
-        # Parse the job ID from the output.
-        # Typically, LSF returns a message like "Job <12345> is submitted ..."
+        # Parse job ID from the submission output.
         job_id_match = re.search(r"<(\d+)>", result.stdout)
         if job_id_match:
             job_id = job_id_match.group(1)
-            print(f"Submitted job with ID: {job_id}")
-        else:
-            print("Could not parse job ID; proceeding without waiting.")
-            job_id = None
-
-        # Poll for job completion if job_id was found.
-        if job_id is not None:
+            print(f"Job submitted with ID: {job_id}")
+            print(f"Waiting {initial_wait} seconds before first status check...")
+            time.sleep(initial_wait)
+            start_time = time.time()
+            # Poll using bstat until the job is finished.
             while True:
-                status = subprocess.run(f"bjobs {job_id}", shell=True, capture_output=True, text=True)
-                if job_id not in status.stdout:
+                status = subprocess.run("bstat", shell=True, capture_output=True, text=True)
+                if "No unfinished job found" in status.stdout or job_id not in status.stdout:
                     print("Job has finished.")
                     break
                 else:
                     print(f"Job {job_id} is still running. Waiting {poll_interval} seconds...")
                     time.sleep(poll_interval)
+        else:
+            print("Could not determine job ID; proceeding without waiting.")
+            start_time = time.time()
         
-        # Save output and error files are already written by the job.
+        # Wait until the simulation output files exist and are non-empty.
+        output_path = os.path.join(self.directory, self.output_filename)
+        error_path = os.path.join(self.directory, self.error_filename)
+        elapsed = 0
+        while ((not os.path.exists(output_path) or os.path.getsize(output_path) == 0) or 
+            (not os.path.exists(error_path) or os.path.getsize(error_path) == 0)) and elapsed < output_timeout:
+            print("Waiting for simulation output files to be written...")
+            time.sleep(5)
+            elapsed += 5
+        if elapsed >= output_timeout:
+            print("Warning: Output files not found or empty after waiting.")
+        else:
+            print("Output files are now available.")
+        
+        total_duration = time.time() - start_time
+        print(f"Total duration from first status check to output availability: {total_duration:.2f} seconds.")
+        
         print("Simulation completed")
+        
         if load_epsilon:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
 
-        
-        
-        
+
+
+
 
     def extract_frequencies(self, remove_line_prefixes: bool = True):
         """
