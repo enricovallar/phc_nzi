@@ -71,7 +71,7 @@ class Simulation:
             self.extract_frequencies()
 
 
-    def run_hpc(self, print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, path_to_mpb: str = "mpb-mpi"):
+    def run_hpc(self,   print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}):
         """
         Run simulation by writing the scheme configuration (when config is provided)
         or using an existing scheme script.
@@ -95,7 +95,10 @@ class Simulation:
             cmd_script = scheme_script
 
         # Run the simulation within the simulation directory using module load and mpb in one command
-        cmd = f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && {path_to_mpb} {cmd_script}"
+        command_line_params_str = " ".join([f"{key}={value}" for key, value in command_line_params.items()])
+        cmd = f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && {path_to_mpb} {command_line_params_str} {cmd_script}"
+        print(f"Running command: {cmd}")
+        
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
         print(result.stdout)
         print(result.stderr)
@@ -186,7 +189,7 @@ class Simulation:
                 self.lattice = f['lattice vectors'][...]
         print("Loaded epsilon and lattice vectors")
 
-    def convert_epsilon(self, periods: int | tuple = 1, use_2d: bool = True) -> np.ndarray:
+    def convert_epsilon(self, periods: int | tuple = 1, use_2d: bool = True, is_fully_3d: bool = False) -> np.ndarray:
         """
         Convert the epsilon data using MPB routines.
         For 2D, extract the middle slice of the 3D epsilon array.
@@ -196,12 +199,32 @@ class Simulation:
         if self.epsilon is None:
             raise ValueError("Epsilon is not defined. Call load_epsilon() first.")
         mpb_data = mpb.MPBData(rectify=True, periods=periods, lattice=self.lattice)
-        eps = self.epsilon
-        if use_2d and self.epsilon.ndim == 3:
-            mid_index = self.epsilon.shape[2] // 2
-            eps = self.epsilon[:, :, mid_index]
-        epsilon_converted = mpb_data.convert(eps)
+        epsilon_converted = self._convert_array(mpb_data, self.epsilon, periods, use_2d, is_fully_3d)
         return epsilon_converted
+
+    def _convert_array(self, md: mpb.MPBData, x: mpb.MPBArray, periods: int = 1, use_2d: bool = True, is_fully_3d: bool = False) -> mpb.MPBData:
+        if x.ndim == 2: 
+            return md.convert(x)
+        elif x.ndim == 3:
+            if use_2d:
+                mid_index = x.shape[2] // 2
+                x_conv = x[:, :, mid_index]
+                return md.convert(x_conv)
+            elif use_2d == False and is_fully_3d==False:
+                shape = x.shape
+                x_conv = md.convert(x)
+                nz = shape[2]
+                start = (x_conv.shape[2] - nz) // 2
+                end = start + nz
+                return x_conv[:, :, start:end]
+            else:
+                return md.convert(x)
+        else:
+            raise ValueError("Invalid array dimensions")
+            
+        
+
+            
 
     def load_frequency_data(self, mode: str = "te") -> pd.DataFrame:
         """
@@ -251,8 +274,105 @@ class SimulationViewer:
         self._apply_title(self.simulation.simulation_name, title)
         
     
-    def plot_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None, converted: bool = True, cmap: str = 'viridis'):
-        print("3D plot not implemented yet")
+    def plot_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
+                        converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3):
+        """
+        Plot the 3D dielectric constant data as an isosurface.
+        The method uses a marching cubes algorithm to extract a surface where the dielectric constant
+        is discontinuous (using the mid-value as a default isosurface level). The surface is plotted
+        with a semi-transparent (alpha) face color.
+        
+        Parameters:
+            periods: number of periods to use in conversion.
+            title: title for the plot; if False, no title is set.
+            converted: if True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
+            cmap: colormap name (string) to use.
+            alpha: transparency for the surface.
+            
+        Returns:
+            fig: The matplotlib figure object.
+        """
+        # Ensure that epsilon data is available
+        if self.simulation.epsilon is None:
+            raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
+            
+        # Get the 3D epsilon array (converted if desired; note use_2d must be False for 3D)
+        if converted:
+            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)  
+        else:
+            eps = self.simulation.epsilon
+
+        # Determine a default isosurface level – here we take the midpoint
+        iso = (np.min(eps) + np.max(eps)) / 2.0
+
+        # Import marching cubes from scikit-image to extract the discontinuity surface.
+        try:
+            from skimage import measure
+        except ImportError:
+            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g. pip install scikit-image).")
+
+        # Extract the vertices and faces for the isosurface at level iso.
+        verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
+
+        # Create a 3D figure and axis
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        
+        
+        # Create a Poly3DCollection from the vertices and faces
+        from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+        mesh = Poly3DCollection(verts[faces], alpha=alpha)
+        
+        # Use the specified colormap to set a constant face color.
+        colormap = plt.get_cmap(cmap)
+        face_color = colormap(0.5)  # you can change the 0.5 (midpoint) to adjust the color intensity
+        mesh.set_facecolor(face_color)
+        
+        # Add the mesh to the plot
+        ax.add_collection3d(mesh)
+        
+        # Set the limits based on the dimensions of the epsilon array.
+        nx, ny, nz = eps.shape
+        ax.set_xlim(0, nx)
+        ax.set_ylim(0, ny)
+        ax.set_zlim(0, nz)
+        
+        # Optionally set an equal aspect ratio (available in recent matplotlib versions)
+        try:
+            ax.set_box_aspect((nx, ny, nz))
+        except Exception:
+            pass
+        
+        # Apply a title using the helper function. If title is False, no title is added.
+        default_title = f"{self.simulation.simulation_name} epsilon 3D"
+        self._apply_title(default_title, title)
+        
+        return fig
+    
+    def rotate_fig(self, fig: plt.Figure, azim: float, elev: float) -> plt.Figure:
+        """
+        Rotate the 3D axes in the given figure to the specified azimuth and elevation angles.
+        
+        Parameters:
+            fig: The matplotlib figure object containing the 3D axes.
+            azim: The azimuth angle in degrees (rotation about the z-axis).
+            elev: The elevation angle in degrees (rotation about the x-axis).
+        
+        Returns:
+            fig: The updated matplotlib figure object with the new view.
+        """
+        # Get the current 3D axis. If there are multiple axes, this example uses the first one.
+        ax = fig.axes[0] if fig.axes else None
+        if ax is None:
+            raise ValueError("The figure does not contain any axes.")
+        
+        # For a 3D axis, set the view using the view_init method.
+        ax.view_init(elev=elev, azim=azim)
+        
+        # Optionally force a redraw of the figure.
+        plt.draw()
+        return fig
+
 
     def plot_epsilon(self, periods: int | tuple = 1, title: str | bool | None = None, converted: bool = True, cmap: str = 'viridis'):
         if self.simulation.epsilon.ndim == 2:   

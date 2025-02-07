@@ -1,8 +1,0 @@
-Modules Release 4.8.0 (2021-07-14)
-DCC-SW: Added modules (2023-aug/EPYC9354)
-DCC-SW: Removed standard modules: /apps/dcc/etc/ModulesAlma92/modulefiles
-DCC-SW: Using gnu/12.3.0 compiler (requested)
-Loading mpb/1.11.1
-  Loading requirement: build-tools/1.0 gcc/12.3.0 zlib/2.0.7 numactl/2.0.16
-    libxml2/2.10.3 hwloc/2.9.0 ucx/1.14.0 openmpi/4.1.6 libctl/4.5.1 szip/2.1.1
-    hdf5/1.14.0 fftw-mpi/3.3.10 lapack/3.12.0 blis/1.0

@@ -82,13 +82,50 @@ class Lattice:
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
     
-       
+
+class ScriptParams:
+    def __init__(self, scrip_params_default: dict = {}): 
+        self.script_params_default = scrip_params_default   
+
+    def add_script_params(self, new_script_params):
+        self.script_params_default.update(new_script_params)
+
+    def add_script_param(self, name, value):    
+        self.script_params_default[name] = value
+
+    def to_scheme(self):
+        commands = []
+        for param, value in self.script_params_default.items():
+            commands.append(f"(define-param {param} {value})")
+        return commands
+    
+
+    def merge_script_params(self, other):
+        self.script_params_default.update(other.script_params_default)
+        return self.script_params_default
+    
+
+    def __add__(self, other):
+        new_script_params = ScriptParams(self.script_params_default)
+        new_script_params.merge_script_params(other)
+        return new_script_params
+    
+
+    def __str__(self):
+        return str(self.script_params_default)
+    
 
 
 
 class Geometry:
+
+    GEOM_PARAM_PREFIX = 'geom-param-'
+    VECTOR3_PREFIX = 'vector3-'
+
+
+
     """ This class is a wrapper for meep geometry objects. It can be used to create meep geometry objects and convert them to Scheme strings. """
-    valid_scheme_geometries = {
+    VALID_SCHEME_GEOMETRIES = {
         mp.Cylinder: "cylinder",
         mp.Sphere: "sphere",
         mp.Block: "block",
@@ -99,6 +136,77 @@ class Geometry:
     def __init__(self, geom_type, params: dict):   
         self.mp_geom_type = geom_type
         self.params = params
+        self.script_params_default = {}
+        self.build_script_param_dictionary()
+    
+    def is_script_param(self, param_value: str):
+        if isinstance(param_value, str):
+            return param_value.startswith(Geometry.GEOM_PARAM_PREFIX)
+        
+    def is_script_vector3_param(self, param_value: str):   
+        if isinstance(param_value, str):
+            return param_value.startswith(Geometry.GEOM_PARAM_PREFIX + Geometry.VECTOR3_PREFIX) 
+
+
+    def parse_script_param(self, param_value: str): 
+  
+        if self.is_script_vector3_param(param_value):
+            param_name = self._parse_script_vector3_param(param_value)
+        elif self.is_script_param(param_value):
+            param_name = self._parse_script_param(param_value)
+        else:
+            raise ValueError(f"Invalid script param value: {param_value}")
+        return param_name
+    
+    
+    def _parse_script_vector3_param(self, param_value: str):
+        
+        if self.is_script_vector3_param(param_value):
+            # Expect format: vector3-{name}=(x, y, z)
+            # Remove the "vector3-" prefix
+            stripped = param_value[len(Geometry.GEOM_PARAM_PREFIX + Geometry.VECTOR3_PREFIX):]
+            try:
+                # Split into name and tuple string based on the '='
+                name, tuple_str = stripped.split("=", 1)
+            except ValueError:
+                raise ValueError(f"Invalid vector3 param format: {param_value}")
+            tuple_str = tuple_str.strip()
+            # Remove enclosing parentheses if present
+            if tuple_str.startswith("(") and tuple_str.endswith(")"):
+                tuple_str = tuple_str[1:-1]
+            numbers = [num.strip() for num in tuple_str.split(",")]
+            if len(numbers) != 3:
+                raise ValueError(f"Invalid vector3 tuple: {param_value}")
+            try:
+                x, y, z = (float(n) for n in numbers)
+            except Exception as e:
+                raise ValueError(f"Could not parse numbers in vector3 param: {param_value}") from e
+            
+            # add {name}_x, {name}_y, {name}_z to the sript_params_default dictionary
+            self.script_params_default[f"{name}_x"] = x
+            self.script_params_default[f"{name}_y"] = y
+            self.script_params_default[f"{name}_z"] = z
+            return f"(vector3 {name}_x {name}_y {name}_z)" 
+        else:
+            raise ValueError(f"Invalid vector3 param value: {param_value}")
+        
+    def _parse_script_param(self, param_value: str):
+        if self.is_script_param(param_value):
+            # Expect format: geom-param-{name}={value}
+            # Remove the "geom-param-" prefix
+            stripped = param_value[len(Geometry.GEOM_PARAM_PREFIX):]
+            try:
+                # Split into name and value string based on the '='
+                name, value = stripped.split("=", 1)
+            except ValueError:
+                raise ValueError(f"Invalid script param format: {param_value}")
+            value = value.strip()
+            # add {name} to the sript_params_default dictionary
+            self.script_params_default[name] = value
+            return name
+        else:
+            raise ValueError(f"Invalid script param value: {param_value}")
+
 
     def build(self):
         if self.mp_geom_type:
@@ -106,6 +214,12 @@ class Geometry:
         else:
             raise ValueError(f"Invalid geometry type: {self.mp_geom_type}, use one of meep geometry types")
     
+    def build_script_param_dictionary(self):
+        for param, value in self.params.items():
+            if self.is_script_param(value):
+                self.parse_script_param(value)
+
+                
     def _params_to_scheme(self): 
         commands = []
         for param, value in self.params.items():
@@ -118,6 +232,8 @@ class Geometry:
                 value = value
             elif isinstance(value, mp.Vector3):
                 value = f"(vector3 {value.x} {value.y} {value.z})"
+            elif self.is_script_param(value):
+                value = self.parse_script_param(value)
             else:
                 raise ValueError(f"Invalid value type for {param}")
             commands.append(f"({param} {value})")
@@ -130,29 +246,52 @@ class Geometry:
         command += ")"
         return command
     
-
+    def get_script_params(self)-> ScriptParams:
+        script_params = ScriptParams(self.script_params_default)
+        return script_params
+    
     def to_valid_scheme_geometry_definition(self):
-        if self.mp_geom_type in Geometry.valid_scheme_geometries:
-            return Geometry.valid_scheme_geometries[self.mp_geom_type]
+        if self.mp_geom_type in Geometry.VALID_SCHEME_GEOMETRIES:
+            return Geometry.VALID_SCHEME_GEOMETRIES[self.mp_geom_type]
         else:
             raise ValueError(f"Invalid geometry type: {self.mp_geom_type}, use one of meep geometry types available in the python interface")
         
     def to_python(self):
         return self.build()
     
+    @staticmethod
+    def make_script_param(**kwargs):
+        if len (kwargs) != 1:
+            raise ValueError("One and only one parameter can be set as script param each time")
+        name, value = kwargs.popitem()
+        if isinstance(value, tuple):
+            value = f"({value[0]}, {value[1]}, {value[2]})"
+            return Geometry.GEOM_PARAM_PREFIX + Geometry.VECTOR3_PREFIX + name + "=" + str(value)
+        return Geometry.GEOM_PARAM_PREFIX + name + "=" + str(value)
+    
         
 class GeometryGroup:
-    def __init__(self, *geometries):
+    def __init__(self, *geometries:  Geometry):
         self._geometries = geometries
+        self._script_params = ScriptParams()
 
+        for geometry in geometries:
+            self._script_params += geometry.get_script_params()
+            
 
     def to_scheme(self):
         commands = []
         for geometry in self._geometries:
             commands.append(geometry.to_scheme())
-        commands_string =  "\n".join(commands)
-        commands_string = f"(list {commands_string}\n)"
+        commands_string =  "\n ".join(commands)
+        commands_string = f"(list \n {commands_string}\n)"
         return commands_string
+    
+    def get_script_params(self):
+        return self._script_params  
+        
+
+
 
 
 
@@ -170,6 +309,9 @@ class Material:
     @property
     def epsilon(self):
         return self._epsilon
+    
+
+
     
     
 
@@ -189,6 +331,7 @@ class PhotonicCrystal:
         if all(isinstance(atom, Geometry) for atom in atoms):
             self._atoms = atoms
             self._geometry_group = GeometryGroup(*atoms)
+            self._script_params = self._geometry_group.get_script_params()
         else:
             raise ValueError("All atoms must be of type Geometry")
         
@@ -214,6 +357,18 @@ class PhotonicCrystal:
         commands.append(self._geometry_group.to_scheme())
         return commands
     
+    
+
+    def _script_params_to_scheme_string(self) -> str:
+        commands = self._script_params.to_scheme()
+        if commands:
+            return "\n".join(commands)
+        else:
+            return ""
+
+        
+
+    
     def to_scheme(self) -> str:
         """Convert the photonic crystal to a Scheme string.
         
@@ -223,16 +378,21 @@ class PhotonicCrystal:
         commands_partial = self.to_scheme_list()
         command_lattice = f"(set! geometry-lattice {commands_partial[0]})"
         command_geometry = f"(set! geometry {commands_partial[1]})"
-        return "\n".join([command_lattice, command_geometry])
+        
+        command_script_params  = self._script_params_to_scheme_string()
+        return "\n".join([command_script_params, command_lattice, command_geometry])
     
-
+    
+          
 
 #example usage of the classes
 if __name__ == "__main__":
-    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": 0.5, "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
+
+    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": Geometry.make_script_param(height=0.5), "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
+    atom_geometry2 = Geometry(mp.Block , {"size": Geometry.make_script_param(size_=(1, 1, 1) ), "center": mp.Vector3(0.5, 0.5, 0.5), "material": Material(epsilon=12)})
     lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
     material = Material(epsilon=12)
-    photonic_crystal = PhotonicCrystal([atom_geometry], lattice)
+    photonic_crystal = PhotonicCrystal([atom_geometry, atom_geometry2], lattice)
     print(photonic_crystal.to_scheme())
 
 
