@@ -348,6 +348,93 @@ class SimulationViewer:
         self._apply_title(default_title, title)
         
         return fig
+
+    def plotly_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
+                            converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3,
+                            width: int = 800, height: int = 600, fig: go.Figure | None = None) -> go.Figure:
+        """
+        Plot the 3D dielectric constant data as an isosurface using Plotly.
+        The method uses a marching cubes algorithm to extract an isosurface (using the mid-value
+        as a default isosurface level) from the 3D epsilon array. The surface is rendered with
+        a semi-transparent face color, an attached colorbar, and the scene is set to a 1:1 aspect ratio.
+        
+        Parameters:
+            periods: number of periods to use in conversion.
+            title: Title for the plot; if False, no title is set.
+            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
+            cmap: Name of the matplotlib colormap to use; also used as a Plotly colorscale.
+                (E.g., 'viridis' is supported.)
+            alpha: Opacity for the isosurface.
+            width: Figure width in pixels.
+            height: Figure height in pixels.
+            fig: An existing Plotly figure to which the isosurface will be added. If None,
+                a new figure is created.
+        
+        Returns:
+            fig: The Plotly figure object.
+        """
+        # Ensure that epsilon data is available.
+        if self.simulation.epsilon is None:
+            raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
+        
+        # Get the 3D epsilon array.
+        if converted:
+            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)
+        else:
+            eps = self.simulation.epsilon
+
+        # Compute the isosurface level as the midpoint.
+        iso = (np.min(eps) + np.max(eps)) / 2.0
+
+        # Use marching cubes to extract the isosurface.
+        try:
+            from skimage import measure
+        except ImportError:
+            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g., pip install scikit-image).")
+        verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
+        
+        # If no figure is passed, create a new one with the specified width and height.
+        if fig is None:
+            fig = go.Figure(layout=go.Layout(width=width, height=height))
+        
+        # Create a Mesh3d trace.
+        # We use 'intensity' equal to the marching cubes values so that a colorscale and colorbar are shown.
+        mesh = go.Mesh3d(
+            x=verts[:, 0],
+            y=verts[:, 1],
+            z=verts[:, 2],
+            i=faces[:, 0],
+            j=faces[:, 1],
+            k=faces[:, 2],
+            intensity=values,
+            colorscale=cmap,
+            opacity=alpha,
+            showscale=True,
+            colorbar=dict(title='Epsilon')
+        )
+        
+        fig.add_trace(mesh)
+        
+        # Set axis limits based on the epsilon data dimensions.
+        nx, ny, nz = eps.shape
+        fig.update_layout(
+            scene=dict(
+                xaxis=dict(range=[0, nx]),
+                yaxis=dict(range=[0, ny]),
+                zaxis=dict(range=[0, nz]),
+                aspectmode='manual',
+                aspectratio=dict(x=1, y=1, z=1)
+            )
+        )
+        
+        # Set the title if requested.
+        default_title = f"{self.simulation.simulation_name} epsilon 3D"
+        # Assume _apply_title is a helper that sets the figure title (if title is not False)
+        self._apply_title(default_title, title, fig=fig)
+        
+        return fig
+
+
     
     def rotate_fig(self, fig: plt.Figure, azim: float, elev: float) -> plt.Figure:
         """
