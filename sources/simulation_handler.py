@@ -9,6 +9,9 @@ import meep as mp
 from meep import mpb
 from mpb_configurator import MPBSchemeConfigurator
 import plotly.graph_objects as go
+import time
+import re
+
 
 class Simulation:
     def __init__(self, simulation_name: str, config: MPBSchemeConfigurator|None =None, directory: str | None = None, description: str | None = None):
@@ -71,7 +74,8 @@ class Simulation:
             self.extract_frequencies()
 
 
-    def run_hpc(self,   print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}):
+    def run_hpc(self,   print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True, 
+                path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}, print_output: bool = False, print_error: bool = False):   
         """
         Run simulation by writing the scheme configuration (when config is provided)
         or using an existing scheme script.
@@ -100,8 +104,8 @@ class Simulation:
         print(f"Running command: {cmd}")
         
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
-        print(result.stdout)
-        print(result.stderr)
+        print(result.stdout) if print_output else None  
+        print(result.stderr) if print_error else None   
 
         # Save output and error files
         output_path = os.path.join(self.directory, self.output_filename)
@@ -117,6 +121,57 @@ class Simulation:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
+
+
+    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str | None = None, 
+                    load_epsilon: bool = True, extract_frequencies: bool = True, 
+                    path_to_mpb: str = "mpb-mpi", command_line_params: dict = {}, 
+                    print_output: bool = False, print_error: bool = False,
+                    queue: str = "normal", num_procs: int = 16, poll_interval: int = 30):
+        # (Setup code is the same as before)
+        # Build the LSF submission command:
+        cmd = (
+            f"bsub -J {self.simulation_name} -q {queue} -n {num_procs} "
+            f"-oo {self.output_filename} -eo {self.error_filename} "
+            f"'source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+            f"{path_to_mpb} {' '.join([f'{k}={v}' for k, v in command_line_params.items()])} {cmd_script}'"
+        )
+        print(f"Running LSF job command: {cmd}")
+        
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
+        if print_output:
+            print(result.stdout)
+        if print_error:
+            print(result.stderr)
+        
+        # Parse the job ID from the output.
+        # Typically, LSF returns a message like "Job <12345> is submitted ..."
+        job_id_match = re.search(r"<(\d+)>", result.stdout)
+        if job_id_match:
+            job_id = job_id_match.group(1)
+            print(f"Submitted job with ID: {job_id}")
+        else:
+            print("Could not parse job ID; proceeding without waiting.")
+            job_id = None
+
+        # Poll for job completion if job_id was found.
+        if job_id is not None:
+            while True:
+                status = subprocess.run(f"bjobs {job_id}", shell=True, capture_output=True, text=True)
+                if job_id not in status.stdout:
+                    print("Job has finished.")
+                    break
+                else:
+                    print(f"Job {job_id} is still running. Waiting {poll_interval} seconds...")
+                    time.sleep(poll_interval)
+        
+        # Save output and error files are already written by the job.
+        print("Simulation completed")
+        if load_epsilon:
+            self.load_epsilon()
+        if extract_frequencies:
+            self.extract_frequencies()
+
         
         
         
@@ -174,6 +229,17 @@ class Simulation:
         with open(gaps_file, "w") as f_gaps:
             f_gaps.writelines(gaps_lines)
         print(f"Extracted {len(gaps_lines)} lines of data for the gaps")
+
+
+    def display_frequency_data(self, mode: str = "te"):
+        """
+        Display the frequency data for the given mode.
+        """
+        if mode not in self.bands_df:
+            self.load_frequency_data(mode)
+        df = self.bands_df[mode]
+        if isinstance(df, pd.DataFrame):
+            display(df)
 
     def load_epsilon(self):
         """
@@ -248,20 +314,45 @@ class SimulationViewer:
     def __init__(self, simulation: Simulation):
         self.simulation = simulation
 
-    def _apply_title(self, default_title: str, title: str | None):
+    def _apply_title(self, default_title: str, title: str | None, fig: object = None):
+        """
+        Apply the title to the current figure. If a figure is passed and is a Plotly figure,
+        update its layout; if it's a matplotlib figure (or if no figure is passed), use the usual
+        title functions.
+        """
         if title is False:
             return
         elif title is not None:
-            plt.title(title)
+            new_title = title
         else:
-            plt.title(default_title)
+            new_title = default_title
 
-    def plot_epsilon_2d(self, periods: int | tuple = 1, title: str | bool | None = None, converted: bool = True, cmap: str = 'viridis'):
+        # If fig is None, assume we are working with the current matplotlib axes.
+        if fig is None:
+            plt.title(new_title)
+        elif isinstance(fig, go.Figure):
+            fig.update_layout(title=dict(text=new_title))
+        else:
+            # Assume fig is a matplotlib figure
+            if hasattr(fig, 'axes') and fig.axes:
+                fig.axes[0].set_title(new_title)
+
+    def plot_epsilon_2d(self, periods: int | tuple = 1, title: str | bool | None = None, 
+                        converted: bool = True, cmap: str = 'viridis', aspect_ratio: tuple = (1, 1)):
         """
         Plot 2D epsilon data.
+        
+        Parameters:
+            periods: number of periods to use in conversion.
+            title: Title for the plot; if False, no title is set.
+            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
+            cmap: Colormap name.
+            aspect_ratio: Tuple (rx, ry) for setting the aspect ratio (default (1,1) for equal scaling).
         """
+        
         if self.simulation.epsilon is None:
             raise ValueError("Epsilon data not loaded. Call load_epsilon() on the simulation object.")
+        fig = plt.figure()
         if converted:
             eps = self.simulation.convert_epsilon(periods, use_2d=True)
         else:
@@ -271,92 +362,104 @@ class SimulationViewer:
                 eps = eps[:, :, mid_index]
         plt.imshow(eps, interpolation='spline36', cmap=cmap)
         plt.colorbar()
+        # Set the aspect ratio; for matplotlib imshow we use the ratio of the two numbers.
+        plt.gca().set_aspect(aspect_ratio[0] / aspect_ratio[1])
         self._apply_title(self.simulation.simulation_name, title)
+        plt.show()
+        return fig
+
         
-    
+        
     def plot_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
-                        converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3):
+                        converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3,
+                        aspect_ratio: tuple = (1, 1, 1)) -> plt.Figure:
         """
-        Plot the 3D dielectric constant data as an isosurface.
-        The method uses a marching cubes algorithm to extract a surface where the dielectric constant
-        is discontinuous (using the mid-value as a default isosurface level). The surface is plotted
-        with a semi-transparent (alpha) face color.
+        Plot the 3D dielectric constant data as an isosurface using matplotlib.
+        The method uses the marching cubes algorithm (from scikit-image) to extract an isosurface
+        (using the mid-value as the default isosurface level) from the 3D epsilon array.
+        The surface is plotted with a semi-transparent face color, a colorbar is added,
+        and the 3D axes are set to the specified aspect_ratio.
         
         Parameters:
-            periods: number of periods to use in conversion.
-            title: title for the plot; if False, no title is set.
-            converted: if True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
-            cmap: colormap name (string) to use.
-            alpha: transparency for the surface.
+            periods: Number of periods to use in conversion.
+            title: Title for the plot; if False, no title is set.
+            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
+            cmap: Name of the matplotlib colormap to use.
+            alpha: Opacity for the isosurface.
+            aspect_ratio: Tuple (rx, ry, rz) for setting the 3D axis aspect ratio (default (1,1,1)).
             
         Returns:
-            fig: The matplotlib figure object.
+            fig: The matplotlib Figure object.
         """
-        # Ensure that epsilon data is available
+        # Ensure that epsilon data is available.
         if self.simulation.epsilon is None:
             raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
-            
-        # Get the 3D epsilon array (converted if desired; note use_2d must be False for 3D)
+        
+        # Retrieve the 3D epsilon array.
         if converted:
-            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)  
+            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)
         else:
             eps = self.simulation.epsilon
 
-        # Determine a default isosurface level – here we take the midpoint
+        # Compute the isosurface level as the midpoint of the data.
         iso = (np.min(eps) + np.max(eps)) / 2.0
 
-        # Import marching cubes from scikit-image to extract the discontinuity surface.
+        # Extract the isosurface using marching cubes.
         try:
             from skimage import measure
         except ImportError:
-            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g. pip install scikit-image).")
-
-        # Extract the vertices and faces for the isosurface at level iso.
+            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g., pip install scikit-image).")
         verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
-
-        # Create a 3D figure and axis
+        
+        # Create a new 3D matplotlib figure.
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         
-        
-        # Create a Poly3DCollection from the vertices and faces
+        # Create a Poly3DCollection from the extracted isosurface.
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         mesh = Poly3DCollection(verts[faces], alpha=alpha)
         
-        # Use the specified colormap to set a constant face color.
+        # Set the face color using the given colormap (using the midpoint of the colormap).
         colormap = plt.get_cmap(cmap)
-        face_color = colormap(0.5)  # you can change the 0.5 (midpoint) to adjust the color intensity
+        face_color = colormap(0.5)  # Adjust this value as needed.
         mesh.set_facecolor(face_color)
-        
-        # Add the mesh to the plot
         ax.add_collection3d(mesh)
         
-        # Set the limits based on the dimensions of the epsilon array.
+        # Set the axis limits based on the epsilon data dimensions.
         nx, ny, nz = eps.shape
         ax.set_xlim(0, nx)
         ax.set_ylim(0, ny)
         ax.set_zlim(0, nz)
         
-        # Optionally set an equal aspect ratio (available in recent matplotlib versions)
+        # Set the aspect ratio if possible (requires matplotlib >= 3.3).
         try:
-            ax.set_box_aspect((nx, ny, nz))
+            ax.set_box_aspect(aspect_ratio)
         except Exception:
             pass
         
-        # Apply a title using the helper function. If title is False, no title is added.
+        # Add a colorbar.
+        import matplotlib.cm as cm
+        import matplotlib.colors as mcolors
+        mappable = cm.ScalarMappable(cmap=cmap, norm=mcolors.Normalize(vmin=np.min(eps), vmax=np.max(eps)))
+        mappable.set_array(eps)
+        fig.colorbar(mappable, ax=ax, pad=0.1, label="Epsilon")
+        
+        # Apply the title.
         default_title = f"{self.simulation.simulation_name} epsilon 3D"
         self._apply_title(default_title, title)
-        
+        plt.show()
         return fig
-
+    
     def plotly_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
                             converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3,
-                            width: int = 800, height: int = 600, fig: go.Figure | None = None) -> go.Figure:
+                            width: int = 800, height: int = 600, aspect_ratio: tuple = (1, 1, 1),
+                            fig: go.Figure | None = None) -> go.Figure:
         """
         Plot the 3D dielectric constant data as an isosurface using Plotly.
         The method uses a marching cubes algorithm to extract an isosurface (using the mid-value
         as a default isosurface level) from the 3D epsilon array. The surface is rendered with
-        a semi-transparent face color, an attached colorbar, and the scene is set to a 1:1 aspect ratio.
+        a semi-transparent face color, an attached colorbar, and the scene's aspect ratio is set 
+        according to the provided aspect_ratio tuple.
         
         Parameters:
             periods: number of periods to use in conversion.
@@ -367,6 +470,7 @@ class SimulationViewer:
             alpha: Opacity for the isosurface.
             width: Figure width in pixels.
             height: Figure height in pixels.
+            aspect_ratio: A 3-tuple (rx, ry, rz) to set the scene's aspect ratio (default (1,1,1)).
             fig: An existing Plotly figure to which the isosurface will be added. If None,
                 a new figure is created.
         
@@ -398,7 +502,7 @@ class SimulationViewer:
             fig = go.Figure(layout=go.Layout(width=width, height=height))
         
         # Create a Mesh3d trace.
-        # We use 'intensity' equal to the marching cubes values so that a colorscale and colorbar are shown.
+        # Using 'intensity' equal to the marching cubes values so that a colorscale and colorbar are shown.
         mesh = go.Mesh3d(
             x=verts[:, 0],
             y=verts[:, 1],
@@ -423,16 +527,16 @@ class SimulationViewer:
                 yaxis=dict(range=[0, ny]),
                 zaxis=dict(range=[0, nz]),
                 aspectmode='manual',
-                aspectratio=dict(x=1, y=1, z=1)
+                aspectratio=dict(x=aspect_ratio[0], y=aspect_ratio[1], z=aspect_ratio[2])
             )
         )
         
-        # Set the title if requested.
+        # Set the title if requested. _apply_title is assumed to handle both matplotlib and Plotly figures.
         default_title = f"{self.simulation.simulation_name} epsilon 3D"
-        # Assume _apply_title is a helper that sets the figure title (if title is not False)
         self._apply_title(default_title, title, fig=fig)
-        
+        fig.show()
         return fig
+
 
 
     
@@ -478,9 +582,13 @@ class SimulationViewer:
         plt.contour(epsilon_converted, cmap='binary')
         self._apply_title(self.simulation.simulation_name, title)
         
+            
 
     def plot_band_diagram(self, mode: str = "te", title: str | None = None, 
-                          colors: list[str] | str | None = None, decimation_label_factor: int = 1, grid: bool = True):
+                            colors: list[str] | str | None = None, decimation_label_factor: int = 1, grid: bool = True, 
+                            fig: plt.Figure | None = None,
+                            k_points_values: list | None = None, k_points_labels: list | None = None
+                            ) -> plt.Figure:
         """
         Plot the band diagram for the given mode.
         All bands will use the same color.
@@ -488,7 +596,18 @@ class SimulationViewer:
         with decimation controlled by decimation_label_factor.
         The y-axis label is always frequency.
         The legend includes the polarization mode.
+        
+        Parameters:
+            k_points_values: List of custom k-point vectors (each an iterable representing [k1, k2, ...]).
+                            For each custom value, the label will be assigned to the closest tick (based on the
+                            Euclidean distance in the (k1,k2) plane) except for the last custom point.
+                            For the last custom point, the tick is set to the last k-index in the database.
+            k_points_labels: List of labels corresponding to k_points_values.
+            
+        Returns:
+            fig: The matplotlib Figure object.
         """
+        fig = plt.figure() if fig is None else fig  
         if mode not in self.simulation.bands_df:
             df = self.simulation.load_frequency_data(mode)
         else:
@@ -501,35 +620,50 @@ class SimulationViewer:
         elif isinstance(colors, str):
             plot_color = colors
 
-        first_line = True
-        for col in bands:
-            if first_line:
+        for i, col in enumerate(bands):
+            if i == 0:
                 plt.plot(df["k index"], df[col], label=f"{mode.upper()} bands", color=plot_color)
-                first_line = False
             else:
                 plt.plot(df["k index"], df[col], color=plot_color)
 
-        # Set x-axis label
-        if decimation_label_factor > 1:
-            plt.xlabel(r"$(k_x, k_y)$")
-        else:
-            plt.xlabel("k index")
-        plt.ylabel("Frequency")
-
-        # Update x-axis tick labels to (kₓ, kᵧ) with decimation if available.
+        # Default tick labels: if decimation_label_factor > 1 and k1/k2 exist.
         if decimation_label_factor > 1 and {"k1", "k2"}.issubset(df.columns):
             tickvals = df["k index"].values[::decimation_label_factor]
-            ticklabels = [
-                f"({row['k1']:.2f}, {row['k2']:.2f})"
-                for _, row in df.iloc[::decimation_label_factor].iterrows()
-            ]
+            ticklabels = [f"({row['k1']:.2f}, {row['k2']:.2f})" 
+                        for _, row in df.iloc[::decimation_label_factor].iterrows()]
             plt.xticks(tickvals, ticklabels)
         else:
             plt.xticks(df["k index"])
 
+        # If custom k-points are provided, override the ticks.
+        if k_points_values is not None and k_points_labels is not None:
+            # Build a dictionary mapping row indices to the 2D k-point as a numpy array.
+            db_vectors = {}
+            for i, row in df.iterrows():
+                db_vectors[i] = np.array([row["k1"], row["k2"]])
+            
+            custom_tick_positions = []
+            custom_tick_labels = []
+            n_custom = len(k_points_values)
+            for idx, (custom_k, label) in enumerate(zip(k_points_values, k_points_labels)):
+                if idx == n_custom - 1:
+                    # For the last custom k-point, assign the last "k index" in the database.
+                    tick_val = df["k index"].iloc[-1]
+                else:
+                    custom_arr = np.array(custom_k)[:2]  # Only compare the k1, k2 components.
+                    closest_index = min(db_vectors, key=lambda i: np.linalg.norm(db_vectors[i] - custom_arr))
+                    tick_val = df.loc[closest_index, "k index"]
+                custom_tick_positions.append(tick_val)
+                custom_tick_labels.append(label)
+            plt.xticks(ticks=custom_tick_positions, labels=custom_tick_labels)
+
+        plt.xlabel("k index" if decimation_label_factor == 1 else r"$(k_x, k_y)$")
+        plt.ylabel("Frequency")
         self._apply_title(self.simulation.simulation_name, title)
         plt.legend()
         plt.grid(grid)
+        return fig
+
 
     def show(self):
         plt.show()
@@ -561,6 +695,8 @@ class SimulationViewer:
         else:
             raise ValueError("Invalid font size, select from 'small', 'medium', 'big', 'huge', int value or build your own dictionary.")
        
+
+
     from IPython.display import display, HTML
     import plotly
     plotly.offline.init_notebook_mode()
