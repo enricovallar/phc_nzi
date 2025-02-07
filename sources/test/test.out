@@ -52,12 +52,12 @@ Solving for bands 2 to 6...
     linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -65,7 +65,8 @@ Solving for bands 2 to 6...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 2 to 6 after 18 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 6 after 19 iterations.
 tefreqs:, 1, 0, 0, 0, 0, 0, 0.310268, 0.345546, 0.345554, 0.385323, 0.466901
 elapsed time for k point: 0 seconds.
 solve_kpoint (0.1,0,0):
@@ -412,12 +413,12 @@ Solving for bands 2 to 6...
 Finished solving for bands 2 to 6 after 12 iterations.
 tefreqs:, 16, 0, 0, 0, 0, 0, 0.310268, 0.345546, 0.345554, 0.385323, 0.466901
 elapsed time for k point: 0 seconds.
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.21991577705919002 at #(0.5 0.5 0.0)
-Band 2 range: 0.20170697449541355 at #(0.5 0.0 0.0) to 0.3102679265626989 at #(0.0 0.0 0.0)
-Band 3 range: 0.2987473651424289 at #(0.5 0.5 0.0) to 0.35037423863491984 at #(0.5 0.0 0.0)
-Band 4 range: 0.2987517815675556 at #(0.5 0.5 0.0) to 0.4000032055392435 at #(0.5 0.0 0.0)
-Band 5 range: 0.38532275952389783 at #(0.0 0.0 0.0) to 0.47246754282367637 at #(0.5 0.5 0.0)
-Band 6 range: 0.44618085148260966 at #(0.2 0.2 0.0) to 0.5045666885800171 at #(0.5 0.5 0.0)
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.21991577705919 at #(0.5 0.5 0.0)
+Band 2 range: 0.20170697449541367 at #(0.5 0.0 0.0) to 0.31026792656269914 at #(0.0 0.0 0.0)
+Band 3 range: 0.2987473651424294 at #(0.5 0.5 0.0) to 0.3503742386349193 at #(0.5 0.0 0.0)
+Band 4 range: 0.29875178156755594 at #(0.5 0.5 0.0) to 0.4000032055392433 at #(0.5 0.0 0.0)
+Band 5 range: 0.38532275967687374 at #(0.0 0.0 0.0) to 0.4724675428236769 at #(0.5 0.5 0.0)
+Band 6 range: 0.4461808514826098 at #(0.2 0.2 0.0) to 0.5045666885800167 at #(0.5 0.5 0.0)
 total elapsed time for run: 0 seconds.
 done.
 init-params: initializing eigensolver data
@@ -467,10 +468,10 @@ Outputting test-epsilon...
 solve_kpoint (0,0,0):
 tmfreqs:, k index, k1, k2, k3, kmag/2pi, tm band 1, tm band 2, tm band 3, tm band 4, tm band 5, tm band 6
 Solving for bands 2 to 6...
-    linmin: converged after 9 iterations.
     linmin: converged after 8 iterations.
-    linmin: converged after 6 iterations.
-    linmin: converged after 4 iterations.
+    linmin: converged after 9 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
@@ -568,7 +569,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 7 iterations.
 tmfreqs:, 8, 0.5, 0.2, 0, 0.538516, 0.160556, 0.183696, 0.281006, 0.330054, 0.385982, 0.437962
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.5,0.3,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -685,11 +686,11 @@ Solving for bands 2 to 6...
 Finished solving for bands 2 to 6 after 11 iterations.
 tmfreqs:, 16, 0, 0, 0, 0, 0, 0.30426, 0.305603, 0.305603, 0.348133, 0.418267
 elapsed time for k point: 0 seconds.
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.20468386226979882 at #(0.5 0.5 0.0)
-Band 2 range: 0.17175473805180852 at #(0.5 0.0 0.0) to 0.30426000554245375 at #(0.0 0.0 0.0)
-Band 3 range: 0.21733628820008155 at #(0.5 0.5 0.0) to 0.32539017785083807 at #(0.5 0.0 0.0)
-Band 4 range: 0.27841122246842015 at #(0.5 0.5 0.0) to 0.3672316998417761 at #(0.2 0.2 0.0)
-Band 5 range: 0.3481328374175055 at #(0.0 0.0 0.0) to 0.4572576615511709 at #(0.5 0.5 0.0)
-Band 6 range: 0.3931667986458736 at #(0.2 0.2 0.0) to 0.46871789248449314 at #(0.5 0.5 0.0)
-total elapsed time for run: 0 seconds.
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.20468386226979862 at #(0.5 0.5 0.0)
+Band 2 range: 0.1717547380518084 at #(0.5 0.0 0.0) to 0.3042600033872531 at #(0.0 0.0 0.0)
+Band 3 range: 0.21733628820008152 at #(0.5 0.5 0.0) to 0.32539017785083735 at #(0.5 0.0 0.0)
+Band 4 range: 0.27841122246842015 at #(0.5 0.5 0.0) to 0.3672316998417767 at #(0.2 0.2 0.0)
+Band 5 range: 0.34813283741750556 at #(0.0 0.0 0.0) to 0.4572576615511709 at #(0.5 0.5 0.0)
+Band 6 range: 0.3931667986458742 at #(0.2 0.2 0.0) to 0.4687178924844928 at #(0.5 0.5 0.0)
+total elapsed time for run: 1 seconds.
 done.
