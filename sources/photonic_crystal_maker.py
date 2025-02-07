@@ -21,6 +21,15 @@ class Lattice:
     NO_SIZE = "no-size"
 
     def __init__(self, type: str, size: tuple | int = (1, 1, "no-size")):
+        """Create a lattice object. 
+        
+        Args:
+            type (str): The type of the lattice. Must be one of the keys in Lattice.LATTICE_TYPES: 'SX', 'TX', 'SXY', 'TXY'.
+            size (tuple | int): The size of the lattice. If the lattice is 2D, the size is a tuple (x, y, z). If the lattice is 1D, the size is an int.
+        
+        Raises:
+            ValueError: If the lattice type is not valid.
+            """
         self._type = type
         self._size = size
         self._make_lattice()
@@ -36,7 +45,7 @@ class Lattice:
             elif self._type == 'TXY':
                 self._make_TXY()
         else:
-            raise ValueError(f"Invalid lattice type: {self._type}")
+            raise ValueError(f"Invalid lattice type: {self._type}. Must be one of {Lattice.LATTICE_TYPES.keys()}")
         
     
     def _make_SX(self):
@@ -81,6 +90,79 @@ class Lattice:
                f"(basis1  (vector3 {self._mp_lattice.basis1[0]} {self._mp_lattice.basis1[1]} {self._mp_lattice.basis1[2]})) " + \
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
+    
+
+    def get_high_symmetry_k_points(self, centerd_in_gamma=False): 
+        """Get the high symmetry k points of the lattice.    
+         Returns:
+            dict: A dictionary with the keys "k_points_values" and "k_points_labels".
+        """
+        if centerd_in_gamma is False:
+            if self._type in ("SX", "SXY"): 
+                # Square lattice
+                k_points_values = [mp.Vector3(0, 0, 0), 
+                                   mp.Vector3(0.5, 0, 0), 
+                                   mp.Vector3(0.5, 0.5, 0), 
+                                   mp.Vector3(0, 0, 0)]
+                k_points_labels = ["Γ", "X", "M", "Γ"]
+                
+            elif self._type in ("TX", "TXY"):
+                # Triangular lattice
+                k_points_values = [mp.Vector3(0, 0, 0), 
+                                   mp.Vector3(1/3, 0, 0), 
+                                   mp.Vector3(0.5, 0.5, 0), 
+                                   mp.Vector3(0, 0, 0)]
+                k_points_labels = ["Γ", "K", "M", "Γ"]
+                
+            else:
+                raise ValueError(f"Invalid lattice type: {self._type}") 
+        else:
+            if self._type in ("SX", "SXY"): 
+                # Square lattice with gamma as the second value
+                k_points_values = [mp.Vector3(0.5, 0, 0), 
+                                   mp.Vector3(0, 0, 0), 
+                                   mp.Vector3(0.5, 0.5, 0), 
+                                   mp.Vector3(0.5, 0, 0)]
+                k_points_labels = ["X", "Γ", "M", "X"]
+            elif self._type in ("TX", "TXY"):
+                # Triangular lattice with gamma as the second value
+                k_points_values = [mp.Vector3(1/3, 0, 0), 
+                                   mp.Vector3(0, 0, 0), 
+                                   mp.Vector3(0.5, 0.5, 0), 
+                                   mp.Vector3(1/3, 0, 0)]
+                k_points_labels = ["K", "Γ", "M", "K"]
+            else:
+                raise ValueError(f"Invalid lattice type: {self._type}")
+        return {"k_points_values": k_points_values, "k_points_labels": k_points_labels}
+            
+
+    def get_get_k_points_around_Gamma(self, distance: float):  
+        """Get the k points around the Gamma point of the lattice.    
+        Args:
+            distance (float): The distance from the Gamma point.
+        Returns:
+            dict: A dictionary with the keys "k_points_values" and "k_points_labels".
+        """
+        K_X = mp.Vector3(distance, 0, 0)   
+        K_Y = mp.Vector3(0, distance, 0)
+        Gamma = mp.Vector3(0, 0, 0) 
+
+        k_points_values = [K_X, Gamma, K_Y]
+        k_points_labels = ["X", "Γ", "Y"]
+        return {"k_points_values": k_points_values, "k_points_labels": k_points_labels}
+        
+            
+        
+            
+    
+
+    
+        
+    
+       
+       
+       
+
     
 
 class ScriptParams:
