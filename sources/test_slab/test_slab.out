@@ -65,39 +65,35 @@ Allocating fields...
      (0,0,0)
 Solving for band polarization: zeven.
 Initializing fields to random numbers...
-elapsed time for initialization: 0 seconds.
+elapsed time for initialization: 1 seconds.
 epsilon: 1-9.61, mean 1.76724, harm. mean 1.10012, 10.6689% > 1, 8.91102% "fill"
 Outputting test_slab-epsilon...
 solve_kpoint (0,0,0):
 zevenfreqs:, k index, k1, k2, k3, kmag/2pi, zeven band 1, zeven band 2, zeven band 3, zeven band 4, zeven band 5, zeven band 6
 Solving for bands 2 to 6...
-    linmin: converged after 9 iterations.
+    linmin: converged after 8 iterations.
     linmin: converged after 7 iterations.
     linmin: converged after 5 iterations.
     linmin: converged after 5 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 3 iterations.
-    linmin: converged after 3 iterations.
-    linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-Finished solving for bands 2 to 6 after 24 iterations.
+Finished solving for bands 2 to 6 after 20 iterations.
 zevenfreqs:, 1, 0, 0, 0, 0, 0, 0.18294, 0.182949, 0.420536, 0.420562, 0.448669
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.030303,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -113,7 +109,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 2, 0.030303, 0, 0, 0.0349909, 0.0273674, 0.185243, 0.186066, 0.421718, 0.421791, 0.447915
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0606061,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -128,7 +124,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 3, 0.0606061, 0, 0, 0.0699819, 0.0541227, 0.192137, 0.195115, 0.42518, 0.425422, 0.445846
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0909091,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -159,7 +155,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 5, 0.121212, 0, 0, 0.139964, 0.103508, 0.219427, 0.227666, 0.432785, 0.439491, 0.4446
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.151515,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -182,7 +178,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 18 iterations.
 zevenfreqs:, 6, 0.151515, 0, 0, 0.174955, 0.125366, 0.239373, 0.249222, 0.429016, 0.449552, 0.453381
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.181818,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -215,7 +211,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 28 iterations.
 zevenfreqs:, 7, 0.181818, 0, 0, 0.209946, 0.145288, 0.262852, 0.273173, 0.422916, 0.453088, 0.461247
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.212121,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -231,7 +227,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 8, 0.212121, 0, 0, 0.244936, 0.163565, 0.28914, 0.298877, 0.415613, 0.447234, 0.474086
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.242424,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -246,7 +242,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 9, 0.242424, 0, 0, 0.279927, 0.180563, 0.317515, 0.32583, 0.407321, 0.441746, 0.487164
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.272727,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -261,7 +257,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 10, 0.272727, 0, 0, 0.314918, 0.196596, 0.347336, 0.353628, 0.398222, 0.436833, 0.498627
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.30303,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -276,7 +272,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 11, 0.30303, 0, 0, 0.349909, 0.211879, 0.377276, 0.381916, 0.389357, 0.432565, 0.506178
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.333333,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -307,7 +303,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 13, 0.348485, 0.0454545, 0, 0.378889, 0.224106, 0.379808, 0.405192, 0.405698, 0.427498, 0.51143
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.363636,0.0909091,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -324,7 +320,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zevenfreqs:, 14, 0.363636, 0.0909091, 0, 0.378485, 0.224051, 0.383155, 0.404255, 0.405498, 0.422297, 0.516013
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.378788,0.136364,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -343,7 +339,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 14 iterations.
 zevenfreqs:, 15, 0.378788, 0.136364, 0, 0.383705, 0.226351, 0.387033, 0.405495, 0.410054, 0.416962, 0.522143
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.393939,0.181818,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -363,7 +359,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 15 iterations.
 zevenfreqs:, 16, 0.393939, 0.181818, 0, 0.394328, 0.230841, 0.39083, 0.400253, 0.419557, 0.421272, 0.527736
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.409091,0.227273,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -383,7 +379,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 15 iterations.
 zevenfreqs:, 17, 0.409091, 0.227273, 0, 0.409932, 0.237246, 0.386894, 0.398503, 0.432968, 0.433842, 0.530401
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.424242,0.272727,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -402,7 +398,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 14 iterations.
 zevenfreqs:, 18, 0.424242, 0.272727, 0, 0.429976, 0.245213, 0.375653, 0.403083, 0.448514, 0.452443, 0.529334
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.439394,0.318182,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -419,7 +415,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zevenfreqs:, 19, 0.439394, 0.318182, 0, 0.453872, 0.254335, 0.363565, 0.408045, 0.466628, 0.474835, 0.526467
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.454545,0.363636,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -434,7 +430,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 20, 0.454545, 0.363636, 0, 0.481046, 0.264125, 0.351529, 0.412642, 0.485339, 0.500492, 0.524771
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.469697,0.409091,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -449,7 +445,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 21, 0.469697, 0.409091, 0, 0.510975, 0.273863, 0.34025, 0.416421, 0.499234, 0.528871, 0.530006
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.484848,0.454545,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -465,7 +461,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 22, 0.484848, 0.454545, 0, 0.543205, 0.282092, 0.331126, 0.418937, 0.503463, 0.546568, 0.559683
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.5,0.5,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -502,7 +498,6 @@ Solving for bands 1 to 6...
     linmin: converged after 5 iterations.
     linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
-    iteration   34: trace = 1.265412568229209 (0.0368759% change)
     linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
@@ -523,7 +518,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 52 iterations.
 zevenfreqs:, 23, 0.5, 0.5, 0, 0.57735, 0.285689, 0.327235, 0.419826, 0.503902, 0.565455, 0.571034
-elapsed time for k point: 7 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.454545,0.454545,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -560,7 +555,6 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    iteration   34: trace = 1.257355711105236 (0.001584% change)
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
@@ -595,7 +589,6 @@ Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    iteration   68: trace = 1.256407717516515 (0.00287566% change)
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
@@ -612,7 +605,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 82 iterations.
 zevenfreqs:, 24, 0.454545, 0.454545, 0, 0.524864, 0.277425, 0.334892, 0.420486, 0.499984, 0.535637, 0.542175
-elapsed time for k point: 9 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.409091,0.409091,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -627,7 +620,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zevenfreqs:, 25, 0.409091, 0.409091, 0, 0.472377, 0.260447, 0.349983, 0.422476, 0.477283, 0.49231, 0.517366
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.363636,0.363636,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -643,7 +636,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 26, 0.363636, 0.363636, 0, 0.419891, 0.240634, 0.366406, 0.425812, 0.438386, 0.443077, 0.512585
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.318182,0.318182,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -659,7 +652,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 27, 0.318182, 0.318182, 0, 0.367405, 0.219303, 0.381671, 0.395648, 0.396127, 0.430543, 0.508501
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.272727,0.272727,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -675,7 +668,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zevenfreqs:, 28, 0.272727, 0.272727, 0, 0.314918, 0.196612, 0.347342, 0.353621, 0.398277, 0.43672, 0.49863
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.227273,0.227273,0):
 Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
@@ -713,7 +706,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 17 iterations.
 zevenfreqs:, 30, 0.181818, 0.181818, 0, 0.209946, 0.145296, 0.262857, 0.273167, 0.422948, 0.453053, 0.461226
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.136364,0.136364,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -744,7 +737,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 26 iterations.
 zevenfreqs:, 31, 0.136364, 0.136364, 0, 0.157459, 0.114694, 0.228924, 0.238092, 0.431401, 0.444275, 0.448412
-elapsed time for k point: 4 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0909091,0.0909091,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -780,7 +773,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 13 iterations.
 zevenfreqs:, 33, 0.0454545, 0.0454545, 0, 0.0524864, 0.0408606, 0.188125, 0.189883, 0.423206, 0.423287, 0.447014
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0,0,0):
 Solving for bands 2 to 6...
     linmin: converged after 4 iterations.
@@ -796,14 +789,14 @@ Solving for bands 2 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 2 to 6 after 11 iterations.
 zevenfreqs:, 34, 0, 0, 0, 0, 0, 0.18294, 0.182949, 0.420536, 0.420562, 0.448669
-elapsed time for k point: 1 seconds.
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.2856889511196044 at #(0.5 0.5 0.0)
-Band 2 range: 0.18294017999827258 at #(0.0 0.0 0.0) to 0.3908299709813596 at #(0.39393939393939403 0.1818181818181817 0.0)
-Band 3 range: 0.18294889121347446 at #(0.0 0.0 0.0) to 0.42581162651179544 at #(0.3636363636363637 0.3636363636363637 0.0)
-Band 4 range: 0.389356792460273 at #(0.303030303030303 0.0 0.0) to 0.503902416228395 at #(0.5 0.5 0.0)
-Band 5 range: 0.4169624171380753 at #(0.3787878787878789 0.13636363636363624 0.0) to 0.5654553967046136 at #(0.5 0.5 0.0)
-Band 6 range: 0.443308589743059 at #(0.09090909090909091 0.09090909090909091 0.0) to 0.5710344563175613 at #(0.5 0.5 0.0)
-total elapsed time for run: 1 minute, 9 seconds.
+elapsed time for k point: 0 seconds.
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.28568895111960496 at #(0.5 0.5 0.0)
+Band 2 range: 0.18294018043100194 at #(0.0 0.0 0.0) to 0.39082997098136013 at #(0.39393939393939403 0.1818181818181817 0.0)
+Band 3 range: 0.18294889240067977 at #(0.0 0.0 0.0) to 0.42581162651179566 at #(0.3636363636363637 0.3636363636363637 0.0)
+Band 4 range: 0.3893567924602722 at #(0.303030303030303 0.0 0.0) to 0.5039024162283908 at #(0.5 0.5 0.0)
+Band 5 range: 0.4169624171380754 at #(0.3787878787878789 0.13636363636363624 0.0) to 0.5654553967046136 at #(0.5 0.5 0.0)
+Band 6 range: 0.44330858974305926 at #(0.09090909090909091 0.09090909090909091 0.0) to 0.5710344563175591 at #(0.5 0.5 0.0)
+total elapsed time for run: 13 seconds.
 done.
 init-params: initializing eigensolver data
 Computing 6 bands with 1.000000e-07 tolerance.
@@ -878,24 +871,24 @@ solve_kpoint (0,0,0):
 zoddfreqs:, k index, k1, k2, k3, kmag/2pi, zodd band 1, zodd band 2, zodd band 3, zodd band 4, zodd band 5, zodd band 6
 Solving for bands 2 to 6...
     linmin: converged after 9 iterations.
-    linmin: converged after 10 iterations.
+    linmin: converged after 8 iterations.
     linmin: converged after 4 iterations.
-    linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -903,9 +896,14 @@ Solving for bands 2 to 6...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 2 to 6 after 26 iterations.
-zoddfreqs:, 1, 0, 0, 0, 0, 0, 0.239124, 0.239132, 0.404146, 0.404172, 0.51969
-elapsed time for k point: 3 seconds.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 6 after 31 iterations.
+zoddfreqs:, 1, 0, 0, 0, 0, 0, 0.239124, 0.239132, 0.404146, 0.404172, 0.519689
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.030303,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -917,14 +915,16 @@ Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
     linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 5 iterations.
     linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
@@ -934,6 +934,11 @@ Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -942,13 +947,34 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    iteration   34: trace = 0.7117459954116319 (1.10374e-05% change)
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 1 to 6 after 37 iterations.
-zoddfreqs:, 2, 0.030303, 0, 0, 0.0349909, 0.0331217, 0.240875, 0.241388, 0.404938, 0.405012, 0.516092
-elapsed time for k point: 5 seconds.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 6 after 66 iterations.
+zoddfreqs:, 2, 0.030303, 0, 0, 0.0349909, 0.0331217, 0.240875, 0.241388, 0.404938, 0.405012, 0.516091
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.0606061,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -962,10 +988,9 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-Finished solving for bands 1 to 6 after 12 iterations.
+Finished solving for bands 1 to 6 after 11 iterations.
 zoddfreqs:, 3, 0.0606061, 0, 0, 0.0699819, 0.0661382, 0.246023, 0.248026, 0.407268, 0.407566, 0.509552
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0909091,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -983,7 +1008,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 13 iterations.
 zoddfreqs:, 4, 0.0909091, 0, 0, 0.104973, 0.0989268, 0.254319, 0.258641, 0.411103, 0.411838, 0.502417
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.121212,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1000,7 +1025,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zoddfreqs:, 5, 0.121212, 0, 0, 0.139964, 0.131325, 0.265414, 0.27266, 0.416379, 0.417837, 0.495128
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.151515,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1016,7 +1041,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zoddfreqs:, 6, 0.151515, 0, 0, 0.174955, 0.163098, 0.278958, 0.289419, 0.423025, 0.425531, 0.487876
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.181818,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1032,7 +1057,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 11 iterations.
 zoddfreqs:, 7, 0.181818, 0, 0, 0.209946, 0.193894, 0.294705, 0.308223, 0.430974, 0.434727, 0.480956
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.212121,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1047,7 +1072,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zoddfreqs:, 8, 0.212121, 0, 0, 0.244936, 0.223196, 0.312612, 0.328357, 0.440175, 0.444528, 0.475333
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.242424,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1062,7 +1087,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zoddfreqs:, 9, 0.242424, 0, 0, 0.279927, 0.250318, 0.332879, 0.349074, 0.450578, 0.450924, 0.475042
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.272727,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1079,7 +1104,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zoddfreqs:, 10, 0.272727, 0, 0, 0.314918, 0.274582, 0.355802, 0.369554, 0.448811, 0.462031, 0.485127
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.30303,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1099,7 +1124,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 15 iterations.
 zoddfreqs:, 11, 0.30303, 0, 0, 0.349909, 0.295654, 0.381411, 0.388911, 0.442502, 0.473919, 0.500977
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.333333,0,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1130,7 +1155,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 26 iterations.
 zoddfreqs:, 12, 0.333333, 0, 0, 0.3849, 0.313741, 0.406275, 0.408998, 0.435371, 0.484555, 0.513968
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.348485,0.0454545,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1160,7 +1185,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 25 iterations.
 zoddfreqs:, 13, 0.348485, 0.0454545, 0, 0.378889, 0.310827, 0.403347, 0.404269, 0.437506, 0.481149, 0.511054
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.363636,0.0909091,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1186,7 +1211,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 21 iterations.
 zoddfreqs:, 14, 0.363636, 0.0909091, 0, 0.378485, 0.310632, 0.402919, 0.404043, 0.44031, 0.476363, 0.508421
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.378788,0.136364,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1209,7 +1234,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 18 iterations.
 zoddfreqs:, 15, 0.378788, 0.136364, 0, 0.383705, 0.31318, 0.405067, 0.408341, 0.443217, 0.470923, 0.509265
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.393939,0.181818,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1231,7 +1256,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 17 iterations.
 zoddfreqs:, 16, 0.393939, 0.181818, 0, 0.394328, 0.318193, 0.409407, 0.417092, 0.444742, 0.466825, 0.513933
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.409091,0.227273,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1254,7 +1279,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 18 iterations.
 zoddfreqs:, 17, 0.409091, 0.227273, 0, 0.409932, 0.325181, 0.415263, 0.429471, 0.442956, 0.467359, 0.521681
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.424242,0.272727,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1279,7 +1304,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 20 iterations.
 zoddfreqs:, 18, 0.424242, 0.272727, 0, 0.429976, 0.333577, 0.421246, 0.43395, 0.450189, 0.472466, 0.52922
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.439394,0.318182,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1301,7 +1326,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 17 iterations.
 zoddfreqs:, 19, 0.439394, 0.318182, 0, 0.453872, 0.342859, 0.421348, 0.433359, 0.470727, 0.479954, 0.528874
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.454545,0.363636,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1319,7 +1344,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 13 iterations.
 zoddfreqs:, 20, 0.454545, 0.363636, 0, 0.481046, 0.352605, 0.413642, 0.438812, 0.488587, 0.495254, 0.524226
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.469697,0.409091,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1373,7 +1398,6 @@ Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    iteration   34: trace = 1.318118430194527 (0.012245% change)
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
@@ -1408,7 +1432,6 @@ Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    iteration   68: trace = 1.296494868299022 (0.000725297% change)
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -1417,7 +1440,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 74 iterations.
 zoddfreqs:, 22, 0.484848, 0.454545, 0, 0.543205, 0.371956, 0.395308, 0.448223, 0.506389, 0.515713, 0.527803
-elapsed time for k point: 9 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.5,0.5,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1432,7 +1455,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zoddfreqs:, 23, 0.5, 0.5, 0, 0.57735, 0.377893, 0.389473, 0.449649, 0.510417, 0.518196, 0.520049
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.454545,0.454545,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1451,7 +1474,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 14 iterations.
 zoddfreqs:, 24, 0.454545, 0.454545, 0, 0.524864, 0.366682, 0.399483, 0.446646, 0.508902, 0.510703, 0.530375
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.409091,0.409091,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1488,7 +1511,6 @@ Solving for bands 1 to 6...
     linmin: converged after 6 iterations.
     linmin: converged after 6 iterations.
     linmin: converged after 6 iterations.
-    iteration   34: trace = 1.254693246998427 (0.135295% change)
     linmin: converged after 6 iterations.
     linmin: converged after 8 iterations.
     linmin: converged after 10 iterations.
@@ -1510,7 +1532,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 53 iterations.
 zoddfreqs:, 25, 0.409091, 0.409091, 0, 0.472377, 0.349534, 0.412734, 0.437261, 0.487457, 0.500421, 0.512294
-elapsed time for k point: 6 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.363636,0.363636,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1529,7 +1551,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 14 iterations.
 zoddfreqs:, 26, 0.363636, 0.363636, 0, 0.419891, 0.329404, 0.420948, 0.424416, 0.441694, 0.492246, 0.513856
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.318182,0.318182,0):
 Solving for bands 1 to 6...
     linmin: converged after 4 iterations.
@@ -1560,7 +1582,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 26 iterations.
 zoddfreqs:, 27, 0.318182, 0.318182, 0, 0.367405, 0.305048, 0.395062, 0.397875, 0.438913, 0.479544, 0.509262
-elapsed time for k point: 3 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.272727,0.272727,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1580,7 +1602,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 15 iterations.
 zoddfreqs:, 28, 0.272727, 0.272727, 0, 0.314918, 0.274587, 0.355806, 0.369542, 0.448803, 0.46203, 0.485166
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.227273,0.227273,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1595,7 +1617,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 10 iterations.
 zoddfreqs:, 29, 0.227273, 0.227273, 0, 0.262432, 0.237078, 0.322436, 0.338683, 0.445226, 0.448612, 0.474096
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.181818,0.181818,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1612,7 +1634,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zoddfreqs:, 30, 0.181818, 0.181818, 0, 0.209946, 0.193895, 0.29471, 0.308216, 0.430966, 0.434722, 0.480999
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0.136364,0.136364,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1629,7 +1651,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zoddfreqs:, 31, 0.136364, 0.136364, 0, 0.157459, 0.147308, 0.271904, 0.280735, 0.419525, 0.421482, 0.491522
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0909091,0.0909091,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1648,7 +1670,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 14 iterations.
 zoddfreqs:, 32, 0.0909091, 0.0909091, 0, 0.104973, 0.0989268, 0.254323, 0.258637, 0.411092, 0.411846, 0.502453
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0.0454545,0.0454545,0):
 Solving for bands 1 to 6...
     linmin: converged after 3 iterations.
@@ -1665,7 +1687,7 @@ Solving for bands 1 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 6 after 12 iterations.
 zoddfreqs:, 33, 0.0454545, 0.0454545, 0, 0.0524864, 0.0496501, 0.24304, 0.244176, 0.405902, 0.406084, 0.512998
-elapsed time for k point: 2 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (0,0,0):
 Solving for bands 2 to 6...
     linmin: converged after 4 iterations.
@@ -1690,12 +1712,56 @@ Solving for bands 2 to 6...
     linmin: converged after 2 iterations.
 Finished solving for bands 2 to 6 after 20 iterations.
 zoddfreqs:, 34, 0, 0, 0, 0, 0, 0.239124, 0.239132, 0.404146, 0.404172, 0.519733
-elapsed time for k point: 2 seconds.
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.3778934337598756 at #(0.5 0.5 0.0)
-Band 2 range: 0.2391236010145176 at #(0.0 0.0 0.0) to 0.4213479701121823 at #(0.43939393939393945 0.3181818181818181 0.0)
-Band 3 range: 0.23913154214087878 at #(0.0 0.0 0.0) to 0.44964877166728645 at #(0.5 0.5 0.0)
-Band 4 range: 0.40414621805008555 at #(0.0 0.0 0.0) to 0.510416547691592 at #(0.5 0.5 0.0)
-Band 5 range: 0.40417163750074653 at #(0.0 0.0 0.0) to 0.5181957345534922 at #(0.5 0.5 0.0)
-Band 6 range: 0.47409648633613405 at #(0.2272727272727273 0.2272727272727273 0.0) to 0.5303750128703187 at #(0.45454545454545464 0.45454545454545464 0.0)
-total elapsed time for run: 1 minute, 19 seconds.
+elapsed time for k point: 1 seconds.
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.3778934337598752 at #(0.5 0.5 0.0)
+Band 2 range: 0.23912360101451696 at #(0.0 0.0 0.0) to 0.42134797011218256 at #(0.43939393939393945 0.3181818181818181 0.0)
+Band 3 range: 0.239131542140879 at #(0.0 0.0 0.0) to 0.4496487716672867 at #(0.5 0.5 0.0)
+Band 4 range: 0.4041462201374863 at #(0.0 0.0 0.0) to 0.5104165476915923 at #(0.5 0.5 0.0)
+Band 5 range: 0.4041716375007468 at #(0.0 0.0 0.0) to 0.5181957345534919 at #(0.5 0.5 0.0)
+Band 6 range: 0.4740964863361337 at #(0.2272727272727273 0.2272727272727273 0.0) to 0.5303750128703189 at #(0.45454545454545464 0.45454545454545464 0.0)
+total elapsed time for run: 14 seconds.
 done.
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 23990165: <test_slab> in cluster <dcc> Done
+
+Job <test_slab> was submitted from host <gbarlogin2> by user <s232699> in cluster <dcc> at Fri Feb  7 18:25:29 2025
+Job was executed on host(s) <20*n-62-27-13>, in queue <fotonano>, as user <s232699> in cluster <dcc> at Fri Feb  7 18:25:31 2025
+                            <10*n-62-27-14>
+</zhome/2f/7/202918> was used as the home directory.
+</zhome/2f/7/202918/phc_nzi/sources/test_slab> was used as the working directory.
+Started at Fri Feb  7 18:25:31 2025
+Terminated at Fri Feb  7 18:26:03 2025
+Results reported at Fri Feb  7 18:26:03 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && mpirun -np $LSB_DJOB_NUMPROC mpb-mpi  test_slab.ctl
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   758.30 sec.
+    Max Memory :                                 2109 MB
+    Average Memory :                             2109.00 MB
+    Total Requested Memory :                     122880.00 MB
+    Delta Memory :                               120771.00 MB
+    Max Swap :                                   -
+    Max Processes :                              23
+    Max Threads :                                407
+    Run time :                                   66 sec.
+    Turnaround time :                            34 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <test_slab.err> for stderr output of this job.
+

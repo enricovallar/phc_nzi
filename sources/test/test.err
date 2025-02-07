@@ -1,5 +1,5 @@
 Modules Release 4.8.0 (2021-07-14)
-DCC-SW: Added modules (2023-aug/EPYC9354)
+DCC-SW: Added modules (2023-aug/XeonGold6342)
 DCC-SW: Removed standard modules: /apps/dcc/etc/ModulesAlma92/modulefiles
 DCC-SW: Using gnu/12.3.0 compiler (requested)
 Loading mpb/1.11.1
