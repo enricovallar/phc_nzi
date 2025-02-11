@@ -464,6 +464,10 @@ class PhotonicCrystal:
         command_script_params  = self._script_params_to_scheme_string()
         return "\n".join([command_script_params, command_lattice, command_geometry])
     
+
+    def print_script_params(self):
+        print(self._script_params)
+    
     
           
 

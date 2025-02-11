@@ -1,6 +1,6 @@
 (set! num-bands 6)
 (set! resolution (vector3 32.0 32.0 16.0))
-(set! k-points (list (vector3 0.0 0.0 0.0) (vector3 0.3333333333333333 0.0 0.0) (vector3 0.5 0.5 0.0) (vector3 0.0 0.0 0.0)))
+(set! k-points (list (vector3 0.3333333333333333 0.0 0.0) (vector3 0.0 0.0 0.0) (vector3 0.5 0.5 0.0) (vector3 0.3333333333333333 0.0 0.0)))
 (set! k-points (interpolate 10 k-points))
 (define-param r 0.25)
 (define-param r2 0.15)

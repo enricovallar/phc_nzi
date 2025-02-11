@@ -123,7 +123,7 @@ class MPBSchemeConfigurator():
         if isinstance(value, int):
             self._k_points_interpolation_factor = value
         elif value is None:
-            self._k_points_interpolation_factor = value
+            self._k_points_interpolation_factor = None
         else:
             raise ValueError("K-point interpolation factor must be an integer or None")
         
@@ -211,10 +211,13 @@ class MPBSchemeConfigurator():
             raise ValueError("K-points must be provided")   
         
     def generate_k_points_interpolation_command(self): 
-        if self._k_points:
+        if self._k_points_interpolation_factor is None:
+            return [""]
+        elif self._k_points:
             return [f"(set! k-points (interpolate {self._k_points_interpolation_factor} k-points))"]
         else:
-            return []
+            raise ValueError("Invalid k-points interpolation factor")
+        
         
     def generate_runner_commands(self):
         commands = []
@@ -231,6 +234,7 @@ class MPBSchemeConfigurator():
                 print(f"simulation type: {sim_type}")
                 commands.append("(run)")
         return commands
+    
         
 
 # Example usage
