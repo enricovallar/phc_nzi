@@ -175,7 +175,7 @@ class MPBSchemeConfigurator():
                 f.write(command)
                 f.write("\n")
                 script += command + "\n" 
-        print(f"Scheme configuration written to {filename}")
+        #print(f"Scheme configuration written to {filename}")
         return script
     
     def print_scheme_config(self):

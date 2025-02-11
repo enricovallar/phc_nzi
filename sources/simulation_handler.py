@@ -1,23 +1,36 @@
 import os
 import subprocess
+import time
+import re
+import sqlite3
+
 import h5py
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import sqlite3
+import matplotlib.pyplot as plt
+
 import meep as mp
 from meep import mpb
 from mpb_configurator import MPBSchemeConfigurator
+
 import plotly.graph_objects as go
-import time
-import re
+import logging
+
+# Configure module-level logger.
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)  # default level; change as needed
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 class Simulation:
-    def __init__(self, simulation_name: str, config: MPBSchemeConfigurator|None =None, directory: str | None = None, description: str | None = None):
+    def __init__(self, simulation_name: str, config: MPBSchemeConfigurator = None,
+                 directory: str = None, description: str = None, log_level: int = logging.INFO):
         self.simulation_name = simulation_name
         self.config = config
-        self.directory = directory if directory is not None else simulation_name
+        self.directory = directory or simulation_name
         self.scheme_filename = f"{simulation_name}.ctl"
         self.output_filename = f"{simulation_name}.out"
         self.error_filename = f"{simulation_name}.err"
@@ -25,377 +38,271 @@ class Simulation:
         self.lattice = None
         self.bands_df = {}  # For frequency database storage
 
-        if description is not None:
-            desc_path = os.path.join(self.directory, f"{self.simulation_name}.txt")
+        # Configure an instance-specific logger.
+        self.logger = logging.getLogger(f"{__name__}.{self.simulation_name}")
+        self.logger.setLevel(log_level)
+
+        if description:
             os.makedirs(self.directory, exist_ok=True)
+            desc_path = os.path.join(self.directory, f"{simulation_name}.txt")
             with open(desc_path, "w") as f:
                 f.write(description)
 
-    def run(self, print_config: bool = False, scheme_script: str | None = None, load_epsilon: bool = True, extract_frequencies: bool = True):
-        """
-        Run simulation by writing the scheme configuration (when config is provided)
-        or using an existing scheme script.
-        """
+    def _write_scheme(self, scheme_script: str = None, print_config: bool = False) -> str:
         os.makedirs(self.directory, exist_ok=True)
-        if self.config is not None:
+        if self.config:
             scheme_path = os.path.join(self.directory, self.scheme_filename)
             scheme = self.config.generate_scheme_config(scheme_path)
             if print_config:
-                print(scheme)
+                self.logger.debug("Scheme configuration:\n%s", scheme)
             with open(scheme_path, "w") as f:
                 f.write(scheme)
-            cmd_script = self.scheme_filename
+            return self.scheme_filename
         else:
-            if scheme_script is None:
+            if not scheme_script:
                 raise ValueError("scheme_script must be provided if config is not set.")
-            scheme_path = os.path.join(self.directory, os.path.basename(scheme_script))
-            if not os.path.exists(scheme_path):
-                with open(scheme_script, "r") as src, open(scheme_path, "w") as dst:
+            dest = os.path.join(self.directory, os.path.basename(scheme_script))
+            if not os.path.exists(dest):
+                with open(scheme_script, "r") as src, open(dest, "w") as dst:
                     dst.write(src.read())
-            cmd_script = scheme_script
+            return os.path.basename(scheme_script)
 
-        # Run the simulation within the simulation directory
-        cmd = ["mpb", cmd_script]
-        result = subprocess.run(cmd, capture_output=True, text=True, cwd=self.directory)
-
-        # Save output and error files
-        output_path = os.path.join(self.directory, self.output_filename)
-        error_path = os.path.join(self.directory, self.error_filename)
-        with open(output_path, "w") as f_out:
+    def _execute_command(self, cmd, shell: bool = False,
+                         print_output: bool = False, print_error: bool = False):
+        self.logger.debug("Executing command: %s", cmd)
+        result = subprocess.run(cmd, shell=shell, capture_output=True,
+                                text=True, cwd=self.directory)
+        out_path = os.path.join(self.directory, self.output_filename)
+        err_path = os.path.join(self.directory, self.error_filename)
+        with open(out_path, "w") as f_out:
             f_out.write(result.stdout)
-        with open(error_path, "w") as f_err:
+        with open(err_path, "w") as f_err:
             f_err.write(result.stderr)
+        if print_output:
+            print(result.stdout)
+        if print_error:
+            print(result.stderr)
+        return result
 
-        print("Simulation completed")
-
+    def run(self, print_config: bool = False, scheme_script: str = None,
+            load_epsilon: bool = True, extract_frequencies: bool = True):
+        cmd_script = self._write_scheme(scheme_script, print_config)
+        cmd = ["mpb", cmd_script]
+        self._execute_command(cmd)
+        self.logger.debug("Simulation completed")
         if load_epsilon:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
 
-
-
-
-    def _preliminary_setup(self, scheme_script: str | None = None, print_config: bool = False) -> str:
-        """
-        Perform the preliminary setup for the simulation.
-        This includes ensuring the simulation directory exists and writing (or copying) the scheme configuration/script.
-        
-        Parameters:
-            scheme_script: Path to an existing scheme script if self.config is not provided.
-            print_config: If True, print the generated scheme configuration.
-        
-        Returns:
-            cmd_script: The filename of the scheme file to run.
-        """
-        os.makedirs(self.directory, exist_ok=True)
-        if self.config is not None:
-            scheme_path = os.path.join(self.directory, self.scheme_filename)
-            scheme = self.config.generate_scheme_config(scheme_path)
-            if print_config:
-                print(scheme)
-            with open(scheme_path, "w") as f:
-                f.write(scheme)
-            cmd_script = self.scheme_filename
-        else:
-            if scheme_script is None:
-                raise ValueError("scheme_script must be provided if config is not set.")
-            scheme_path = os.path.join(self.directory, os.path.basename(scheme_script))
-            if not os.path.exists(scheme_path):
-                with open(scheme_script, "r") as src, open(scheme_path, "w") as dst:
-                    dst.write(src.read())
-            cmd_script = scheme_script
-        return cmd_script
-
-    def run_hpc(self, print_config: bool = False, scheme_script: str | None = None, 
-                load_epsilon: bool = True, extract_frequencies: bool = True, 
+    def run_hpc(self, print_config: bool = False, scheme_script: str = None,
+                load_epsilon: bool = True, extract_frequencies: bool = True,
                 path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
                 print_output: bool = False, print_error: bool = False):
-        """
-        Run simulation by writing the scheme configuration (if provided) or using an existing scheme script.
-        This method performs the preliminary setup, builds the simulation command (using the module load environment),
-        runs the simulation synchronously via subprocess, saves output and error files, and then performs post‐processing
-        (loading epsilon data and extracting frequencies).
-        """
-        cmd_script = self._preliminary_setup(scheme_script=scheme_script, print_config=print_config)
-        command_line_params_str = " ".join([f"{key}={value}" for key, value in command_line_params.items()])
-        cmd = f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && {path_to_mpb} {command_line_params_str} {cmd_script}"
-        print(f"Running command: {cmd}")
-        
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
-        if print_output:
-            print(result.stdout)
-        if print_error:
-            print(result.stderr)
-        
-        # Save the submission result (if desired) to the output/error files.
-        # Note: In synchronous mode, the simulation's output is produced immediately.
-        output_path = os.path.join(self.directory, self.output_filename)
-        error_path = os.path.join(self.directory, self.error_filename)
-        with open(output_path, "w") as f_out:
-            f_out.write(result.stdout)
-        with open(error_path, "w") as f_err:
-            f_err.write(result.stderr)
-        
-        print("Simulation completed")
+        cmd_script = self._write_scheme(scheme_script, print_config)
+        params = " ".join(f"{k}={v}" for k, v in command_line_params.items())
+        cmd = (f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+               f"{path_to_mpb} {params} {cmd_script}")
+        self.logger.debug("Running HPC command: %s", cmd)
+        self._execute_command(cmd, shell=True,
+                              print_output=print_output, print_error=print_error)
+        self.logger.debug("Simulation completed")
         if load_epsilon:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
 
-    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str | None = None,
-                    load_epsilon: bool = True, extract_frequencies: bool = True, 
+    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str = None,
+                    load_epsilon: bool = True, extract_frequencies: bool = True,
                     path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
                     print_output: bool = False, print_error: bool = False,
-                    queue: str = "fotonano", num_procs: int = 4, 
+                    queue: str = "fotonano", num_procs: int = 4,
                     initial_wait: int = 2, poll_interval: int = 5, output_timeout: int = 300,
                     span_option: str = "hosts", span_value: int = 1):
-        """
-        Run simulation on the DTU HPC system using LSF job submission.
-        This method uses the preliminary setup to prepare the scheme file, builds an LSF submission command
-        that includes DTU preamble options, submits the job using mpb-mpi, and waits until the job is finished.
-        It waits an initial period before polling the job status using bstat, and then continues polling
-        until the job finishes. Once the designated output and error files are available (and non-empty),
-        post-processing (loading epsilon data and extracting frequencies) is executed.
-        
-        This version always uses mpb-mpi. The command is prefixed with:
-            mpirun -np $LSB_DJOB_NUMPROC
-        so that all allocated cores are used.
-        
-        Parameters:
-            print_config: If True, print the scheme configuration.
-            scheme_script: Path to an existing scheme script if config is not provided.
-            load_epsilon: Whether to load epsilon data after simulation.
-            extract_frequencies: Whether to extract frequency data after simulation.
-            path_to_mpb: Path to the mpb executable (default "mpb-mpi").
-            command_line_params: Dictionary of command-line parameters to pass.
-            print_output: If True, print the standard output from job submission.
-            print_error: If True, print the standard error from job submission.
-            queue: LSF queue to use (default "fotonano").
-            num_procs: Number of processors requested (default 4).
-            initial_wait: Seconds to wait before the first status check (default 2 seconds).
-            poll_interval: Seconds between subsequent status checks (default 5 seconds).
-            output_timeout: Maximum time in seconds to wait for output files to appear (default 300 seconds).
-            span_option: One of "hosts", "ptile", or "block" to specify the LSF span resource option.
-            span_value: The integer value associated with the chosen span option.
-            
-        Returns:
-            None
-        """
-        # Preliminary setup.
-        cmd_script = self._preliminary_setup(scheme_script=scheme_script, print_config=print_config)
-        command_line_params_str = " ".join([f"{key}={value}" for key, value in command_line_params.items()])
-        
-        # Build the resource string based on span_option.
-        if span_option == "hosts":
-            span_str = f'span[hosts={span_value}]'
-        elif span_option == "ptile":
-            span_str = f'span[ptile={span_value}]'
-        elif span_option == "block":
-            span_str = f'span[block={span_value}]'
-        else:
-            raise ValueError("Invalid span option. Use one of 'hosts', 'ptile', or 'block'.")
-        
-        # For mpb-mpi, we always use the MPI prefix.
+        cmd_script = self._write_scheme(scheme_script, print_config)
+        params = " ".join(f"{k}={v}" for k, v in command_line_params.items())
+        span_str = {
+            "hosts": f'span[hosts={span_value}]',
+            "ptile": f'span[ptile={span_value}]',
+            "block": f'span[block={span_value}]'
+        }.get(span_option)
+        if not span_str:
+            raise ValueError("Invalid span option. Use 'hosts', 'ptile', or 'block'.")
         mpi_prefix = "mpirun -np $LSB_DJOB_NUMPROC "
-        
-        # Build the LSF submission command using DTU preamble options.
-        cmd = (
-            f"bsub -J {self.simulation_name} -q {queue} -n {num_procs} "
-            f'-R "{span_str}" -R "rusage[mem=4GB]" -M 5GB -W 24:00 '
-            f"-oo {self.output_filename} -eo {self.error_filename} "
-            f"'source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
-            f"{mpi_prefix}{path_to_mpb} {command_line_params_str} {cmd_script}'"
-        )
-        print(f"Running LSF job command: {cmd}")
-        
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=self.directory)
-        if print_output:
-            print(result.stdout)
-        if print_error:
-            print(result.stderr)
-        
-        # Parse job ID from the submission output.
+        cmd = (f"bsub -J {self.simulation_name} -q {queue} -n {num_procs} -R \"{span_str}\" "
+               f"-R \"rusage[mem=4GB]\" -M 5GB -W 24:00 -oo {self.output_filename} -eo {self.error_filename} "
+               f"\'source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+               f"{mpi_prefix}{path_to_mpb} {params} {cmd_script}\'")
+        self.logger.debug("Running LSF job command: %s", cmd)
+        result = self._execute_command(cmd, shell=True,
+                                       print_output=print_output, print_error=print_error)
         job_id_match = re.search(r"<(\d+)>", result.stdout)
         if job_id_match:
             job_id = job_id_match.group(1)
-            print(f"Job submitted with ID: {job_id}")
-            print(f"Waiting {initial_wait} seconds before first status check...")
+            self.logger.info("Job submitted with ID: %s", job_id)
+            self.logger.debug("Waiting %s seconds before first status check...", initial_wait)
             time.sleep(initial_wait)
-            start_time = time.time()
-            # Poll using bstat until the job is finished.
             while True:
                 status = subprocess.run("bstat", shell=True, capture_output=True, text=True)
                 if "No unfinished job found" in status.stdout or job_id not in status.stdout:
-                    print("Job has finished.")
+                    self.logger.debug("Job has finished.")
                     break
                 else:
-                    print(f"Job {job_id} is still running. Waiting {poll_interval} seconds...")
+                    self.logger.debug("Job %s is still running. Waiting %s seconds...", job_id, poll_interval)
                     time.sleep(poll_interval)
         else:
-            print("Could not determine job ID; proceeding without waiting.")
-            start_time = time.time()
-        
-        # Wait until the simulation output files exist and are non-empty.
-        output_path = os.path.join(self.directory, self.output_filename)
-        error_path = os.path.join(self.directory, self.error_filename)
+            self.logger.warning("Could not determine job ID; proceeding without waiting.")
+
+        out_path = os.path.join(self.directory, self.output_filename)
+        err_path = os.path.join(self.directory, self.error_filename)
         elapsed = 0
-        while ((not os.path.exists(output_path) or os.path.getsize(output_path) == 0) or 
-            (not os.path.exists(error_path) or os.path.getsize(error_path) == 0)) and elapsed < output_timeout:
-            print("Waiting for simulation output files to be written...")
+        while (((not os.path.exists(out_path) or os.path.getsize(out_path) == 0) or 
+                (not os.path.exists(err_path) or os.path.getsize(err_path) == 0))
+               and elapsed < output_timeout):
+            self.logger.info("Waiting for simulation output files to be written...")
             time.sleep(5)
             elapsed += 5
         if elapsed >= output_timeout:
-            print("Warning: Output files not found or empty after waiting.")
+            self.logger.warning("Output files not found or empty after waiting.")
         else:
-            print("Output files are now available.")
-        
-        total_duration = time.time() - start_time
-        print(f"Total duration from first status check to output availability: {total_duration:.2f} seconds.")
-        
-        print("Simulation completed")
-        
+            self.logger.debug("Output files are now available.")
+        self.logger.debug("Simulation completed")
         if load_epsilon:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
 
-
-
-
-
     def extract_frequencies(self, remove_line_prefixes: bool = True):
-        """
-        Parse the output file, extract frequency data, and write them to separate files.
-        """
         prefixes = ["tmfreqs:", "tefreqs:", "zevenfreqs:", "zoddfreqs:", "gaps:"]
-        def strip_prefix(line: str, prefixes: list[str]) -> str:
+        def strip_prefix(line: str) -> str:
             for prefix in prefixes:
                 if line.startswith(prefix):
                     return line[len(prefix):].lstrip(" ,")
             return line
-
         output_path = os.path.join(self.directory, self.output_filename)
         if not os.path.exists(output_path):
             raise FileNotFoundError(f"Output file {output_path} does not exist.")
-
         with open(output_path, "r") as f:
             lines = f.readlines()
-
-        tm_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
-                    for line in lines if "tmfreqs:" in line]
-        te_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
-                    for line in lines if "tefreqs:" in line]
-        zeven_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
-                       for line in lines if "zevenfreqs:" in line]
-        zodd_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
-                      for line in lines if "zoddfreqs:" in line]
-        gaps_lines = [strip_prefix(line, prefixes) if remove_line_prefixes else line
-                      for line in lines if "gaps:" in line]
-
-        tm_file = os.path.join(self.directory, f"{self.simulation_name}.tm.dat")
-        with open(tm_file, "w") as f_tm:
-            f_tm.writelines(tm_lines)
-        print(f"Extracted {len(tm_lines)} lines of data for the TM mode")
-
-        te_file = os.path.join(self.directory, f"{self.simulation_name}.te.dat")
-        with open(te_file, "w") as f_te:
-            f_te.writelines(te_lines)
-        print(f"Extracted {len(te_lines)} lines of data for the TE mode")
-        
-        zeven_file = os.path.join(self.directory, f"{self.simulation_name}.zeven.dat")
-        with open(zeven_file, "w") as f_zeven:
-            f_zeven.writelines(zeven_lines)
-        print(f"Extracted {len(zeven_lines)} lines of data for the zeven frequencies")
-
-        zodd_file = os.path.join(self.directory, f"{self.simulation_name}.zodd.dat")
-        with open(zodd_file, "w") as f_zodd:
-            f_zodd.writelines(zodd_lines)
-        print(f"Extracted {len(zodd_lines)} lines of data for the zodd frequencies")
-
-        gaps_file = os.path.join(self.directory, f"{self.simulation_name}.gaps.dat")
-        with open(gaps_file, "w") as f_gaps:
-            f_gaps.writelines(gaps_lines)
-        print(f"Extracted {len(gaps_lines)} lines of data for the gaps")
-
-
-    def display_frequency_data(self, mode: str = "te"):
-        """
-        Display the frequency data for the given mode.
-        """
-        if mode not in self.bands_df:
-            self.load_frequency_data(mode)
-        df = self.bands_df[mode]
-        if isinstance(df, pd.DataFrame):
-            display(df)
+        modes = {
+            "tm": [strip_prefix(line) if remove_line_prefixes else line
+                   for line in lines if "tmfreqs:" in line],
+            "te": [strip_prefix(line) if remove_line_prefixes else line
+                   for line in lines if "tefreqs:" in line],
+            "zeven": [strip_prefix(line) if remove_line_prefixes else line
+                      for line in lines if "zevenfreqs:" in line],
+            "zodd": [strip_prefix(line) if remove_line_prefixes else line
+                     for line in lines if "zoddfreqs:" in line],
+            "gaps": [strip_prefix(line) if remove_line_prefixes else line
+                     for line in lines if "gaps:" in line]
+        }
+        for mode, data in modes.items():
+            file_path = os.path.join(self.directory, f"{self.simulation_name}.{mode}.dat")
+            with open(file_path, "w") as f_mode:
+                f_mode.writelines(data)
+            self.logger.debug("Extracted %d lines of data for mode '%s'", len(data), mode)
 
     def load_epsilon(self):
-        """
-        Load epsilon and lattice vectors from an HDF5 file.
-        Expects the file to be named `<simulation_name>-epsilon.h5` in the simulation directory.
-        """
         filepath = os.path.join(self.directory, f"{self.simulation_name}-epsilon.h5")
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"HDF5 file {filepath} not found.")
         with h5py.File(filepath, 'r') as f:
             self.epsilon = f['data'][...]
-            if 'lattice vectors' in f:
-                self.lattice = f['lattice vectors'][...]
-        print("Loaded epsilon and lattice vectors")
+            self.lattice = f['lattice vectors'][...] if 'lattice vectors' in f else None
+        self.logger.debug("Loaded epsilon and lattice vectors")
 
-    def convert_epsilon(self, periods: int | tuple = 1, use_2d: bool = True, is_fully_3d: bool = False) -> np.ndarray:
-        """
-        Convert the epsilon data using MPB routines.
-        For 2D, extract the middle slice of the 3D epsilon array.
-        """
-        if self.lattice is None:
-            raise ValueError("Lattice is not defined. Call load_epsilon() first.")
-        if self.epsilon is None:
-            raise ValueError("Epsilon is not defined. Call load_epsilon() first.")
+    def convert_epsilon(self, periods=1, use_2d=True, is_fully_3d=False) -> np.ndarray:
+        if self.lattice is None or self.epsilon is None:
+            raise ValueError("Call load_epsilon() first.")
         mpb_data = mpb.MPBData(rectify=True, periods=periods, lattice=self.lattice)
-        epsilon_converted = self._convert_array(mpb_data, self.epsilon, periods, use_2d, is_fully_3d)
-        return epsilon_converted
+        return self._convert_array(mpb_data, self.epsilon, periods, use_2d, is_fully_3d)
 
-    def _convert_array(self, md: mpb.MPBData, x: mpb.MPBArray, periods: int = 1, use_2d: bool = True, is_fully_3d: bool = False) -> mpb.MPBData:
-        if x.ndim == 2: 
+    def _convert_array(self, md: mpb.MPBData, x: np.ndarray, periods=1, use_2d=True, is_fully_3d=False) -> np.ndarray:
+        if x.ndim == 2:
             return md.convert(x)
         elif x.ndim == 3:
             if use_2d:
-                mid_index = x.shape[2] // 2
-                x_conv = x[:, :, mid_index]
-                return md.convert(x_conv)
-            elif use_2d == False and is_fully_3d==False:
-                shape = x.shape
+                mid = x.shape[2] // 2
+                return md.convert(x[:, :, mid])
+            elif not use_2d and not is_fully_3d:
                 x_conv = md.convert(x)
-                nz = shape[2]
+                nz = x.shape[2]
                 start = (x_conv.shape[2] - nz) // 2
-                end = start + nz
-                return x_conv[:, :, start:end]
+                return x_conv[:, :, start:start+nz]
             else:
                 return md.convert(x)
         else:
             raise ValueError("Invalid array dimensions")
-            
-        
-
-            
 
     def load_frequency_data(self, mode: str = "te") -> pd.DataFrame:
-        """
-        Load frequency data from a CSV file and store it in a SQLite database.
-        Expects a CSV file `<simulation_name>.<mode>.dat` in the simulation directory.
-        """
         filepath = os.path.join(self.directory, f"{self.simulation_name}.{mode}.dat")
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"{filepath} not found.")
         df = pd.read_csv(filepath, skipinitialspace=True)
         db_path = os.path.join(self.directory, f"{self.simulation_name}_frequencies.db")
-        conn = sqlite3.connect(db_path)
-        df.to_sql("frequencies", conn, if_exists="replace", index=False)
-        conn.close()
+        with sqlite3.connect(db_path) as conn:
+            df.to_sql("frequencies", conn, if_exists="replace", index=False)
         self.bands_df[mode] = df
-        print(f"Loaded frequency data for mode '{mode}'")
+        self.logger.debug("Loaded frequency data for mode '%s'", mode)
         return df
+    
+    
+    def get_frequencies_by_band(self, df, polarization: str = "te", bands: list[int] = [2, 3, 4], k_point: tuple = (0, 0, 0)) -> dict:
+        """
+        Get the frequencies for the specified bands and k-point.
+
+        Parameters:
+            polarization: The polarization mode (e.g., 'te', 'tm').
+            bands: List of band numbers to retrieve.
+            k_point: The k-point as a tuple (k1, k2, k3).
+            df: The DataFrame containing the frequency data.
+
+        Returns:
+            frequencies_by_band: A dictionary mapping band numbers to their frequency at the given k-point.
+        """
+
+        # Ensure that the required k-point columns exist.
+        if not {"k1", "k2", "k3"}.issubset(df.columns):
+            raise ValueError("The database must contain 'k1', 'k2', and 'k3' columns for k-point matching.")
+
+        # Find the row closest to the provided k_point using the k1, k2, k3 columns.
+        k_coords = df[["k1", "k2", "k3"]].values
+        target = np.array(k_point)
+        distances = np.linalg.norm(k_coords - target, axis=1)
+        closest_idx = distances.argmin()
+
+        # Initialize a dictionary to store the frequencies by band.
+        frequencies_by_band = {}
+
+        # For each band, extract the frequency at the closest k-point.
+        for band in bands:
+            band_col = f"{polarization} band {band}"
+            if band_col not in df.columns:
+                print(f"Band {band} not found in the database.")
+                frequencies_by_band[band] = np.nan
+            else:
+                frequencies_by_band[band] = df[band_col].iloc[closest_idx]
+
+        return frequencies_by_band
+
+    @property 
+    def verbosity(self):
+        return self.logger.level    
+    
+    @verbosity.setter
+    def verbosity(self, level):
+        self.logger.setLevel(level)
+        print("Log level set to %s" % logging.getLevelName(int(level)))
+
+    def set_verbosity(self, level):
+        """ Set the verbosity level of the logger. """
+        if level not in (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL):
+            raise ValueError(f"Invalid verbosity level: {level}")
+        self.verbosity = level  
+
+
+    
+
 
 
 class SimulationViewer:
