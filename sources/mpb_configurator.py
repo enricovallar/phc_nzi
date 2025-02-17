@@ -166,7 +166,7 @@ class MPBSchemeConfigurator():
 
         return commands
     
-    def generate_scheme_config(self, filename):
+    def generate_scheme_config(self, filename): 
         """Generate the complete Scheme configuration string."""
         script = ""
         commands = self.build_commands()
@@ -181,7 +181,15 @@ class MPBSchemeConfigurator():
     def print_scheme_config(self):
         commands = self.build_commands()
         for command in commands:
-            print(command)  
+            print(command)
+
+    def get_scheme_config(self, join_newline=False):    
+        commands = self.build_commands()
+        if join_newline:
+            return "\n".join(commands)
+        else:
+            commands_cleaned = [command.replace("\n", "") for command in commands]
+            return " ".join(commands_cleaned)
 
     def generate_number_of_bands_command(self): 
         return [f"(set! num-bands {self.num_bands})"]

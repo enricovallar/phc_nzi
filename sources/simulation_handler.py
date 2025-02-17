@@ -15,6 +15,7 @@ from mpb_configurator import MPBSchemeConfigurator
 
 import plotly.graph_objects as go
 import logging
+import tempfile
 
 # Configure module-level logger.
 logger = logging.getLogger(__name__)
@@ -25,13 +26,30 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+
+
 class Simulation:
-    def __init__(self, simulation_name: str, config: MPBSchemeConfigurator = None,
-                 directory: str = None, description: str = None, log_level: int = logging.INFO):
+
+    INFO = logging.INFO
+    DEBUG = logging.DEBUG
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
+
+
+
+
+    def __init__(self, simulation_name: str, script: str, 
+                 directory: str = None, description: str = None, log_level: int = logging.INFO, save_script = True):
         self.simulation_name = simulation_name
-        self.config = config
         self.directory = directory or simulation_name
+        os.makedirs(self.directory, exist_ok=True)
+        if save_script is True:
+            with open(os.path.join(self.directory, f"{simulation_name}.ctl"), "w") as f:
+                f.write(script)
+                
         self.scheme_filename = f"{simulation_name}.ctl"
+        self.script = script
         self.output_filename = f"{simulation_name}.out"
         self.error_filename = f"{simulation_name}.err"
         self.epsilon = None
@@ -43,29 +61,24 @@ class Simulation:
         self.logger.setLevel(log_level)
 
         if description:
-            os.makedirs(self.directory, exist_ok=True)
             desc_path = os.path.join(self.directory, f"{simulation_name}.txt")
             with open(desc_path, "w") as f:
                 f.write(description)
+        
 
-    def _write_scheme(self, scheme_script: str = None, print_config: bool = False) -> str:
-        os.makedirs(self.directory, exist_ok=True)
-        if self.config:
-            scheme_path = os.path.join(self.directory, self.scheme_filename)
-            scheme = self.config.generate_scheme_config(scheme_path)
-            if print_config:
-                self.logger.debug("Scheme configuration:\n%s", scheme)
-            with open(scheme_path, "w") as f:
-                f.write(scheme)
-            return self.scheme_filename
+    def save_script(self, scheme_script: str, print_script: bool = False) -> str:
+        if scheme_script is None:
+            raise ValueError("Scheme script must be provided.")
+        elif isinstance(scheme_script, str)==False:
+            raise ValueError("Scheme script must be a string.")
         else:
-            if not scheme_script:
-                raise ValueError("scheme_script must be provided if config is not set.")
-            dest = os.path.join(self.directory, os.path.basename(scheme_script))
-            if not os.path.exists(dest):
-                with open(scheme_script, "r") as src, open(dest, "w") as dst:
-                    dst.write(src.read())
-            return os.path.basename(scheme_script)
+            with open(os.path.join(self.directory, self.scheme_filename), "w") as f:
+                f.write(scheme_script)
+            if print_script:
+                print(scheme_script)
+
+        
+        
 
     def _execute_command(self, cmd, shell: bool = False,
                          print_output: bool = False, print_error: bool = False):
@@ -83,26 +96,17 @@ class Simulation:
         if print_error:
             print(result.stderr)
         return result
-
-    def run(self, print_config: bool = False, scheme_script: str = None,
-            load_epsilon: bool = True, extract_frequencies: bool = True):
-        cmd_script = self._write_scheme(scheme_script, print_config)
-        cmd = ["mpb", cmd_script]
-        self._execute_command(cmd)
-        self.logger.debug("Simulation completed")
-        if load_epsilon:
-            self.load_epsilon()
-        if extract_frequencies:
-            self.extract_frequencies()
-
-    def run_hpc(self, print_config: bool = False, scheme_script: str = None,
+    
+    def run_hpc(self, mpb_command_line_params: dict = {},
                 load_epsilon: bool = True, extract_frequencies: bool = True,
-                path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
-                print_output: bool = False, print_error: bool = False):
-        cmd_script = self._write_scheme(scheme_script, print_config)
-        params = " ".join(f"{k}={v}" for k, v in command_line_params.items())
+                print_output: bool = False, print_error: bool = False): 
+        filename = self.scheme_filename
+        with open(filename, "w") as f:
+            f.write(self.script)
+        self.logger.debug("Current directory: %s", os.getcwd())
+        params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
         cmd = (f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
-               f"{path_to_mpb} {params} {cmd_script}")
+               f"mpb-mpi {params} {filename}")
         self.logger.debug("Running HPC command: %s", cmd)
         self._execute_command(cmd, shell=True,
                               print_output=print_output, print_error=print_error)
@@ -111,31 +115,110 @@ class Simulation:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
+        
+    
+    def prepare_lsf_preamble(self, 
+                             simulation_name: str,
+                             queue: str = "fotonano",
+                             num_procs: int = 4,
+                             walltime: str = "24:00",
+                             mem: str = "4GB",
+                             extra_options: list[str] | None = None,
+                             user_email: str = None,
+                             span_option: str = "hosts",
+                             span_value: int = 1) -> list[str]:
+        """
+        Prepare the preamble lines for an LSF job submission script with span support and
+        output/error file directives.
 
-    def run_hpc_lsf(self, print_config: bool = False, scheme_script: str = None,
-                    load_epsilon: bool = True, extract_frequencies: bool = True,
-                    path_to_mpb: str = "mpb-mpi", command_line_params: dict = {},
-                    print_output: bool = False, print_error: bool = False,
-                    queue: str = "fotonano", num_procs: int = 4,
-                    initial_wait: int = 2, poll_interval: int = 5, output_timeout: int = 300,
-                    span_option: str = "hosts", span_value: int = 1):
-        cmd_script = self._write_scheme(scheme_script, print_config)
-        params = " ".join(f"{k}={v}" for k, v in command_line_params.items())
+        Parameters:
+            simulation_name: Name of the simulation (used as job name).
+            queue: LSF queue name.
+            num_procs: Number of processors to request.
+            walltime: Maximum wall-clock time (e.g., "24:00").
+            mem: Memory per process (e.g., "4GB").
+            extra_options: Additional BSUB options as a list of strings.
+            user_email: User email to receive notifications.
+            span_option: Option for span constraint ('hosts', 'ptile', or 'block').
+            span_value: The value to use with the span option.
+
+        Returns:
+            A list of strings representing the preamble of the LSF script.
+        """
+
+        
+        preamble = []
+        preamble.append("#!/bin/bash")
+        preamble.append(f"#BSUB -J {simulation_name}")
+        preamble.append(f"#BSUB -q {queue}")
+        preamble.append(f"#BSUB -n {num_procs}")
+        preamble.append(f"#BSUB -W {walltime}")
+        preamble.append(f"#BSUB -R \"rusage[mem={mem}]\"")
+        
+        # Add span support if span_option is provided.
         span_str = {
             "hosts": f'span[hosts={span_value}]',
             "ptile": f'span[ptile={span_value}]',
             "block": f'span[block={span_value}]'
         }.get(span_option)
-        if not span_str:
-            raise ValueError("Invalid span option. Use 'hosts', 'ptile', or 'block'.")
-        mpi_prefix = "mpirun -np $LSB_DJOB_NUMPROC "
-        cmd = (f"bsub -J {self.simulation_name} -q {queue} -n {num_procs} -R \"{span_str}\" "
-               f"-R \"rusage[mem=4GB]\" -M 5GB -W 24:00 -oo {self.output_filename} -eo {self.error_filename} "
-               f"\'source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
-               f"{mpi_prefix}{path_to_mpb} {params} {cmd_script}\'")
+        if span_str:
+            preamble.append(f"#BSUB -R \"{span_str}\"")
+        
+        # Add output and error file directives.
+        preamble.append(f"#BSUB -oo {simulation_name}.out")
+        preamble.append(f"#BSUB -eo {simulation_name}.err")
+        
+        if user_email:
+            preamble.append(f"#BSUB -u {user_email}")
+        if extra_options:
+            for option in extra_options:
+                preamble.append(option)
+        return preamble
+
+
+      
+    def run_hpc_lsf(self, 
+                    load_epsilon: bool = True, extract_frequencies: bool = True,
+                    mpb_command_line_params: dict = {},
+                    print_output: bool = False, print_error: bool = False,
+                    queue: str = "fotonano", num_procs: int = 4,
+                    initial_wait: int = 2, poll_interval: int = 5, output_timeout: int = 300,
+                    span_option: str = "hosts", span_value: int = 1):
+       
+
+        # Write the scheme script to a temporary file.
+        filename = self.scheme_filename
+        with open(filename, "w") as f:
+            f.write(self.script)
+        
+
+        # Convert additional command-line parameters.
+        params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
+
+        # Prepare the LSF preamble using the provided method.
+        preamble_lines = self.prepare_lsf_preamble(simulation_name = self.simulation_name, queue=queue,
+                                                     num_procs=num_procs, span_option=span_option,
+                                                     span_value=span_value)
+        # Build the job script that will be submitted.
+        job_script = "\n".join(preamble_lines) + "\n\n"
+        job_script += (
+            f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+            f"mpirun -np $LSB_DJOB_NUMPROC mpb-mpi {params} {filename}"
+        )
+
+        # Write the complete job script to a temporary file.
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, dir=self.directory, suffix=".sh") as job_tmp:
+            job_tmp.write(job_script)
+            job_script_file = job_tmp.name
+
+        # Submit the job via bsub; the job script is fed to bsub via input redirection.
+        cmd = (f"bsub -oo {self.output_filename} -eo {self.error_filename} "
+               f"< {job_script_file}")
         self.logger.debug("Running LSF job command: %s", cmd)
         result = self._execute_command(cmd, shell=True,
                                        print_output=print_output, print_error=print_error)
+
+        # Extract job ID and poll for job completion.
         job_id_match = re.search(r"<(\d+)>", result.stdout)
         if job_id_match:
             job_id = job_id_match.group(1)
@@ -153,6 +236,7 @@ class Simulation:
         else:
             self.logger.warning("Could not determine job ID; proceeding without waiting.")
 
+        # Wait for output and error files to become available.
         out_path = os.path.join(self.directory, self.output_filename)
         err_path = os.path.join(self.directory, self.error_filename)
         elapsed = 0
@@ -166,6 +250,7 @@ class Simulation:
             self.logger.warning("Output files not found or empty after waiting.")
         else:
             self.logger.debug("Output files are now available.")
+
         self.logger.debug("Simulation completed")
         if load_epsilon:
             self.load_epsilon()
