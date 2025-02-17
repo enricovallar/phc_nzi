@@ -283,49 +283,7 @@ class MPIGapMapper:
                 plt.tight_layout()
                 plt.show()
 
-    def wait_for_job(self, submission_output, poll_interval=10):
-        """
-        Wait until the submitted LSF job is finished by polling with 'bstat'.
-        Also read and print the contents of the error and output files.
-        """
-        match = re.search(r"Job <(\d+)>", submission_output)
-        if match:
-            job_id = match.group(1)
-            print(f"Waiting for job {job_id} to finish...")
-            last_status = None
-            while True:
-                try:
-                    out = subprocess.check_output(f"bstat {job_id}", shell=True, universal_newlines=True)
-                    lines = out.strip().splitlines()
-                    if len(lines) < 2:
-                        print("Job not found in bstat, assuming finished.")
-                        break
-                    job_line = lines[1]
-                    tokens = job_line.split()
-                    status = tokens[5] if len(tokens) > 5 else ""
-                    if status != last_status:
-                        print(f"Job {job_id} status: {status}")
-                        last_status = status
-                    if status not in ["RUN", "PEND"]:
-                        print("Job finished.")
-                        break
-                except subprocess.CalledProcessError:
-                    print("bstat command failed; assuming job is finished.")
-                    break
-                time.sleep(poll_interval)
-            base_dir = self.simulation.simulation_name
-            out_file = os.path.join(base_dir, f"{self.simulation.simulation_name}.out")
-            err_file = os.path.join(base_dir, f"{self.simulation.simulation_name}.err")
-            if os.path.exists(out_file):
-                with open(out_file, "r") as f:
-                    print("==== Output File ====")
-                    print(f.read())
-            if os.path.exists(err_file):
-                with open(err_file, "r") as f:
-                    print("==== Error File ====")
-                    print(f.read())
-        else:
-            print("Could not parse job ID from submission output. Not waiting.")
+
 
     def prepare_lsf_preamble(self, 
                              simulation_name: str,
@@ -347,6 +305,93 @@ class MPIGapMapper:
         )
         return preamble
 
+    def wait_for_job(self, submission_output, poll_interval=5, walltime_str=None, total_points=None):
+        """
+        Wait until the submitted LSF job is finished by polling with 'bstat'.
+        In addition to the elapsed-time display, a tqdm progress bar is updated
+        based on the number of grid points computed (as recorded in the mapping log).
+        
+        Parameters
+        ----------
+        submission_output : str
+            Output from the job submission command.
+        poll_interval : int, optional
+            Seconds between polls (default: 10).
+        walltime_str : str, optional
+            Expected walltime as "HH:MM" or "HH:MM:SS" (used only if total_points is None).
+        total_points : int, optional
+            Total number of grid points to be computed. If provided, the progress bar
+            will be updated based on the count of computed points (read from the log file).
+        """
+        match = re.search(r"Job <(\d+)>", submission_output)
+        if not match:
+            print("Could not parse job ID from submission output. Not waiting.")
+            return
+        job_id = match.group(1)
+        print(f"Waiting for job {job_id} to finish...")
+
+        start_time = time.time()
+        # If total_points is provided, we use that as the progress bar total;
+        # otherwise, if walltime_str is provided, we use its seconds value.
+        if total_points is not None:
+            pbar_total = total_points
+        elif walltime_str is not None:
+            time_parts = walltime_str.split(":")
+            if len(time_parts) == 2:
+                hours, minutes = time_parts
+                pbar_total = int(hours) * 3600 + int(minutes) * 60
+            elif len(time_parts) == 3:
+                hours, minutes, seconds = time_parts
+                pbar_total = int(hours) * 3600 + int(minutes) * 60 + int(seconds)
+            else:
+                pbar_total = None
+        else:
+            pbar_total = None
+
+        # Create the progress bar.
+        with tqdm(total=pbar_total, desc="Mapping Progress", unit="grid point", dynamic_ncols=True) as pbar:
+            last_count = 0
+            while True:
+                # If total_points is provided, update progress based on the mapping log.
+                if total_points is not None:
+                    count = 0
+                    if os.path.exists(self.mapping_log):
+                        try:
+                            with open(self.mapping_log, "r") as f:
+                                lines = f.readlines()
+                            # Each valid line should contain "gap:".
+                            count = sum(1 for line in lines if "gap:" in line)
+                        except Exception as e:
+                            count = last_count
+                    # Update progress bar (tqdm's .n can be set manually)
+                    if count != last_count:
+                        pbar.update(count - last_count)
+                        last_count = count
+                    if count >= total_points:
+                        pbar.write("All grid points computed.")
+                        break
+
+                # Check the LSF job status.
+                try:
+                    out = subprocess.check_output(f"bstat {job_id}", shell=True, universal_newlines=True)
+                    lines = out.strip().splitlines()
+                    if len(lines) < 2:
+                        pbar.write("Job not found in bstat, assuming finished.")
+                        break
+                    job_line = lines[1]
+                    tokens = job_line.split()
+                    status = tokens[5] if len(tokens) > 5 else ""
+                    elapsed = int(time.time() - start_time)
+                    pbar.set_postfix_str(f"Job status: {status}, Elapsed: {elapsed} sec")
+                    if status not in ["RUN", "PEND"]:
+                        pbar.write("Job finished.")
+                        break
+                except subprocess.CalledProcessError:
+                    pbar.write("bstat command failed; assuming job is finished.")
+                    break
+
+                time.sleep(poll_interval)
+
     def submit_lsf_job(self, nprocs: int = 5, walltime: str = "00:30", queue: str = "normal",
                        user_mail: str = "s232699@dtu.dk", span_option: str = "ptile", span_value: int = 1,
                        miniconda_source: str = "/zhome/2f/7/202918/miniconda3/etc/profile.d/conda.sh",
@@ -355,6 +400,7 @@ class MPIGapMapper:
         Submit an LSF job for the gap mapping.
         The LSF job script includes the grid boundaries, resolution, and band indices.
         Waits until the job is finished before returning.
+        The progress bar is updated based on the number of grid points computed.
         """
         python_script_name = os.path.abspath(__file__)
         preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime, mem="4GB",
@@ -395,7 +441,9 @@ class MPIGapMapper:
             )
             print("Job submitted successfully. Submission output:")
             print(submission_output)
-            self.wait_for_job(submission_output)
+            # Compute the total number of grid points from the resolution tuple.
+            total_points = self.resolution[0] * self.resolution[1]
+            self.wait_for_job(submission_output, walltime_str=walltime, total_points=total_points)
         except subprocess.CalledProcessError as e:
             print("Job submission failed:")
             print(e.output)
@@ -406,6 +454,7 @@ class MPIGapMapper:
         else:
             print("Keeping the shell script file at:", job_script_path)
         return submission_output
+
 
     def run_mapping(self):
         """

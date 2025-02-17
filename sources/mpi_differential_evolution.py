@@ -17,7 +17,6 @@ from schwimmbad import MPIPool
 
 # Import your pre-implemented Simulation class from simulation_handler.
 from simulation_handler import Simulation
-import os
 
 
 # --- Custom Map Wrapper to satisfy SciPy's workers argument ---
@@ -57,6 +56,7 @@ class MPIDiffEvoSimulation:
               Maximum number of DE iterations.
           de_options : dict, optional
               Additional keyword options to pass to SciPy's differential_evolution.
+              For example, {"popsize": 15, "strategy": "rand1bin"}.
           param_bounds : list, optional
               List of bounds for each parameter, in the form of tuples, e.g. [(lb, ub), ...].
         """
@@ -131,7 +131,7 @@ class MPIDiffEvoSimulation:
             print("Optimization complete.")
             print("Optimal parameters found:", result)
             return result
-        
+
     def prepare_lsf_preamble(self, 
                              simulation_name: str,
                              queue: str = "fotonano",
@@ -144,29 +144,7 @@ class MPIDiffEvoSimulation:
                              span_value: int = 1) -> list[str]:
         """
         Prepare the preamble lines for an LSF job submission script with span support and
-        output/error file directives
-        
-        
-        Parameters:
-            simulation_name : str
-                Name of the simulation.
-            queue : str, optional
-                LSF queue to use. Defaults to "fotonano".
-            num_procs : int, optional
-                Number of processors to use. Defaults to 4.
-            walltime : str, optional
-                Walltime for the job. Defaults to "24:00".
-            mem : str, optional
-                Memory to allocate for the job. Defaults to "4GB".
-            extra_options : list[str], optional
-                Additional options to include in the preamble. Defaults to None.
-            user_email : str, optional
-                Email address for job notifications. Defaults to None.
-            span_option : str, optional
-                Span option for LSF. Defaults to "hosts".
-                Check the LSF documentation for valid options.
-            span_value : int, optional
-                Span value for LSF. Defaults to 1.
+        output/error file directives.
         """
         # Delegate to the Simulation instance's method.
         preamble = self.simulation.prepare_lsf_preamble(
@@ -174,7 +152,42 @@ class MPIDiffEvoSimulation:
             extra_options, user_email, span_option, span_value
         )
         return preamble
-        
+
+    def wait_for_job(self, submission_output, poll_interval=10):
+        """
+        Wait until the submitted LSF job is finished by polling with 'bstat'.
+        An unlimited (indeterminate) tqdm progress bar is used to indicate elapsed time.
+        """
+        from tqdm import tqdm
+
+        match = re.search(r"Job <(\d+)>", submission_output)
+        if match:
+            job_id = match.group(1)
+            print(f"Waiting for job {job_id} to finish...")
+            start_time = time.time()
+            with tqdm(desc="Waiting for LSF job", unit="sec", dynamic_ncols=True) as pbar:
+                while True:
+                    try:
+                        out = subprocess.check_output(f"bstat {job_id}", shell=True, universal_newlines=True)
+                        lines = out.strip().splitlines()
+                        if len(lines) < 2:
+                            pbar.write("Job not found in bstat, assuming finished.")
+                            break
+                        job_line = lines[1]
+                        tokens = job_line.split()
+                        status = tokens[5] if len(tokens) > 5 else ""
+                        elapsed = int(time.time() - start_time)
+                        pbar.set_postfix_str(f"Job status: {status}, Elapsed: {elapsed} sec")
+                        if status not in ["RUN", "PEND"]:
+                            pbar.write("Job finished.")
+                            break
+                    except subprocess.CalledProcessError:
+                        pbar.write("bstat command failed; assuming job is finished.")
+                        break
+                    time.sleep(poll_interval)
+                    pbar.update(poll_interval)
+        else:
+            print("Could not parse job ID from submission output. Not waiting.")
 
     def submit_lsf_job(self, nprocs: int = 5, walltime: str = "00:30", queue: str = "normal",
                        user_mail: str = "s232699@dtu.dk", span_option: str = "ptile", span_value: int = 1, 
@@ -183,28 +196,12 @@ class MPIDiffEvoSimulation:
         """
         Submit an LSF job.
         The LSF job script will include the parameter bounds passed via the command-line.
-
-        Parameters:
-            nprocs : int, optional
-                Number of processors to use. Defaults to 5.
-            walltime : str, optional
-                Walltime for the job. Defaults to "00:30".
-            queue : str, optional
-                LSF queue to use. Defaults to "normal".
-            user_mail : str, optional
-                Email address for job notifications. Defaults to "
-            span_option : str, optional
-                Span option for LSF. Defaults to "ptile".
-                Check the LSF documentation for valid options. (e.g., "ptile", "hosts", "block")
-            span_value : int, optional
-                Span value for LSF. Defaults to 1.
-            miniconda_source : str, optional
-                Used to set up the virtual environment. 
-                Defaults to the path to the conda.sh file for the miniconda installation of the developer.
-
+        This method now waits for the job to finish, displaying an unlimited progress bar.
         """
         python_script_name = os.path.abspath(__file__)
-        preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime, user_email=user_mail, span_option=span_option, span_value=span_value)
+        preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime,
+                                               mem="4GB", extra_options=None,
+                                               user_email=user_mail, span_option=span_option, span_value=span_value)
         lsf_commands = []
         lsf_commands += preamble
         output_path = os.path.join(self.simulation.simulation_name, f"{self.simulation.simulation_name}.out")
@@ -221,7 +218,9 @@ class MPIDiffEvoSimulation:
                f"--run_opt --param_names=\"{','.join(self.param_names)}\" "
                f"--simulation_name=\"{self.simulation.simulation_name}\" "
                f"--maxiter={self.maxiter} --polarization=\"{self.polarization}\" "
-               f"--param_bounds " + " ".join(bound_strings))
+               f"--param_bounds " + " ".join(bound_strings) + " " +
+               f"--popsize={self.de_options.get('popsize', 15)} "
+               f"--strategy=\"{self.de_options.get('strategy', 'rand1bin')}\"")
         lsf_commands.append(cmd)
         lsf_script = "\n".join(lsf_commands) + "\n"
         
@@ -238,6 +237,8 @@ class MPIDiffEvoSimulation:
             )
             print("Job submitted successfully. Submission output:")
             print(submission_output)
+            # Wait for the job to finish using an unlimited progress bar.
+            self.wait_for_job(submission_output, poll_interval=10)
         except subprocess.CalledProcessError as e:
             print("Job submission failed:")
             print(e.output)
@@ -245,7 +246,6 @@ class MPIDiffEvoSimulation:
 
         os.remove(job_script_path)
         return submission_output
-    
 
     def plot_optimization_points(self, 
                         log_file_path=None, 
@@ -258,44 +258,9 @@ class MPIDiffEvoSimulation:
         Reads lines from the .log file, extracting arbitrary parameter names and 
         their values, along with 'cost'. Produces a 2D heat map (or scatter plot) 
         of 'cost' (or 1/cost) vs. two selected parameters.
-
-        We assume each line has the form:
-            paramA: <float>, paramB: <float>, ..., cost: <float>
-        and specifically that exactly 2 parameters + 1 'cost' are present
-        in the lines we want to plot. Lines that do not meet these criteria
-        are skipped.
-
-        Parameters
-        ----------
-        log_file_path : str, optional
-            Path to the log file. If None, uses self.log_file.
-
-        use_logscale : bool, optional
-            If True, the color scale is displayed in log scale (requires all
-            cost values to be > 0, or if plot_inverse_cost=True, then 1/cost
-            must be > 0). Defaults to False.
-
-        levels : int or None, optional
-            - If an integer (e.g., 50), uses tricontourf with that many discrete
-            contour levels.
-            - If None, uses tripcolor with Gouraud shading (continuous).
-            - Ignored if points_only=True.
-
-        points_only : bool, optional
-            If True, skip triangulation/contours entirely and just plot
-            the raw points, colored by cost. Defaults to False.
-
-        plot_inverse_cost : bool, optional
-            If True, plot 1/cost instead of cost. This can be useful if you
-            want to highlight small cost values as large color-mapped values.
-            Make sure your cost is never zero. Defaults to False.
-
-        custom_title : str, optional
-            If provided, this string overrides the default title. Defaults to None.
         """
         import re
         import matplotlib.pyplot as plt
-        import os
         from matplotlib.colors import LogNorm
 
         if log_file_path is None:
@@ -324,7 +289,6 @@ class MPIDiffEvoSimulation:
                 pattern = r"(\w[\w\d_]*)\s*:\s*([\d.+\-eE]+)"
                 matches = re.findall(pattern, line)
                 if not matches:
-                    # no param-value pairs found
                     continue
 
                 # Convert to a dictionary: { paramName: floatValue }
@@ -339,18 +303,17 @@ class MPIDiffEvoSimulation:
                 # We expect one to be 'cost'
                 cost = param_dict.pop('cost', None)
                 if cost is None:
-                    continue  # no cost found
+                    continue
 
                 # If we want 1/cost, handle that now
                 if plot_inverse_cost:
                     if cost == 0:
-                        # If cost=0 is ever in the log, skip this line to avoid divide-by-zero
                         continue
                     cost = 1.0 / cost
 
                 # We need exactly 2 other parameters
                 if len(param_dict) != 2:
-                    continue  # skip lines that don't match exactly 2 params
+                    continue
 
                 # Sort param names so that we always pick them in a stable order
                 sorted_params = sorted(param_dict.keys())
@@ -360,7 +323,6 @@ class MPIDiffEvoSimulation:
                 if param_x_name is None and param_y_name is None:
                     param_x_name, param_y_name = p1, p2
                 else:
-                    # If we encounter a line with different param names, skip
                     if {p1, p2} != {param_x_name, param_y_name}:
                         continue
 
@@ -371,33 +333,27 @@ class MPIDiffEvoSimulation:
                 y_vals.append(y_val)
                 cost_vals.append(cost)
 
-        # Check if we have any valid data
         if not x_vals:
             print("No valid lines with exactly two parameters + cost found.")
             return
 
-        # If logscale is requested but we have non-positive data, revert to linear
         if use_logscale:
             min_cost = min(cost_vals)
             if min_cost <= 0:
                 print("Cannot use log scale because min cost <= 0. Switching to linear scale.")
                 use_logscale = False
 
-        # Prepare norm for matplotlib
         norm = LogNorm(vmin=min(cost_vals), vmax=max(cost_vals)) if use_logscale else None
 
-        # Prepare some strings for the default title
         scale_title = " (Log Scale)" if use_logscale else " (Linear Scale)"
         extra_title = "1/Cost" if plot_inverse_cost else "Cost"
 
-        # Function to decide final plot title if custom_title is None
         def make_title(prefix):
             if custom_title is not None:
                 return custom_title
             else:
                 return f"{prefix}{scale_title} ({extra_title})"
 
-        # If user wants only points (scatter)
         if points_only:
             plt.figure(figsize=(7, 6))
             scatter = plt.scatter(x_vals, y_vals, c=cost_vals, cmap="viridis", norm=norm)
@@ -409,7 +365,6 @@ class MPIDiffEvoSimulation:
             plt.show()
             return
 
-        # Otherwise, attempt contour or tripcolor
         try:
             import matplotlib.tri as mtri
             triang = mtri.Triangulation(x_vals, y_vals)
@@ -417,7 +372,6 @@ class MPIDiffEvoSimulation:
             plt.figure(figsize=(7, 6))
 
             if levels is None:
-                # Continuous shading with tripcolor
                 pc = plt.tripcolor(
                     triang,
                     cost_vals,
@@ -428,7 +382,6 @@ class MPIDiffEvoSimulation:
                 plt.colorbar(pc, label=extra_title)
                 plot_desc = "Tripcolor (Gouraud Shading)"
             else:
-                # Discrete contours with tricontourf
                 cntr = plt.tricontourf(
                     triang,
                     cost_vals,
@@ -446,7 +399,6 @@ class MPIDiffEvoSimulation:
             plt.show()
 
         except Exception as e:
-            # Fallback to a scatter plot
             print("Falling back to scatter plot due to:", e)
             plt.figure(figsize=(7, 6))
             scatter = plt.scatter(x_vals, y_vals, c=cost_vals, cmap="viridis", norm=norm)
@@ -458,7 +410,6 @@ class MPIDiffEvoSimulation:
             plt.show()
 
 
-
 # Main block:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="MPIOptimization")
@@ -466,11 +417,12 @@ if __name__ == '__main__':
     parser.add_argument("--param_names", type=str, nargs='+', help="Parameter names (e.g., R1 R2)")
     parser.add_argument("--simulation_name", type=str, help="Simulation name", required=True)
     parser.add_argument("--maxiter", type=int, default=100, help="Maximum number of DE iterations")
+    parser.add_argument("--popsize", type=int, default=15, help="Population size for DE")
+    parser.add_argument("--strategy", type=str, default="rand1bin", help="DE strategy")
     parser.add_argument("--polarization", type=str, default="te", help="Polarization mode (e.g., te or tm)")
     parser.add_argument("--param_bounds", type=str, nargs='+', help="Parameter bounds (e.g., 0.1,0.9 0.1,0.9)", required=True)
     args = parser.parse_args()
     
-    # Construct the path to the scheme script (assumed to be in a folder named after the simulation)
     scheme_script_path = os.path.join(args.simulation_name, args.simulation_name + ".ctl")
     with open(scheme_script_path, "r") as f:
         scheme_script = f.read()
@@ -483,7 +435,6 @@ if __name__ == '__main__':
         maxiter = args.maxiter
         polarization = args.polarization
 
-        # Process param_bounds: each bound is provided as "lower,upper"
         param_bounds = []
         for b in args.param_bounds:
             parts = b.split(',')
@@ -491,14 +442,18 @@ if __name__ == '__main__':
                 raise ValueError(f"Bound {b} is not in the format 'lower,upper'")
             lb, ub = parts
             param_bounds.append((float(lb), float(ub)))
-            
+        
+        de_options = {
+            "popsize": args.popsize,
+            "strategy": args.strategy
+        }
         optimizer = MPIDiffEvoSimulation(simulation_name=simulation_name,
                                           scheme_script=scheme_script,
                                           param_names=param_names,
                                           maxiter=maxiter,
                                           polarization=polarization,
-                                          param_bounds=param_bounds)
-
+                                          param_bounds=param_bounds, 
+                                          de_options=de_options)
 
         result = optimizer.optimize_parameters()
         if result is not None:
