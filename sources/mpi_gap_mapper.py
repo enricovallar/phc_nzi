@@ -38,7 +38,6 @@ class CustomMapWrapper:
         return self.pool.map(func, iterable)
 
     def __int__(self):
-        # Return 0 so that int(worker)==-1 check in differential_evolution passes.
         return 0
 
 
@@ -80,9 +79,7 @@ class MPIGapMapper:
         self.resolution = resolution
         self.polarization = polarization
         self.band_indices = band_indices
-        # Log file to record each grid evaluation.
         self.mapping_log = os.path.join(simulation_name, f"{simulation_name}_mapping.log")
-        # Save the original directory for later restoration.
         self.orig_dir = self.simulation.directory
 
     def evaluate_grid_point(self, task):
@@ -96,7 +93,6 @@ class MPIGapMapper:
         params = [param0, param1]
         cmd_params = dict(zip(self.param_names, params))
         
-        # Create a temporary directory for this evaluation.
         temp_dir = os.path.join(self.orig_dir, f"tmp_{time.time_ns()}")
         os.mkdir(temp_dir)
         self.simulation.directory = temp_dir
@@ -104,21 +100,17 @@ class MPIGapMapper:
         with open(ctl_file, "w") as f:
             f.write(self.scheme_script)
         
-        # Run the simulation.
         self.simulation.run_hpc(mpb_command_line_params=cmd_params)
-        time.sleep(0.5)  # Allow time for output to be written
+        time.sleep(0.5)
         
-        # Load frequency data and compute gap.
         df = self.simulation.load_frequency_data(self.polarization)
         freqs = self.simulation.get_frequencies_by_band(df, self.polarization)
         gap = abs(freqs[self.band_indices[1]] - freqs[self.band_indices[0]])
         
-        # Log the evaluation.
         with open(self.mapping_log, "a") as f:
             line = f"{self.param_names[0]}: {param0}, {self.param_names[1]}: {param1}, gap: {gap}\n"
             f.write(line)
         
-        # Restore simulation directory.
         self.simulation.directory = self.orig_dir
         
         return (i, j, gap)
@@ -134,13 +126,11 @@ class MPIGapMapper:
         X, Y : 2D arrays (meshgrid of parameter values)
         Z : 2D array (gap computed as |freq[band2] - freqs[band1]|)
         """
-        # Create 1D arrays of parameter values.
         p0_vals = np.linspace(self.grid_bounds[0][0], self.grid_bounds[0][1], self.resolution[0])
         p1_vals = np.linspace(self.grid_bounds[1][0], self.grid_bounds[1][1], self.resolution[1])
-        X, Y = np.meshgrid(p0_vals, p1_vals)  # X, Y shape: (Ny, Nx)
+        X, Y = np.meshgrid(p0_vals, p1_vals)
         Z = np.zeros_like(X)
         
-        # Create list of tasks (each task is (i, j, param0, param1))
         tasks = []
         for i in range(self.resolution[0]):
             for j in range(self.resolution[1]):
@@ -149,21 +139,26 @@ class MPIGapMapper:
                 tasks.append((i, j, param0, param1))
         
         results = []
-        # Use MPI pool if available.
         with MPIPool() as pool:
             if pool.size == 1:
                 print("Only one MPI process available; running mapping serially.")
                 results = list(tqdm(map(self.evaluate_grid_point, tasks),
                                     total=len(tasks), desc="Mapping Grid Points"))
             else:
+                if not hasattr(pool, "imap"):
+                    if hasattr(pool, "imap_unordered"):
+                        imap_func = pool.imap_unordered
+                    else:
+                        imap_func = pool.map
+                else:
+                    imap_func = pool.imap
                 if not pool.is_master():
                     pool.wait()
                     sys.exit(0)
-                for r in tqdm(pool.imap(self.evaluate_grid_point, tasks),
+                for r in tqdm(imap_func(self.evaluate_grid_point, tasks),
                               total=len(tasks), desc="Mapping Grid Points"):
                     results.append(r)
         
-        # Fill in Z array with computed gap values.
         for (i, j, gap) in results:
             Z[j, i] = gap
         
@@ -172,15 +167,6 @@ class MPIGapMapper:
     def plot_mapping(self, X, Y, Z, custom_title: str = None):
         """
         Plot a heatmap of the computed gap.
-        
-        Parameters
-        ----------
-        X, Y : 2D arrays
-            Meshgrid arrays of the parameter values.
-        Z : 2D array
-            Gap values at each grid point.
-        custom_title : str, optional
-            Custom title for the plot. If not provided, a default title is used.
         """
         plt.figure(figsize=(8, 6))
         cp = plt.contourf(X, Y, Z, levels=50, cmap="viridis")
@@ -203,34 +189,15 @@ class MPIGapMapper:
         Each valid log line is expected to contain key-value pairs in the form:
             <param1>: <value>, <param2>: <value>, gap: <value>
         The method extracts the parameter names dynamically from the first valid line.
-        
-        Parameters
-        ----------
-        log_file_path : str, optional
-            Path to the log file. If None, uses self.mapping_log.
-        use_logscale : bool, optional
-            If True, applies a logarithmic color normalization.
-        levels : int or None, optional
-            If an integer, uses tricontourf with that many levels;
-            if None, uses tripcolor with Gouraud shading.
-            Ignored if points_only is True.
-        points_only : bool, optional
-            If True, produces a scatter plot instead of a contour plot.
-        custom_title : str, optional
-            Custom title for the plot.
-        plot_inverse_gap : bool, optional
-            If True, plots 1/gap instead of gap.
         """
         from matplotlib.colors import LogNorm
         
         if log_file_path is None:
             log_file_path = self.mapping_log
 
-        # Lists to store parameter values and gap.
         param1_vals = []
         param2_vals = []
         gap_vals = []
-        # Dynamically determine the parameter names.
         x_label, y_label = None, None
         
         if not os.path.exists(log_file_path):
@@ -242,7 +209,6 @@ class MPIGapMapper:
                 line = line.strip()
                 if not line:
                     continue
-                # Extract all key-value pairs.
                 pairs = re.findall(r"(\w[\w\d_]*)\s*:\s*([\d\.\-eE]+)", line)
                 if not pairs:
                     continue
@@ -252,7 +218,6 @@ class MPIGapMapper:
                         data[key] = float(val)
                     except ValueError:
                         continue
-                # Ensure 'gap' is present and exactly two other parameters exist.
                 if "gap" not in data or len(data) - 1 != 2:
                     continue
                 gap_val = data.pop("gap")
@@ -269,7 +234,6 @@ class MPIGapMapper:
             print("No valid data found in the log file.")
             return
 
-        # Optionally invert gap values.
         if plot_inverse_gap:
             gap_vals = [1.0/g if g != 0 else 0 for g in gap_vals]
             gap_label = "1/Gap"
@@ -323,13 +287,6 @@ class MPIGapMapper:
         """
         Wait until the submitted LSF job is finished by polling with 'bstat'.
         Also read and print the contents of the error and output files.
-        
-        Parameters
-        ----------
-        submission_output : str
-            The output from the bsub command, containing the job id.
-        poll_interval : int, optional
-            Time (in seconds) to wait between polls. Default is 10 seconds.
         """
         match = re.search(r"Job <(\d+)>", submission_output)
         if match:
@@ -356,7 +313,6 @@ class MPIGapMapper:
                     print("bstat command failed; assuming job is finished.")
                     break
                 time.sleep(poll_interval)
-            # After job finishes, read and print output and error files.
             base_dir = self.simulation.simulation_name
             out_file = os.path.join(base_dir, f"{self.simulation.simulation_name}.out")
             err_file = os.path.join(base_dir, f"{self.simulation.simulation_name}.err")
@@ -399,14 +355,8 @@ class MPIGapMapper:
         Submit an LSF job for the gap mapping.
         The LSF job script includes the grid boundaries, resolution, and band indices.
         Waits until the job is finished before returning.
-        
-        Parameters
-        ----------
-        store_sh_file : bool, optional
-            If True, the generated shell script is kept on disk (its path is printed).
-            If False (default), the shell script is deleted after submission.
         """
-        python_script_name = os.path.basename(__file__)
+        python_script_name = os.path.abspath(__file__)
         preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime, mem="4GB",
                                                extra_options=None, user_email=user_mail,
                                                span_option=span_option, span_value=span_value)
@@ -445,7 +395,6 @@ class MPIGapMapper:
             )
             print("Job submitted successfully. Submission output:")
             print(submission_output)
-            # Wait until the job is finished and print out/err contents.
             self.wait_for_job(submission_output)
         except subprocess.CalledProcessError as e:
             print("Job submission failed:")
@@ -515,7 +464,6 @@ if __name__ == '__main__':
                               polarization=args.polarization,
                               band_indices=band_indices)
     if args.run_mapping:
-        # For interactive runs, simply run mapping.
         gap_mapper.run_mapping()
     else:
         print("Interactive mode.")

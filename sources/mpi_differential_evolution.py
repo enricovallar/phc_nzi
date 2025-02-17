@@ -203,7 +203,7 @@ class MPIDiffEvoSimulation:
                 Defaults to the path to the conda.sh file for the miniconda installation of the developer.
 
         """
-        python_script_name = os.path.basename(__file__)
+        python_script_name = os.path.abspath(__file__)
         preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime, user_email=user_mail, span_option=span_option, span_value=span_value)
         lsf_commands = []
         lsf_commands += preamble

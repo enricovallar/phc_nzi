@@ -1,4 +1,0 @@
-/zhome/2f/7/202918/miniconda3/envs/nzi-mp/lib/python3.11/site-packages/scipy/optimize/_differentialevolution.py:486: UserWarning:
-
-differential_evolution: the 'workers' keyword has overridden updating='immediate' to updating='deferred'
-
