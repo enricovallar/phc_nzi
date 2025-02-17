@@ -2,7 +2,6 @@
 (set! resolution 32)
 (set! k-points (list (vector3 0.0 0.0 0.0)))
 
-(define-param r 0.2)
 (define-param r1 0.2)
 (define-param r2 0.3)
 (set! geometry-lattice (make lattice (size 1 1 no-size)  (basis1  (vector3 1.0 0.0 0.0)) (basis2  (vector3 0.5000000000000001 0.8660254037844388 0.0)) ))
@@ -10,7 +9,7 @@
  (make block (center (vector3 0.0 0.0 0.0))
   (size (vector3 1e+20 1e+20 1e+20))
   (material (make dielectric (epsilon 9.61))))
- (make cylinder (center 0.0)
+ (make cylinder (center (vector3 0.3333333333333333 0.3333333333333333 0.0))
   (radius r1)
   (height 1e+20)
   (material (make dielectric (epsilon 1))))

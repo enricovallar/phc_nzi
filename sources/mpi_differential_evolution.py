@@ -17,6 +17,7 @@ from schwimmbad import MPIPool
 
 # Import your pre-implemented Simulation class from simulation_handler.
 from simulation_handler import Simulation
+import os
 
 
 # --- Custom Map Wrapper to satisfy SciPy's workers argument ---
@@ -67,6 +68,7 @@ class MPIDiffEvoSimulation:
         self.maxiter = maxiter
         self.de_options = de_options if de_options is not None else {}
         self.scheme_script = scheme_script
+        self.log_file = os.path.join(simulation_name, f"{simulation_name}.log")
 
     def objective(self, params):
         """
@@ -100,6 +102,11 @@ class MPIDiffEvoSimulation:
         cost = abs(freqs[4] - freqs[2])
         # Optionally: restore the directory.
         self.simulation.directory = old_dir
+
+        with open(self.log_file, "a") as f:
+            line = f"{self.param_names[0]}: {params[0]}, {self.param_names[1]}: {params[1]}"
+            line += f", cost: {cost}\n"
+            f.write(line)
         return cost
 
     def optimize_parameters(self):
@@ -137,7 +144,29 @@ class MPIDiffEvoSimulation:
                              span_value: int = 1) -> list[str]:
         """
         Prepare the preamble lines for an LSF job submission script with span support and
-        output/error file directives.
+        output/error file directives
+        
+        
+        Parameters:
+            simulation_name : str
+                Name of the simulation.
+            queue : str, optional
+                LSF queue to use. Defaults to "fotonano".
+            num_procs : int, optional
+                Number of processors to use. Defaults to 4.
+            walltime : str, optional
+                Walltime for the job. Defaults to "24:00".
+            mem : str, optional
+                Memory to allocate for the job. Defaults to "4GB".
+            extra_options : list[str], optional
+                Additional options to include in the preamble. Defaults to None.
+            user_email : str, optional
+                Email address for job notifications. Defaults to None.
+            span_option : str, optional
+                Span option for LSF. Defaults to "hosts".
+                Check the LSF documentation for valid options.
+            span_value : int, optional
+                Span value for LSF. Defaults to 1.
         """
         # Delegate to the Simulation instance's method.
         preamble = self.simulation.prepare_lsf_preamble(
@@ -154,6 +183,25 @@ class MPIDiffEvoSimulation:
         """
         Submit an LSF job.
         The LSF job script will include the parameter bounds passed via the command-line.
+
+        Parameters:
+            nprocs : int, optional
+                Number of processors to use. Defaults to 5.
+            walltime : str, optional
+                Walltime for the job. Defaults to "00:30".
+            queue : str, optional
+                LSF queue to use. Defaults to "normal".
+            user_mail : str, optional
+                Email address for job notifications. Defaults to "
+            span_option : str, optional
+                Span option for LSF. Defaults to "ptile".
+                Check the LSF documentation for valid options. (e.g., "ptile", "hosts", "block")
+            span_value : int, optional
+                Span value for LSF. Defaults to 1.
+            miniconda_source : str, optional
+                Used to set up the virtual environment. 
+                Defaults to the path to the conda.sh file for the miniconda installation of the developer.
+
         """
         python_script_name = os.path.basename(__file__)
         preamble = self.prepare_lsf_preamble(self.simulation.simulation_name, queue, nprocs, walltime, user_email=user_mail, span_option=span_option, span_value=span_value)
@@ -197,6 +245,218 @@ class MPIDiffEvoSimulation:
 
         os.remove(job_script_path)
         return submission_output
+    
+
+    def plot_optimization_points(self, 
+                        log_file_path=None, 
+                        use_logscale=False, 
+                        levels=50, 
+                        points_only=False,
+                        plot_inverse_cost=False,
+                        custom_title=None):
+        """
+        Reads lines from the .log file, extracting arbitrary parameter names and 
+        their values, along with 'cost'. Produces a 2D heat map (or scatter plot) 
+        of 'cost' (or 1/cost) vs. two selected parameters.
+
+        We assume each line has the form:
+            paramA: <float>, paramB: <float>, ..., cost: <float>
+        and specifically that exactly 2 parameters + 1 'cost' are present
+        in the lines we want to plot. Lines that do not meet these criteria
+        are skipped.
+
+        Parameters
+        ----------
+        log_file_path : str, optional
+            Path to the log file. If None, uses self.log_file.
+
+        use_logscale : bool, optional
+            If True, the color scale is displayed in log scale (requires all
+            cost values to be > 0, or if plot_inverse_cost=True, then 1/cost
+            must be > 0). Defaults to False.
+
+        levels : int or None, optional
+            - If an integer (e.g., 50), uses tricontourf with that many discrete
+            contour levels.
+            - If None, uses tripcolor with Gouraud shading (continuous).
+            - Ignored if points_only=True.
+
+        points_only : bool, optional
+            If True, skip triangulation/contours entirely and just plot
+            the raw points, colored by cost. Defaults to False.
+
+        plot_inverse_cost : bool, optional
+            If True, plot 1/cost instead of cost. This can be useful if you
+            want to highlight small cost values as large color-mapped values.
+            Make sure your cost is never zero. Defaults to False.
+
+        custom_title : str, optional
+            If provided, this string overrides the default title. Defaults to None.
+        """
+        import re
+        import matplotlib.pyplot as plt
+        import os
+        from matplotlib.colors import LogNorm
+
+        if log_file_path is None:
+            log_file_path = self.log_file
+
+        # We'll store the param data in separate arrays for plotting:
+        x_vals = []
+        y_vals = []
+        cost_vals = []
+
+        # Track the parameter names for labeling
+        param_x_name = None
+        param_y_name = None
+
+        if not os.path.isfile(log_file_path):
+            print(f"Log file not found: {log_file_path}")
+            return
+
+        with open(log_file_path, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue  # skip empty lines
+
+                # Regex to find all "paramName: value" pairs
+                pattern = r"(\w[\w\d_]*)\s*:\s*([\d.+\-eE]+)"
+                matches = re.findall(pattern, line)
+                if not matches:
+                    # no param-value pairs found
+                    continue
+
+                # Convert to a dictionary: { paramName: floatValue }
+                param_dict = {}
+                for (pname, pval_str) in matches:
+                    try:
+                        val = float(pval_str)
+                    except ValueError:
+                        continue
+                    param_dict[pname] = val
+
+                # We expect one to be 'cost'
+                cost = param_dict.pop('cost', None)
+                if cost is None:
+                    continue  # no cost found
+
+                # If we want 1/cost, handle that now
+                if plot_inverse_cost:
+                    if cost == 0:
+                        # If cost=0 is ever in the log, skip this line to avoid divide-by-zero
+                        continue
+                    cost = 1.0 / cost
+
+                # We need exactly 2 other parameters
+                if len(param_dict) != 2:
+                    continue  # skip lines that don't match exactly 2 params
+
+                # Sort param names so that we always pick them in a stable order
+                sorted_params = sorted(param_dict.keys())
+                p1, p2 = sorted_params[0], sorted_params[1]
+
+                # Lock in param names once we see the first valid line
+                if param_x_name is None and param_y_name is None:
+                    param_x_name, param_y_name = p1, p2
+                else:
+                    # If we encounter a line with different param names, skip
+                    if {p1, p2} != {param_x_name, param_y_name}:
+                        continue
+
+                x_val = param_dict[param_x_name]
+                y_val = param_dict[param_y_name]
+
+                x_vals.append(x_val)
+                y_vals.append(y_val)
+                cost_vals.append(cost)
+
+        # Check if we have any valid data
+        if not x_vals:
+            print("No valid lines with exactly two parameters + cost found.")
+            return
+
+        # If logscale is requested but we have non-positive data, revert to linear
+        if use_logscale:
+            min_cost = min(cost_vals)
+            if min_cost <= 0:
+                print("Cannot use log scale because min cost <= 0. Switching to linear scale.")
+                use_logscale = False
+
+        # Prepare norm for matplotlib
+        norm = LogNorm(vmin=min(cost_vals), vmax=max(cost_vals)) if use_logscale else None
+
+        # Prepare some strings for the default title
+        scale_title = " (Log Scale)" if use_logscale else " (Linear Scale)"
+        extra_title = "1/Cost" if plot_inverse_cost else "Cost"
+
+        # Function to decide final plot title if custom_title is None
+        def make_title(prefix):
+            if custom_title is not None:
+                return custom_title
+            else:
+                return f"{prefix}{scale_title} ({extra_title})"
+
+        # If user wants only points (scatter)
+        if points_only:
+            plt.figure(figsize=(7, 6))
+            scatter = plt.scatter(x_vals, y_vals, c=cost_vals, cmap="viridis", norm=norm)
+            plt.colorbar(scatter, label=extra_title)
+            plt.xlabel(param_x_name)
+            plt.ylabel(param_y_name)
+            plt.title(make_title("Parameter Space Scatter"))
+            plt.tight_layout()
+            plt.show()
+            return
+
+        # Otherwise, attempt contour or tripcolor
+        try:
+            import matplotlib.tri as mtri
+            triang = mtri.Triangulation(x_vals, y_vals)
+
+            plt.figure(figsize=(7, 6))
+
+            if levels is None:
+                # Continuous shading with tripcolor
+                pc = plt.tripcolor(
+                    triang,
+                    cost_vals,
+                    shading="gouraud",
+                    cmap="viridis",
+                    norm=norm
+                )
+                plt.colorbar(pc, label=extra_title)
+                plot_desc = "Tripcolor (Gouraud Shading)"
+            else:
+                # Discrete contours with tricontourf
+                cntr = plt.tricontourf(
+                    triang,
+                    cost_vals,
+                    levels=levels,
+                    cmap="viridis",
+                    norm=norm
+                )
+                plt.colorbar(cntr, label=extra_title)
+                plot_desc = f"Tricontourf (levels={levels})"
+
+            plt.xlabel(param_x_name)
+            plt.ylabel(param_y_name)
+            plt.title(make_title(f"Parameter Space Heatmap\n{plot_desc}"))
+            plt.tight_layout()
+            plt.show()
+
+        except Exception as e:
+            # Fallback to a scatter plot
+            print("Falling back to scatter plot due to:", e)
+            plt.figure(figsize=(7, 6))
+            scatter = plt.scatter(x_vals, y_vals, c=cost_vals, cmap="viridis", norm=norm)
+            plt.colorbar(scatter, label=extra_title)
+            plt.xlabel(param_x_name)
+            plt.ylabel(param_y_name)
+            plt.title(make_title("Parameter Space Scatter"))
+            plt.tight_layout()
+            plt.show()
+
 
 
 # Main block:
@@ -218,7 +478,7 @@ if __name__ == '__main__':
     if args.run_opt:
         if not args.param_names:
             raise ValueError("Parameter names must be provided")
-        param_names = args.param_names  # Already a list
+        param_names = [name.strip() for item in args.param_names for name in item.split(',')]
         simulation_name = args.simulation_name
         maxiter = args.maxiter
         polarization = args.polarization
@@ -238,6 +498,8 @@ if __name__ == '__main__':
                                           maxiter=maxiter,
                                           polarization=polarization,
                                           param_bounds=param_bounds)
+
+
         result = optimizer.optimize_parameters()
         if result is not None:
             print("Optimal parameters found:", result.x)
