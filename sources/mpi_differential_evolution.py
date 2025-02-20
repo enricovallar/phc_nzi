@@ -105,7 +105,8 @@ class MPIDiffEvoSimulation:
 
         with open(self.log_file, "a") as f:
             line = f"{self.param_names[0]}: {params[0]}, {self.param_names[1]}: {params[1]}"
-            line += f", cost: {cost}\n"
+            line += f", cost: {cost}"
+            line += f", freq_dirac: {freqs[3]}\n"
             f.write(line)
         return cost
 
@@ -286,12 +287,12 @@ class MPIDiffEvoSimulation:
                     continue  # skip empty lines
 
                 # Regex to find all "paramName: value" pairs
-                pattern = r"(\w[\w\d_]*)\s*:\s*([\d.+\-eE]+)"
+                pattern = r"(\w+)\s*:\s*([\d.+\-eE]+)"
                 matches = re.findall(pattern, line)
                 if not matches:
                     continue
 
-                # Convert to a dictionary: { paramName: floatValue }
+                # Convert captures to a dictionary: { paramName: floatValue }
                 param_dict = {}
                 for (pname, pval_str) in matches:
                     try:
@@ -300,10 +301,13 @@ class MPIDiffEvoSimulation:
                         continue
                     param_dict[pname] = val
 
-                # We expect one to be 'cost'
+                # Remove the cost
                 cost = param_dict.pop('cost', None)
                 if cost is None:
                     continue
+
+                # Remove freq_dirac if present
+                param_dict.pop('freq_dirac', None)
 
                 # If we want 1/cost, handle that now
                 if plot_inverse_cost:
@@ -311,15 +315,15 @@ class MPIDiffEvoSimulation:
                         continue
                     cost = 1.0 / cost
 
-                # We need exactly 2 other parameters
+                # We need exactly 2 parameters (after removing cost and freq_dirac)
                 if len(param_dict) != 2:
                     continue
 
-                # Sort param names so that we always pick them in a stable order
+                # Sort param names so that we always pick them in a stable order.
                 sorted_params = sorted(param_dict.keys())
                 p1, p2 = sorted_params[0], sorted_params[1]
 
-                # Lock in param names once we see the first valid line
+                # Lock in param names once we see the first valid line.
                 if param_x_name is None and param_y_name is None:
                     param_x_name, param_y_name = p1, p2
                 else:
