@@ -1,11 +1,14 @@
-from photonic_crystal_maker import *
+try: 
+    from photonic_crystal_maker import *
+except ImportError: 
+    from sources.photonic_crystal_maker import *
 import meep as mp
 from meep import mpb   
 
 class MPBSchemeConfigurator():
     def __init__(self, phc: PhotonicCrystal,  simulation_types: list = ["te"], resolution: int | mp.Vector3 = 32, num_bands: int = 8, 
                  k_point_interpolation_factor: int = 4, mesh_size: int | None = None, target_freq: float = None, tolerance: float = None, 
-                 k_points: list = [mp.Vector3(0, 0, 0)]):
+                 k_points: list = [mp.Vector3(0, 0, 0)], extra_runner_command: str = ""):
         # PhotonicCrystal object is used to generate the geometry and lattice
         if type(phc) == PhotonicCrystal:    
             self._phc = phc
@@ -32,6 +35,8 @@ class MPBSchemeConfigurator():
         self.target_freq = target_freq
         self.tolerance = tolerance
         self.k_points = k_points
+
+        self.extra_runner_command = extra_runner_command    
 
         
 
@@ -227,20 +232,22 @@ class MPBSchemeConfigurator():
             raise ValueError("Invalid k-points interpolation factor")
         
         
-    def generate_runner_commands(self):
+    def generate_runner_commands(self, extra_commands=None):
         commands = []
+        if extra_commands is None:
+            extra_commands = self.extra_runner_command
         for sim_type in dict.fromkeys(self.simulation_types):
             if sim_type == "tm":
-                commands.append("(run-tm)")
+                commands.append(f"(run-tm {extra_commands})")
             elif sim_type == "te":
-                commands.append("(run-te)")
+                commands.append(f"(run-te {extra_commands})")
             elif sim_type == "zeven":
-                commands.append("(run-zeven)")
+                commands.append(f"(run-zeven {extra_commands})")
             elif sim_type == "zodd":
-                commands.append("(run-zodd)")
+                commands.append(f"(run-zodd {extra_commands})")
             else:
                 print(f"simulation type: {sim_type}")
-                commands.append("(run)")
+                commands.append(f"(run {extra_commands})")
         return commands
     
         

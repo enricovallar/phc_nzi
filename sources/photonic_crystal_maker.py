@@ -91,52 +91,50 @@ class Lattice:
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
     
-
-    def get_high_symmetry_k_points(self, centerd_in_gamma=False): 
-        """Get the high symmetry k points of the lattice.    
-         Returns:
+    def get_high_symmetry_k_points(self, centerd_in_gamma=False):
+        """Get the high symmetry k points of the lattice.
+        
+        Returns:
             dict: A dictionary with the keys "k_points_values" and "k_points_labels".
         """
-        if centerd_in_gamma is False:
-            if self._type in ("SX", "SXY"): 
+        if not centerd_in_gamma:
+            if self._type in ("SX", "SXY"):
                 # Square lattice
-                k_points_values = [mp.Vector3(0, 0, 0), 
-                                   mp.Vector3(0.5, 0, 0), 
-                                   mp.Vector3(0.5, 0.5, 0), 
-                                   mp.Vector3(0, 0, 0)]
+                k_points_values = [mp.Vector3(0, 0, 0),
+                                mp.Vector3(0.5, 0, 0),
+                                mp.Vector3(0.5, 0.5, 0),
+                                mp.Vector3(0, 0, 0)]
                 k_points_labels = ["Γ", "X", "M", "Γ"]
-                
             elif self._type in ("TX", "TXY"):
-                # Triangular lattice
-                k_points_values = [mp.Vector3(0, 0, 0), 
-                                   mp.Vector3(1/3, 0, 0), 
-                                   mp.Vector3(0.5, 0.5, 0), 
-                                   mp.Vector3(0, 0, 0)]
-                k_points_labels = ["Γ", "K", "M", "Γ"]
-                
+                # Triangular (hexagonal) lattice
+                k_points_values = [mp.Vector3(0, 0, 0),       # Γ
+                                mp.Vector3(0, 0.5, 0),     # M
+                                mp.Vector3(-1/3, 1/3, 0),   # K
+                                mp.Vector3(0, 0, 0)]       # Γ
+                k_points_labels = ["Γ", "M", "K", "Γ"]
             else:
-                raise ValueError(f"Invalid lattice type: {self._type}") 
+                raise ValueError(f"Invalid lattice type: {self._type}")
         else:
-            if self._type in ("SX", "SXY"): 
+            if self._type in ("SX", "SXY"):
                 # Square lattice with gamma as the second value
-                k_points_values = [mp.Vector3(0.5, 0, 0), 
-                                   mp.Vector3(0, 0, 0), 
-                                   mp.Vector3(0.5, 0.5, 0), 
-                                   mp.Vector3(0.5, 0, 0)]
+                k_points_values = [mp.Vector3(0.5, 0, 0),
+                                mp.Vector3(0, 0, 0),
+                                mp.Vector3(0.5, 0.5, 0),
+                                mp.Vector3(0.5, 0, 0)]
                 k_points_labels = ["X", "Γ", "M", "X"]
             elif self._type in ("TX", "TXY"):
                 # Triangular lattice with gamma as the second value
-                k_points_values = [mp.Vector3(1/3, 0, 0), 
-                                   mp.Vector3(0, 0, 0), 
-                                   mp.Vector3(0.5, 0.5, 0), 
-                                   mp.Vector3(1/3, 0, 0)]
-                k_points_labels = ["K", "Γ", "M", "K"]
+                k_points_values = [mp.Vector3(0.5, 0, 0),     # M
+                                mp.Vector3(0, 0, 0),       # Γ
+                                mp.Vector3(1/3, 1/3, 0),   # K
+                                mp.Vector3(0.5, 0, 0)]     # M
+                k_points_labels = ["M", "Γ", "K", "M"]
             else:
                 raise ValueError(f"Invalid lattice type: {self._type}")
         return {"k_points_values": k_points_values, "k_points_labels": k_points_labels}
-            
+         
 
-    def get_get_k_points_around_Gamma(self, distance: float):  
+    def get_k_points_around_Gamma(self, distance: float):  
         """Get the k points around the Gamma point of the lattice.    
         Args:
             distance (float): The distance from the Gamma point.
@@ -151,61 +149,87 @@ class Lattice:
         k_points_labels = ["X", "Γ", "Y"]
         return {"k_points_values": k_points_values, "k_points_labels": k_points_labels}
         
-            
-        
-            
-    
 
-    
-        
-    
-       
-       
-       
-
-    
-
-class ScriptParams:
-    def __init__(self, scrip_params_default: dict = {}): 
-        self.script_params_default = scrip_params_default   
-
-    def add_script_params(self, new_script_params):
-        self.script_params_default.update(new_script_params)
-
-    def add_script_param(self, name, value):    
-        self.script_params_default[name] = value
+class ScriptParam:
+    def __init__(self, name, default_value): 
+        self._names = [name]
+        self._default_values = [default_value]
+        self._scheme_string = self._names[0]
 
     def to_scheme(self):
         commands = []
-        for param, value in self.script_params_default.items():
-            commands.append(f"(define-param {param} {value})")
+        for name, default_value in zip(self._names, self._default_values):
+            commands.append( f"(define-param {name} {default_value})" )
         return commands
     
+    def to_scheme_by_name(self, name):
+        
+        if name in self._names:
+            index = self._names.index(name)
+            return [f"(define-param {self._names[index]} {self._default_values[index]})"]
+        else:
+            raise ValueError(f"Name {name} not found in script param names")
 
-    def merge_script_params(self, other):
-        self.script_params_default.update(other.script_params_default)
-        return self.script_params_default
     
-
-    def __add__(self, other):
-        new_script_params = ScriptParams(self.script_params_default)
-        new_script_params.merge_script_params(other)
-        return new_script_params
-    
-
     def __str__(self):
-        return str(self.script_params_default)
+        return self._scheme_string
+
+class ScriptParamVector3(ScriptParam):
+    def __init__(self, x= 1, y=1, z=1, x_def=1, y_def=1, z_def=1):
+        self._validate(x, y, z, x_def, y_def, z_def)
+        # Build the scheme string using the provided component values directly.
+        self._scheme_string = f"(vector3 {x} {y} {z})"
+        self._names = []
+        self._default_values = []
+        # Only add to the names list if the component is given as a string.
+        if isinstance(x, str):
+            self._names.append(x)
+            self._default_values.append(x_def)
+        if isinstance(y, str):
+            self._names.append(y)
+            self._default_values.append(y_def)
+        if isinstance(z, str):
+            self._names.append(z)
+            self._default_values.append(z_def)
+
+    def _validate(self, x, y, z, x_def, y_def, z_def):
+        # For each component, if it's a string, its default must be int or float.
+        # Otherwise, the component must be int or float.
+        for comp, comp_def, label in ((x, x_def, "x"), (y, y_def, "y"), (z, z_def, "z")):
+            if isinstance(comp, str):
+                if not isinstance(comp_def, (int, float)):
+                    raise ValueError(f"Default value for {label} must be an int or float")
+            elif not isinstance(comp, (int, float)):
+                raise ValueError(f"{label} must be either a string or an int/float")
+                
+
+class ScriptParams:
+    def __init__(self, *script_params: ScriptParam):
+        self._script_params = list(script_params)
+
+    def __add__(self, other):   
+        if isinstance(other, ScriptParams):
+            return ScriptParams(*self._script_params, *other._script_params)    
+        elif isinstance(other, ScriptParam):
+            return ScriptParams(*self._script_params, other)
+        else:
+            raise ValueError(f"Invalid type for addition: {type(other)}")   
     
+    def to_scheme(self):
+        commands = []
+        already_added = set()
+        for script_param in self._script_params:
+            for name in script_param._names:
+                if name not in already_added:
+                    commands.extend(script_param.to_scheme_by_name(name))
+                    already_added.add(name)
 
+        print("COMMANDS", commands) 
+        return commands
+        
 
-
+    
 class Geometry:
-
-    GEOM_PARAM_PREFIX = 'geom-param-'
-    VECTOR3_PREFIX = 'vector3-'
-
-
-
     """ This class is a wrapper for meep geometry objects. It can be used to create meep geometry objects and convert them to Scheme strings. """
     VALID_SCHEME_GEOMETRIES = {
         mp.Cylinder: "cylinder",
@@ -218,16 +242,18 @@ class Geometry:
     def __init__(self, geom_type, params: dict):   
         self.mp_geom_type = geom_type
         self.params = params
-        self.script_params_default = {}
-        self.build_script_param_dictionary()
+        self.script_params = ScriptParams()
+        self.collect_script_params()
+
     
-    def is_script_param(self, param_value: str):
-        if isinstance(param_value, str):
-            return param_value.startswith(Geometry.GEOM_PARAM_PREFIX)
+    def is_script_param(self, param_value):
+        return isinstance(param_value, ScriptParam)
+            
         
-    def is_script_vector3_param(self, param_value: str):   
-        if isinstance(param_value, str):
-            return param_value.startswith(Geometry.GEOM_PARAM_PREFIX + Geometry.VECTOR3_PREFIX) 
+    def is_script_param_vector3(self, param_value):   
+        if isinstance(param_value, ScriptParamVector3):
+            return True
+            
 
 
     def parse_script_param(self, param_value: str): 
@@ -272,34 +298,17 @@ class Geometry:
         else:
             raise ValueError(f"Invalid vector3 param value: {param_value}")
         
-    def _parse_script_param(self, param_value: str):
-        if self.is_script_param(param_value):
-            # Expect format: geom-param-{name}={value}
-            # Remove the "geom-param-" prefix
-            stripped = param_value[len(Geometry.GEOM_PARAM_PREFIX):]
-            try:
-                # Split into name and value string based on the '='
-                name, value = stripped.split("=", 1)
-            except ValueError:
-                raise ValueError(f"Invalid script param format: {param_value}")
-            value = value.strip()
-            # add {name} to the sript_params_default dictionary
-            self.script_params_default[name] = value
-            return name
-        else:
-            raise ValueError(f"Invalid script param value: {param_value}")
-
-
     def build(self):
         if self.mp_geom_type:
             return self.mp_geom_type(**self.params)
         else:
             raise ValueError(f"Invalid geometry type: {self.mp_geom_type}, use one of meep geometry types")
     
-    def build_script_param_dictionary(self):
+    def collect_script_params(self):
         for param, value in self.params.items():
             if self.is_script_param(value):
-                self.parse_script_param(value)
+                print(f"Found script param: {param} with value: {value}")      
+                self.script_params += value
 
                 
     def _params_to_scheme(self): 
@@ -315,7 +324,7 @@ class Geometry:
             elif isinstance(value, mp.Vector3):
                 value = f"(vector3 {value.x} {value.y} {value.z})"
             elif self.is_script_param(value):
-                value = self.parse_script_param(value)
+                value = str(value)
             else:
                 raise ValueError(f"Invalid value type for {param}")
             commands.append(f"({param} {value})")
@@ -329,8 +338,7 @@ class Geometry:
         return command
     
     def get_script_params(self)-> ScriptParams:
-        script_params = ScriptParams(self.script_params_default)
-        return script_params
+        return self.script_params
     
     def to_valid_scheme_geometry_definition(self):
         if self.mp_geom_type in Geometry.VALID_SCHEME_GEOMETRIES:
@@ -339,18 +347,7 @@ class Geometry:
             raise ValueError(f"Invalid geometry type: {self.mp_geom_type}, use one of meep geometry types available in the python interface")
         
     def to_python(self):
-        return self.build()
-    
-    @staticmethod
-    def make_script_param(**kwargs):
-        if len (kwargs) != 1:
-            raise ValueError("One and only one parameter can be set as script param each time")
-        name, value = kwargs.popitem()
-        if isinstance(value, tuple):
-            value = f"({value[0]}, {value[1]}, {value[2]})"
-            return Geometry.GEOM_PARAM_PREFIX + Geometry.VECTOR3_PREFIX + name + "=" + str(value)
-        return Geometry.GEOM_PARAM_PREFIX + name + "=" + str(value)
-    
+        return self.build()   
         
 class GeometryGroup:
     def __init__(self, *geometries:  Geometry):
@@ -474,8 +471,8 @@ class PhotonicCrystal:
 #example usage of the classes
 if __name__ == "__main__":
 
-    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": Geometry.make_script_param(height=0.5), "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
-    atom_geometry2 = Geometry(mp.Block , {"size": Geometry.make_script_param(size_=(1, 1, 1) ), "center": mp.Vector3(0.5, 0.5, 0.5), "material": Material(epsilon=12)})
+    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": ScriptParam(name="h", default_value=0.3), "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
+    atom_geometry2 = Geometry(mp.Block , {"size": ScriptParamVector3(2, 1, "sz", 1, 1, 0.5), "center": mp.Vector3(0.5, 0.5, 0.5), "material": Material(epsilon=12)})
     lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
     material = Material(epsilon=12)
     photonic_crystal = PhotonicCrystal([atom_geometry, atom_geometry2], lattice)

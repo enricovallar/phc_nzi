@@ -3,6 +3,8 @@ import subprocess
 import time
 import re
 import sqlite3
+import tempfile
+import logging
 
 import h5py
 import numpy as np
@@ -14,8 +16,6 @@ from meep import mpb
 from mpb_configurator import MPBSchemeConfigurator
 
 import plotly.graph_objects as go
-import logging
-import tempfile
 
 # Configure module-level logger.
 logger = logging.getLogger(__name__)
@@ -26,21 +26,16 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-
-
 class Simulation:
-
     INFO = logging.INFO
     DEBUG = logging.DEBUG
     WARNING = logging.WARNING
     ERROR = logging.ERROR
     CRITICAL = logging.CRITICAL
 
-
-
-
     def __init__(self, simulation_name: str, script: str, 
-                 directory: str = None, description: str = None, log_level: int = logging.INFO, save_script = True):
+                 directory: str = None, description: str = None, 
+                 log_level: int = logging.INFO, save_script=True):
         self.simulation_name = simulation_name
         self.directory = directory or simulation_name
         os.makedirs(self.directory, exist_ok=True)
@@ -64,21 +59,17 @@ class Simulation:
             desc_path = os.path.join(self.directory, f"{simulation_name}.txt")
             with open(desc_path, "w") as f:
                 f.write(description)
-        
 
     def save_script(self, scheme_script: str, print_script: bool = False) -> str:
         if scheme_script is None:
             raise ValueError("Scheme script must be provided.")
-        elif isinstance(scheme_script, str)==False:
+        elif not isinstance(scheme_script, str):
             raise ValueError("Scheme script must be a string.")
         else:
             with open(os.path.join(self.directory, self.scheme_filename), "w") as f:
                 f.write(scheme_script)
             if print_script:
                 print(scheme_script)
-
-        
-        
 
     def _execute_command(self, cmd, shell: bool = False,
                          print_output: bool = False, print_error: bool = False):
@@ -96,7 +87,7 @@ class Simulation:
         if print_error:
             print(result.stderr)
         return result
-    
+
     def run_hpc(self, mpb_command_line_params: dict = {},
                 load_epsilon: bool = True, extract_frequencies: bool = True,
                 print_output: bool = False, print_error: bool = False): 
@@ -115,8 +106,7 @@ class Simulation:
             self.load_epsilon()
         if extract_frequencies:
             self.extract_frequencies()
-        
-    
+
     def prepare_lsf_preamble(self, 
                              simulation_name: str,
                              queue: str = "fotonano",
@@ -128,25 +118,8 @@ class Simulation:
                              span_option: str = "hosts",
                              span_value: int = 1) -> list[str]:
         """
-        Prepare the preamble lines for an LSF job submission script with span support and
-        output/error file directives.
-
-        Parameters:
-            simulation_name: Name of the simulation (used as job name).
-            queue: LSF queue name.
-            num_procs: Number of processors to request.
-            walltime: Maximum wall-clock time (e.g., "24:00").
-            mem: Memory per process (e.g., "4GB").
-            extra_options: Additional BSUB options as a list of strings.
-            user_email: User email to receive notifications.
-            span_option: Option for span constraint ('hosts', 'ptile', or 'block').
-            span_value: The value to use with the span option.
-
-        Returns:
-            A list of strings representing the preamble of the LSF script.
+        Prepare the preamble lines for an LSF job submission script.
         """
-
-        
         preamble = []
         preamble.append("#!/bin/bash")
         preamble.append(f"#BSUB -J {simulation_name}")
@@ -155,7 +128,6 @@ class Simulation:
         preamble.append(f"#BSUB -W {walltime}")
         preamble.append(f"#BSUB -R \"rusage[mem={mem}]\"")
         
-        # Add span support if span_option is provided.
         span_str = {
             "hosts": f'span[hosts={span_value}]',
             "ptile": f'span[ptile={span_value}]',
@@ -164,7 +136,6 @@ class Simulation:
         if span_str:
             preamble.append(f"#BSUB -R \"{span_str}\"")
         
-        # Add output and error file directives.
         preamble.append(f"#BSUB -oo {simulation_name}.out")
         preamble.append(f"#BSUB -eo {simulation_name}.err")
         
@@ -175,8 +146,6 @@ class Simulation:
                 preamble.append(option)
         return preamble
 
-
-      
     def run_hpc_lsf(self, 
                     load_epsilon: bool = True, extract_frequencies: bool = True,
                     mpb_command_line_params: dict = {},
@@ -184,41 +153,27 @@ class Simulation:
                     queue: str = "fotonano", num_procs: int = 4,
                     initial_wait: int = 2, poll_interval: int = 5, output_timeout: int = 300,
                     span_option: str = "hosts", span_value: int = 1):
-       
-
-        # Write the scheme script to a temporary file.
         filename = self.scheme_filename
         with open(filename, "w") as f:
             f.write(self.script)
         
-
-        # Convert additional command-line parameters.
         params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
-
-        # Prepare the LSF preamble using the provided method.
-        preamble_lines = self.prepare_lsf_preamble(simulation_name = self.simulation_name, queue=queue,
+        preamble_lines = self.prepare_lsf_preamble(simulation_name=self.simulation_name, queue=queue,
                                                      num_procs=num_procs, span_option=span_option,
                                                      span_value=span_value)
-        # Build the job script that will be submitted.
         job_script = "\n".join(preamble_lines) + "\n\n"
         job_script += (
             f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
             f"mpirun -np $LSB_DJOB_NUMPROC mpb-mpi {params} {filename}"
         )
-
-        # Write the complete job script to a temporary file.
         with tempfile.NamedTemporaryFile(mode='w', delete=False, dir=self.directory, suffix=".sh") as job_tmp:
             job_tmp.write(job_script)
             job_script_file = job_tmp.name
-
-        # Submit the job via bsub; the job script is fed to bsub via input redirection.
         cmd = (f"bsub -oo {self.output_filename} -eo {self.error_filename} "
                f"< {job_script_file}")
         self.logger.debug("Running LSF job command: %s", cmd)
         result = self._execute_command(cmd, shell=True,
                                        print_output=print_output, print_error=print_error)
-
-        # Extract job ID and poll for job completion.
         job_id_match = re.search(r"<(\d+)>", result.stdout)
         if job_id_match:
             job_id = job_id_match.group(1)
@@ -235,8 +190,6 @@ class Simulation:
                     time.sleep(poll_interval)
         else:
             self.logger.warning("Could not determine job ID; proceeding without waiting.")
-
-        # Wait for output and error files to become available.
         out_path = os.path.join(self.directory, self.output_filename)
         err_path = os.path.join(self.directory, self.error_filename)
         elapsed = 0
@@ -250,7 +203,6 @@ class Simulation:
             self.logger.warning("Output files not found or empty after waiting.")
         else:
             self.logger.debug("Output files are now available.")
-
         self.logger.debug("Simulation completed")
         if load_epsilon:
             self.load_epsilon()
@@ -287,20 +239,44 @@ class Simulation:
                 f_mode.writelines(data)
             self.logger.debug("Extracted %d lines of data for mode '%s'", len(data), mode)
 
-    def load_epsilon(self):
-        filepath = os.path.join(self.directory, f"{self.simulation_name}-epsilon.h5")
+    def load_frequency_data(self, mode: str = "te") -> pd.DataFrame:
+        """
+        Load frequency data for the given mode from a .dat file.
+        
+        The file is expected to be named:
+        {simulation_name}.{mode}.dat
+        The data is also stored in an SQLite database for future use.
+        
+        Parameters:
+            mode (str): The polarization mode ('te', 'tm', etc.).
+        
+        Returns:
+            pd.DataFrame: The loaded frequency data.
+        
+        Raises:
+            FileNotFoundError: If the .dat file is not found.
+        """
+        filepath = os.path.join(self.directory, f"{self.simulation_name}.{mode}.dat")
         if not os.path.exists(filepath):
-            raise FileNotFoundError(f"HDF5 file {filepath} not found.")
-        with h5py.File(filepath, 'r') as f:
-            self.epsilon = f['data'][...]
-            self.lattice = f['lattice vectors'][...] if 'lattice vectors' in f else None
-        self.logger.debug("Loaded epsilon and lattice vectors")
+            raise FileNotFoundError(f"{filepath} not found.")
+        df = pd.read_csv(filepath, skipinitialspace=True)
+        db_path = os.path.join(self.directory, f"{self.simulation_name}_frequencies.db")
+        with sqlite3.connect(db_path) as conn:
+            df.to_sql("frequencies", conn, if_exists="replace", index=False)
+        self.bands_df[mode] = df
+        self.logger.debug("Loaded frequency data for mode '%s'", mode)
+        return df
 
-    def convert_epsilon(self, periods=1, use_2d=True, is_fully_3d=False) -> np.ndarray:
-        if self.lattice is None or self.epsilon is None:
-            raise ValueError("Call load_epsilon() first.")
-        mpb_data = mpb.MPBData(rectify=True, periods=periods, lattice=self.lattice)
-        return self._convert_array(mpb_data, self.epsilon, periods, use_2d, is_fully_3d)
+    def load_epsilon(self, converted: bool = False):
+        if converted:
+            filepath = os.path.join(self.directory, f"{self.simulation_name}-epsilon.converted.h5")
+        else:
+            filepath = os.path.join(self.directory, f"{self.simulation_name}-epsilon.h5")
+        data = self.load_h5_data(filepath)
+        self.epsilon = data.get("data")
+        self.lattice = data.get("lattice vectors")
+        self.logger.debug("Loaded epsilon and lattice vectors using load_h5_data")
+        return self.epsilon
 
     def _convert_array(self, md: mpb.MPBData, x: np.ndarray, periods=1, use_2d=True, is_fully_3d=False) -> np.ndarray:
         if x.ndim == 2:
@@ -319,47 +295,108 @@ class Simulation:
         else:
             raise ValueError("Invalid array dimensions")
 
-    def load_frequency_data(self, mode: str = "te") -> pd.DataFrame:
-        filepath = os.path.join(self.directory, f"{self.simulation_name}.{mode}.dat")
-        if not os.path.exists(filepath):
-            raise FileNotFoundError(f"{filepath} not found.")
-        df = pd.read_csv(filepath, skipinitialspace=True)
-        db_path = os.path.join(self.directory, f"{self.simulation_name}_frequencies.db")
-        with sqlite3.connect(db_path) as conn:
-            df.to_sql("frequencies", conn, if_exists="replace", index=False)
-        self.bands_df[mode] = df
-        self.logger.debug("Loaded frequency data for mode '%s'", mode)
-        return df
-    
-    
+    def convert_epsilon(self, periods=1, use_2d=True, is_fully_3d=False) -> np.ndarray:
+        """
+        Convert the loaded epsilon array using MPBData.
+        """
+        if self.lattice is None or self.epsilon is None:
+            raise ValueError("Call load_epsilon() first.")
+        mpb_data = mpb.MPBData(rectify=True, periods=periods, lattice=self.lattice)
+        return self._convert_array(mpb_data, self.epsilon, periods, use_2d, is_fully_3d)
+
+    def _run_mpb_data_conversion(self, input_file: str, output_file: str, options: dict) -> None:
+        """
+        Build and run an mpb-data conversion command.
+        Common options (e.g., rectify, axis, resolution, periods, phase, transpose, pixellized, dataset)
+        are passed via the options dict.
+        """
+        cmd = "source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && mpb-data"
+        if options.get("rectify", True):
+            cmd += " -r"
+        if "axis" in options and options["axis"]:
+            cmd += f" -e {options['axis']}"
+        if "resolution" in options and options["resolution"]:
+            cmd += f" -n {options['resolution']}"
+        if "periods" in options and options["periods"]:
+            periods = options["periods"]
+            if isinstance(periods, int):
+                cmd += f" -m {periods}"
+            elif isinstance(periods, (list, tuple)) and len(periods) == 3:
+                cmd += f" -x {periods[0]} -y {periods[1]} -z {periods[2]}"
+        if "phase" in options and options["phase"] is not None:
+            cmd += f" -P {options['phase']}"
+        if options.get("transpose", False):
+            cmd += " -T"
+        if options.get("pixellized", False):
+            cmd += " -p"
+        if "dataset" in options and options["dataset"]:
+            cmd += f" -d {options['dataset']}"
+        cmd += f" -o {output_file} {input_file}"
+        self.logger.debug("Running mpb-data conversion command: %s", cmd)
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+        if result.returncode != 0:
+            self.logger.debug(result.stderr)
+            raise subprocess.CalledProcessError(result.returncode, cmd)
+
+    def convert_field_data(self,
+                           k_value: int,
+                           b_value: int,
+                           comp: str,
+                           polarization: str,
+                           field_type: str = "e",
+                           conversion_options: dict = None) -> str:
+        """
+        Convert the field data file using mpb-data.
+        
+        Constructs the input filename from simulation metadata and uses conversion_options (a dict)
+        to pass common options (e.g., rectangular, axis, resolution, periods, etc.).
+        Returns the path to the converted file.
+        """
+        conversion_options = conversion_options or {}
+        input_file = self.find_field_data(k_value, b_value, comp, polarization, field_type)
+        output_filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.converted.h5"
+        output_filepath = os.path.join(self.directory, output_filename)
+        self._run_mpb_data_conversion(input_file, output_filepath, conversion_options)
+        return output_filepath
+
+    def convert_epsilon_data(self,
+                             conversion_options: dict = None) -> str:
+        """
+        Convert the epsilon file using mpb-data.
+        
+        The input epsilon file is assumed to be {simulation_name}-epsilon.h5.
+        Returns the path to the converted epsilon file.
+        """
+        conversion_options = conversion_options or {}
+        input_file = os.path.join(self.directory, f"{self.simulation_name}-epsilon.h5")
+        if not os.path.exists(input_file):
+            raise FileNotFoundError(f"Epsilon file {input_file} not found.")
+        output_filename = f"{self.simulation_name}-epsilon.converted.h5"
+        output_filepath = os.path.join(self.directory, output_filename)
+        self._run_mpb_data_conversion(input_file, output_filepath, conversion_options)
+        return output_filepath
+
+    def load_h5_data(self, filename: str) -> dict:
+        """
+        Load an HDF5 file and return its contents as a dictionary.
+        """
+        if not os.path.exists(filename):
+            raise FileNotFoundError(f"File {filename} not found.")
+        with h5py.File(filename, 'r') as f:
+            data = { key: f[key][...] for key in f.keys() }
+        return data
+
     def get_frequencies_by_band(self, df, polarization: str = "te", bands: list[int] = [2, 3, 4], k_point: tuple = (0, 0, 0)) -> dict:
         """
         Get the frequencies for the specified bands and k-point.
-
-        Parameters:
-            polarization: The polarization mode (e.g., 'te', 'tm').
-            bands: List of band numbers to retrieve.
-            k_point: The k-point as a tuple (k1, k2, k3).
-            df: The DataFrame containing the frequency data.
-
-        Returns:
-            frequencies_by_band: A dictionary mapping band numbers to their frequency at the given k-point.
         """
-
-        # Ensure that the required k-point columns exist.
         if not {"k1", "k2", "k3"}.issubset(df.columns):
             raise ValueError("The database must contain 'k1', 'k2', and 'k3' columns for k-point matching.")
-
-        # Find the row closest to the provided k_point using the k1, k2, k3 columns.
         k_coords = df[["k1", "k2", "k3"]].values
         target = np.array(k_point)
         distances = np.linalg.norm(k_coords - target, axis=1)
         closest_idx = distances.argmin()
-
-        # Initialize a dictionary to store the frequencies by band.
         frequencies_by_band = {}
-
-        # For each band, extract the frequency at the closest k-point.
         for band in bands:
             band_col = f"{polarization} band {band}"
             if band_col not in df.columns:
@@ -367,8 +404,23 @@ class Simulation:
                 frequencies_by_band[band] = np.nan
             else:
                 frequencies_by_band[band] = df[band_col].iloc[closest_idx]
-
         return frequencies_by_band
+
+    def find_closest_k_point_row(self, df, target) -> object:
+        """
+        Find the row in the DataFrame corresponding to the closest k-point to the target.
+        """
+        keys = ["k1", "k2"]
+        if "k3" in df.columns:
+            keys.append("k3")
+        target_arr = np.array(target)
+        if target_arr.size < len(keys):
+            target_arr = np.pad(target_arr, (0, len(keys) - target_arr.size), 'constant')
+        distances = df.apply(
+            lambda row: np.linalg.norm(np.array([row[k] for k in keys]) - target_arr),
+            axis=1
+        )
+        return df.loc[distances.idxmin()]
 
     @property 
     def verbosity(self):
@@ -380,25 +432,61 @@ class Simulation:
         print("Log level set to %s" % logging.getLevelName(int(level)))
 
     def set_verbosity(self, level):
-        """ Set the verbosity level of the logger. """
+        """Set the verbosity level of the logger."""
         if level not in (logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL):
             raise ValueError(f"Invalid verbosity level: {level}")
-        self.verbosity = level  
-
-
+        self.verbosity = level
     
-
-
+    def find_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e"):
+        """
+        Find the field data file based on the given parameters.
+        
+        The file is expected to be named as:
+        {simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5
+        
+        Parameters:
+            k_value (int): The k-point index (used both for the filename and for extracting the Bloch wavevector).
+            b_value (int): The band index.
+            comp (str): The field component specifier (e.g., 'x', 'y', or 'z').
+            polarization (str): One of 'te', 'tm', 'zeven', or 'zodd'.
+            field_type (str): The field type (default "e").
+            
+        Returns:
+            str: The full path to the field data file.
+        """
+        filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5"
+        filepath = os.path.join(self.directory, filename)
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"File {filepath} not found.")
+        return filepath
+    
+    def load_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e"):
+        """
+        Load the field data file using h5py.
+        
+        The file is expected to be named as:
+        {simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5
+        
+        Parameters:
+            k_value (int): The k-point index.
+            b_value (int): The band index.
+            comp (str): The field component specifier.
+            polarization (str): The polarization mode.
+            field_type (str): The field type (default "e").
+        
+        Returns:
+            dict: The loaded data from the file.
+        """
+        filename = self.find_field_data(k_value, b_value, comp, polarization, field_type)
+        return self.load_h5_data(filename)
 
 class SimulationViewer:
     def __init__(self, simulation: Simulation):
         self.simulation = simulation
 
-    def _apply_title(self, default_title: str, title: str | None, fig: object = None):
+    def _apply_title(self, default_title: str, title: str | None):
         """
-        Apply the title to the current figure. If a figure is passed and is a Plotly figure,
-        update its layout; if it's a matplotlib figure (or if no figure is passed), use the usual
-        title functions.
+        Apply a title to the current matplotlib figure.
         """
         if title is False:
             return
@@ -406,475 +494,197 @@ class SimulationViewer:
             new_title = title
         else:
             new_title = default_title
+        plt.title(new_title)
 
-        # If fig is None, assume we are working with the current matplotlib axes.
-        if fig is None:
-            plt.title(new_title)
-        elif isinstance(fig, go.Figure):
-            fig.update_layout(title=dict(text=new_title))
-        else:
-            # Assume fig is a matplotlib figure
-            if hasattr(fig, 'axes') and fig.axes:
-                fig.axes[0].set_title(new_title)
-
-    def plot_epsilon_2d(self, periods: int | tuple = 1, title: str | bool | None = None, 
-                        converted: bool = True, cmap: str = 'viridis', aspect_ratio: tuple = (1, 1)):
+    def plot_epsilon_2d(self, title: str | bool | None = None,
+                        cmap: str = 'viridis', aspect_ratio: tuple = (1, 1), 
+                        conversion_options: dict = {"rectify": True, "periods": 3}):
         """
-        Plot 2D epsilon data.
-        
-        Parameters:
-            periods: number of periods to use in conversion.
-            title: Title for the plot; if False, no title is set.
-            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
-            cmap: Colormap name.
-            aspect_ratio: Tuple (rx, ry) for setting the aspect ratio (default (1,1) for equal scaling).
+        Plot the 2D epsilon data using convert_epsilon_data.
         """
-        
         if self.simulation.epsilon is None:
             raise ValueError("Epsilon data not loaded. Call load_epsilon() on the simulation object.")
+        # Convert the epsilon file using mpb-data conversion.
+        converted_filepath = self.simulation.convert_epsilon_data(conversion_options)
+        # Load the converted data from the file.
+        data = self.simulation.load_h5_data(converted_filepath)
+        eps = data.get("data")
+        if eps is None:
+            raise KeyError("Converted data not found in the file.")
+        # If the data is three-dimensional, take the mid-plane.
+        if eps.ndim == 3:
+            mid_index = eps.shape[2] // 2
+            eps = eps[:, :, mid_index]
         fig = plt.figure()
-        if converted:
-            eps = self.simulation.convert_epsilon(periods, use_2d=True)
-        else:
-            eps = self.simulation.epsilon
-            if eps.ndim == 3:
-                mid_index = eps.shape[2] // 2
-                eps = eps[:, :, mid_index]
         plt.imshow(eps, interpolation='spline36', cmap=cmap)
         plt.colorbar()
-        # Set the aspect ratio; for matplotlib imshow we use the ratio of the two numbers.
         plt.gca().set_aspect(aspect_ratio[0] / aspect_ratio[1])
         self._apply_title(self.simulation.simulation_name, title)
         plt.show()
         return fig
 
-        
-        
-    def plot_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
-                        converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3,
-                        aspect_ratio: tuple = (1, 1, 1)) -> plt.Figure:
+    def plot_epsilon_3d(self, title: str | bool | None = None,
+                          cmap: str = 'viridis', alpha: float = 0.3,
+                          aspect_ratio: tuple = (1, 1, 1), 
+                          conversion_options: dict = {"rectify": True, "periods": 3}):
         """
-        Plot the 3D dielectric constant data as an isosurface using matplotlib.
-        The method uses the marching cubes algorithm (from scikit-image) to extract an isosurface
-        (using the mid-value as the default isosurface level) from the 3D epsilon array.
-        The surface is plotted with a semi-transparent face color, a colorbar is added,
-        and the 3D axes are set to the specified aspect_ratio.
-        
-        Parameters:
-            periods: Number of periods to use in conversion.
-            title: Title for the plot; if False, no title is set.
-            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
-            cmap: Name of the matplotlib colormap to use.
-            alpha: Opacity for the isosurface.
-            aspect_ratio: Tuple (rx, ry, rz) for setting the 3D axis aspect ratio (default (1,1,1)).
-            
-        Returns:
-            fig: The matplotlib Figure object.
+        Plot the 3D epsilon data as an isosurface.
         """
-        # Ensure that epsilon data is available.
-        if self.simulation.epsilon is None:
-            raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
-        
-        # Retrieve the 3D epsilon array.
-        if converted:
-            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)
-        else:
-            eps = self.simulation.epsilon
-
-        # Compute the isosurface level as the midpoint of the data.
+        filepath = self.simulation.convert_epsilon_data(conversion_options)
+        data = self.simulation.load_h5_data(filepath)
+        eps = data.get("data")
         iso = (np.min(eps) + np.max(eps)) / 2.0
-
-        # Extract the isosurface using marching cubes.
         try:
             from skimage import measure
         except ImportError:
-            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g., pip install scikit-image).")
+            raise ImportError("scikit-image is required for 3D plotting. Please install it.")
         verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
-        
-        # Create a new 3D matplotlib figure.
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        
-        # Create a Poly3DCollection from the extracted isosurface.
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         mesh = Poly3DCollection(verts[faces], alpha=alpha)
-        
-        # Set the face color using the given colormap (using the midpoint of the colormap).
         colormap = plt.get_cmap(cmap)
-        face_color = colormap(0.5)  # Adjust this value as needed.
+        face_color = colormap(0.5)
         mesh.set_facecolor(face_color)
         ax.add_collection3d(mesh)
-        
-        # Set the axis limits based on the epsilon data dimensions.
         nx, ny, nz = eps.shape
         ax.set_xlim(0, nx)
         ax.set_ylim(0, ny)
         ax.set_zlim(0, nz)
-        
-        # Set the aspect ratio if possible (requires matplotlib >= 3.3).
         try:
             ax.set_box_aspect(aspect_ratio)
         except Exception:
             pass
-        
-        # Add a colorbar.
         import matplotlib.cm as cm
         import matplotlib.colors as mcolors
         mappable = cm.ScalarMappable(cmap=cmap, norm=mcolors.Normalize(vmin=np.min(eps), vmax=np.max(eps)))
         mappable.set_array(eps)
         fig.colorbar(mappable, ax=ax, pad=0.1, label="Epsilon")
-        
-        # Apply the title.
         default_title = f"{self.simulation.simulation_name} epsilon 3D"
         self._apply_title(default_title, title)
         plt.show()
         return fig
-    
-    def plotly_epsilon_3d(self, periods: int | tuple = 1, title: str | bool | None = None,
-                            converted: bool = True, cmap: str = 'viridis', alpha: float = 0.3,
-                            width: int = 800, height: int = 600, aspect_ratio: tuple = (1, 1, 1),
-                            fig: go.Figure | None = None) -> go.Figure:
-        """
-        Plot the 3D dielectric constant data as an isosurface using Plotly.
-        The method uses a marching cubes algorithm to extract an isosurface (using the mid-value
-        as a default isosurface level) from the 3D epsilon array. The surface is rendered with
-        a semi-transparent face color, an attached colorbar, and the scene's aspect ratio is set 
-        according to the provided aspect_ratio tuple.
-        
-        Parameters:
-            periods: number of periods to use in conversion.
-            title: Title for the plot; if False, no title is set.
-            converted: If True, use self.simulation.convert_epsilon() to convert the raw epsilon data.
-            cmap: Name of the matplotlib colormap to use; also used as a Plotly colorscale.
-                (E.g., 'viridis' is supported.)
-            alpha: Opacity for the isosurface.
-            width: Figure width in pixels.
-            height: Figure height in pixels.
-            aspect_ratio: A 3-tuple (rx, ry, rz) to set the scene's aspect ratio (default (1,1,1)).
-            fig: An existing Plotly figure to which the isosurface will be added. If None,
-                a new figure is created.
-        
-        Returns:
-            fig: The Plotly figure object.
-        """
-        # Ensure that epsilon data is available.
-        if self.simulation.epsilon is None:
-            raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
-        
-        # Get the 3D epsilon array.
-        if converted:
-            eps = self.simulation.convert_epsilon(periods, use_2d=False, is_fully_3d=False)
-        else:
-            eps = self.simulation.epsilon
 
-        # Compute the isosurface level as the midpoint.
-        iso = (np.min(eps) + np.max(eps)) / 2.0
-
-        # Use marching cubes to extract the isosurface.
-        try:
-            from skimage import measure
-        except ImportError:
-            raise ImportError("scikit-image is required for 3D plotting. Please install it (e.g., pip install scikit-image).")
-        verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
-        
-        # If no figure is passed, create a new one with the specified width and height.
-        if fig is None:
-            fig = go.Figure(layout=go.Layout(width=width, height=height))
-        
-        # Create a Mesh3d trace.
-        # Using 'intensity' equal to the marching cubes values so that a colorscale and colorbar are shown.
-        mesh = go.Mesh3d(
-            x=verts[:, 0],
-            y=verts[:, 1],
-            z=verts[:, 2],
-            i=faces[:, 0],
-            j=faces[:, 1],
-            k=faces[:, 2],
-            intensity=values,
-            colorscale=cmap,
-            opacity=alpha,
-            showscale=True,
-            colorbar=dict(title='Epsilon')
-        )
-        
-        fig.add_trace(mesh)
-        
-        # Set axis limits based on the epsilon data dimensions.
-        nx, ny, nz = eps.shape
-        fig.update_layout(
-            scene=dict(
-                xaxis=dict(range=[0, nx]),
-                yaxis=dict(range=[0, ny]),
-                zaxis=dict(range=[0, nz]),
-                aspectmode='manual',
-                aspectratio=dict(x=aspect_ratio[0], y=aspect_ratio[1], z=aspect_ratio[2])
-            )
-        )
-        
-        # Set the title if requested. _apply_title is assumed to handle both matplotlib and Plotly figures.
-        default_title = f"{self.simulation.simulation_name} epsilon 3D"
-        self._apply_title(default_title, title, fig=fig)
-        fig.show()
-        return fig
-
-
-
-    
     def rotate_fig(self, fig: plt.Figure, azim: float, elev: float) -> plt.Figure:
         """
-        Rotate the 3D axes in the given figure to the specified azimuth and elevation angles.
-        
-        Parameters:
-            fig: The matplotlib figure object containing the 3D axes.
-            azim: The azimuth angle in degrees (rotation about the z-axis).
-            elev: The elevation angle in degrees (rotation about the x-axis).
-        
-        Returns:
-            fig: The updated matplotlib figure object with the new view.
+        Rotate the 3D view in the given figure.
         """
-        # Get the current 3D axis. If there are multiple axes, this example uses the first one.
         ax = fig.axes[0] if fig.axes else None
         if ax is None:
             raise ValueError("The figure does not contain any axes.")
-        
-        # For a 3D axis, set the view using the view_init method.
         ax.view_init(elev=elev, azim=azim)
-        
-        # Optionally force a redraw of the figure.
         plt.draw()
         return fig
 
-
-    def plot_epsilon(self, periods: int | tuple = 1, title: str | bool | None = None, converted: bool = True, cmap: str = 'viridis'):
-        if self.simulation.epsilon.ndim == 2:   
-            self.plot_epsilon_2d(periods, title, converted, cmap)
-        elif self.simulation.epsilon.ndim == 3:
-            self.plot_epsilon_3d(periods, title, converted, cmap)
+    def plot_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, 
+                        field_type: str = "e", plot_mode: str = "real", cmap: str = "RdBu",
+                        conversion_options: dict = {"rectify": True, "periods": 3}):    
+        """
+        Plot the custom field data.
+        
+        If conversion is requested, the field data file is converted using mpb-data and then loaded.
+        The complex field is reconstructed from 'z.r' and 'z.i' and then visualized based on plot_mode.
+        """
+        conversion_options = conversion_options or {}
+        # Convert the field data file and get the converted file path.
+        data = self.simulation.load_field_data(k_value, b_value, comp, polarization, field_type)
+        description = data.get("description")
+        converted_filepath = self.simulation.convert_field_data(k_value, b_value, comp, polarization, field_type, conversion_options)
+        data = self.simulation.load_h5_data(converted_filepath)
+        if "z.r" not in data or "z.i" not in data:
+            raise KeyError("Field file must contain keys 'z.r' and 'z.i'.")
+        field_complex = data["z.r"] + 1j * data["z.i"]
+        if plot_mode == "real":
+            field_to_plot = np.real(field_complex)
+            title_mode = "Real"
+        elif plot_mode == "imag":
+            field_to_plot = np.imag(field_complex)
+            title_mode = "Imaginary"
+        elif plot_mode == "phase":
+            field_to_plot = np.angle(field_complex)
+            title_mode = "Phase"
+        elif plot_mode == "abs":
+            field_to_plot = np.abs(field_complex)
+            title_mode = "Absolute"
         else:
-            raise ValueError("Invalid epsilon data dimensions")
-        
+            raise ValueError("plot_mode must be one of 'real', 'imag', 'phase', or 'abs'")
+        plt.figure()
+        im = plt.imshow(field_to_plot, interpolation='spline36', cmap=cmap)
+        cbar = plt.colorbar(im)
+        cbar.set_label(f"{field_type.upper()}{comp}, {title_mode}")
 
-    def plot_epsilon_contour(self, periods: int | tuple = 1, title: str | bool | None = None):
+        plt.title(f"{self.simulation.simulation_name} {field_type} field: k{k_value:02d}, b{b_value:02d}, comp={comp}, {polarization}, {title_mode}")
+        plt.suptitle(description)
+
+    def plot_epsilon_contour(self, title: str | bool | None = None, conversion_options: dict = {"rectify": True, "periods": 3}):
         """
-        Plot a contour of the converted 2D epsilon data.
+        Plot a contour of the 2D epsilon data.
         """
-        epsilon_converted = self.simulation.convert_epsilon(periods, use_2d=True)
-        plt.contour(epsilon_converted, cmap='binary')
+        output_filepath = self.simulation.convert_epsilon_data(conversion_options)
+        data = self.simulation.load_h5_data(output_filepath)
+        epsilon_converted = data.get("data")
+        if epsilon_converted is None:
+            raise KeyError("Converted data not found in the file.")
+        iso = (np.min(epsilon_converted) + np.max(epsilon_converted)) / 2.0
+        plt.contour(epsilon_converted, levels=[iso], colors='red', linewidths=3)
         self._apply_title(self.simulation.simulation_name, title)
-        
-            
 
     def plot_band_diagram(self, mode: str = "te", title: str | None = None, 
-                            colors: list[str] | str | None = None, decimation_label_factor: int = 1, grid: bool = True, 
-                            fig: plt.Figure | None = None,
-                            k_points_values: list | None = None, k_points_labels: list | None = None
-                            ) -> plt.Figure:
+                          colors: list[str] | str | None = None, grid: bool = True, 
+                          fig: plt.Figure | None = None,
+                          k_points_path: dict | None = None) -> plt.Figure:
         """
         Plot the band diagram for the given mode.
-        All bands will use the same color.
-        The x-axis tick labels are formatted as (kₓ, kᵧ) in LaTeX if decimation_label_factor > 1,
-        with decimation controlled by decimation_label_factor.
-        The y-axis label is always frequency.
-        The legend includes the polarization mode.
-        
-        Parameters:
-            k_points_values: List of custom k-point vectors (each an iterable representing [k1, k2, ...]).
-                            For each custom value, the label will be assigned to the closest tick (based on the
-                            Euclidean distance in the (k1,k2) plane) except for the last custom point.
-                            For the last custom point, the tick is set to the last k-index in the database.
-            k_points_labels: List of labels corresponding to k_points_values.
-            
-        Returns:
-            fig: The matplotlib Figure object.
         """
         fig = plt.figure() if fig is None else fig  
         if mode not in self.simulation.bands_df:
             df = self.simulation.load_frequency_data(mode)
         else:
             df = self.simulation.bands_df[mode]
-
         bands = df.columns[5:]
         plot_color = "C0"
         if isinstance(colors, list) and colors:
             plot_color = colors[0]
         elif isinstance(colors, str):
             plot_color = colors
-
         for i, col in enumerate(bands):
             if i == 0:
                 plt.plot(df["k index"], df[col], label=f"{mode.upper()} bands", color=plot_color)
             else:
                 plt.plot(df["k index"], df[col], color=plot_color)
-
-        # Default tick labels: if decimation_label_factor > 1 and k1/k2 exist.
-        if decimation_label_factor > 1 and {"k1", "k2"}.issubset(df.columns):
-            tickvals = df["k index"].values[::decimation_label_factor]
-            ticklabels = [f"({row['k1']:.2f}, {row['k2']:.2f})" 
-                        for _, row in df.iloc[::decimation_label_factor].iterrows()]
-            plt.xticks(tickvals, ticklabels)
-        else:
-            plt.xticks(df["k index"])
-
-        # If custom k-points are provided, override the ticks.
-        if k_points_values is not None and k_points_labels is not None:
-            # Build a dictionary mapping row indices to the 2D k-point as a numpy array.
-            db_vectors = {}
-            for i, row in df.iterrows():
-                db_vectors[i] = np.array([row["k1"], row["k2"]])
-            
+        if k_points_path is not None and "k_points_values" in k_points_path and "k_points_labels" in k_points_path:
+            k_points_values = k_points_path["k_points_values"]
+            k_points_labels = k_points_path["k_points_labels"]
             custom_tick_positions = []
-            custom_tick_labels = []
             n_custom = len(k_points_values)
-            for idx, (custom_k, label) in enumerate(zip(k_points_values, k_points_labels)):
+            for idx, custom_k in enumerate(k_points_values):
                 if idx == n_custom - 1:
-                    # For the last custom k-point, assign the last "k index" in the database.
                     tick_val = df["k index"].iloc[-1]
                 else:
-                    custom_arr = np.array(custom_k)[:2]  # Only compare the k1, k2 components.
-                    closest_index = min(db_vectors, key=lambda i: np.linalg.norm(db_vectors[i] - custom_arr))
-                    tick_val = df.loc[closest_index, "k index"]
+                    row = self.simulation.find_closest_k_point_row(df, custom_k)
+                    tick_val = row["k index"]
                 custom_tick_positions.append(tick_val)
-                custom_tick_labels.append(label)
-            plt.xticks(ticks=custom_tick_positions, labels=custom_tick_labels)
-
-        plt.xlabel("k index" if decimation_label_factor == 1 else r"$(k_x, k_y)$")
+            plt.xticks(ticks=custom_tick_positions, labels=k_points_labels)
+        else:
+            plt.xticks(df["k index"])
+        plt.xlabel("k index")
         plt.ylabel("Frequency")
         self._apply_title(self.simulation.simulation_name, title)
         plt.legend()
         plt.grid(grid)
         return fig
 
+    def plot_light_cone(self, df, fig: plt.Figure | None = None) -> plt.Figure:
+        """
+        Plot the light cone for the simulation.
+        """
+        fig = plt.figure() if fig is None else fig
+        w = df['kmag/2pi']
+        plt.plot(df['k index'], w, color='black', label='Light cone')
+        return fig
 
     def show(self):
         plt.show()
-    
-    TEXT_HUGE = {"family": "Arial", "size": 28, "color": "black"}  
-    TEXT_BIG = {"family": "Arial", "size": 23, "color": "black"}
-    TEXT_MEDIUM = {"family": "Arial", "size": 20, "color": "black"}
-    TEXT_SMALL = {"family": "Arial", "size": 18, "color": "black"}
-    
-    @staticmethod
-    def _font_config(font: dict | str | None | int):
-        if font is None:
-            return SimulationViewer.TEXT_MEDIUM
-        if type(font) is str:
-            if font == "small":
-                return SimulationViewer.TEXT_SMALL
-            elif font == "medium":
-                return SimulationViewer.TEXT_MEDIUM
-            elif font == "big":
-                return SimulationViewer.TEXT_BIG
-            elif font == "huge":
-                return SimulationViewer.TEXT_HUGE
-            else:
-                raise ValueError("Invalid font size, select from 'small', 'medium', 'big', 'huge'")                   
-        elif type(font) is int:
-            return {"family": "Arial", "size": font, "color": "black"}
-        elif type(font) is dict:
-            return font
-        else:
-            raise ValueError("Invalid font size, select from 'small', 'medium', 'big', 'huge', int value or build your own dictionary.")
-       
 
 
-    from IPython.display import display, HTML
-    import plotly
-    plotly.offline.init_notebook_mode()
-    display(HTML(
-    '<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>'
-    ))
-
-    def set_fig_size(self, fig: go.Figure, width: int = 800) -> go.Figure:
-        """
-        Auxiliary method to set figure size to almost a 4:3 ratio.
-        By default, width=800 will result in height=600.
-        """
-        height = int(width * 3 / 4)
-        fig.update_layout(width=width, height=height)
-        return fig
-
-    def plotly_band_diagram(self, mode: str = "te", title: str | None = None, fig: go.Figure | None = None, 
-                            decimation_label_factor: int = 1, color: str = "red", 
-                            title_font = "huge", legend_font = "medium", label_font = "huge", tick_font = "small"):
-        
-        title_font = SimulationViewer._font_config(title_font)
-        legend_font = SimulationViewer._font_config(legend_font)
-        label_font = SimulationViewer._font_config(label_font)
-        tick_font = SimulationViewer._font_config(tick_font)
-
-        # Load the data frame
-        if mode not in self.simulation.bands_df:
-            df = self.simulation.load_frequency_data(mode)
-        else:
-            df = self.simulation.bands_df[mode]
-
-        bands = df.columns[5:]
-        if fig is None:
-            fig = go.Figure()
-        
-        # Prepare hover information if k1 and k2 are available
-        if {"k1", "k2"}.issubset(df.columns):
-            customdata = df[["k1", "k2"]].to_numpy()
-            hovertemplate = " (%{customdata[0]:.2f}, %{customdata[1]:.2f}) : %{y}<extra></extra>"
-        else:
-            customdata = None
-            hovertemplate = None
-
-        for col in bands:
-            if customdata is not None:
-                fig.add_trace(go.Scatter(
-                    x=df["k index"], 
-                    y=df[col], 
-                    mode='lines+markers', 
-                    name=col, 
-                    line=dict(color=color),
-                    marker=dict(symbol='circle'),
-                    customdata=customdata,
-                    hovertemplate=hovertemplate
-                ))
-            else:
-                fig.add_trace(go.Scatter(
-                    x=df["k index"], 
-                    y=df[col], 
-                    mode='lines+markers', 
-                    name=col, 
-                    line=dict(color=color),
-                    marker=dict(symbol='circle')
-                ))
-            
-        # Set the plot title: use the given title or fallback to simulation name.
-        plot_title = title if title is not None else self.simulation.simulation_name
-
-        # Configure x-axis tick labels using decimation factor and, if available, k1/k2 values
-        if decimation_label_factor > 1:
-            k_indices = df["k index"].tolist()
-            tickvals = k_indices[::decimation_label_factor]
-            if {"k1", "k2"}.issubset(df.columns):
-                ticks = df.loc[::decimation_label_factor, ["k1", "k2"]]
-                ticktext = [f"({row['k1']:.2f}, {row['k2']:.2f})" for _, row in ticks.iterrows()]
-            else:
-                ticktext = [f"k{i+1}" for i in range(len(tickvals))]
-            xaxis_config = dict(tickmode="array", tickvals=tickvals, ticktext=ticktext, tickfont=tick_font)
-        else:
-            xaxis_config = dict(tickfont=tick_font)
-
-        # Update the layout with the fonts for title, axis labels, tick labels, and legend
-        fig.update_layout(
-            title=dict(text=plot_title, font=title_font),
-            xaxis=dict(
-                title=dict(text="$\mathrm{(k_x,\; k_y)}$", font=label_font),
-                **xaxis_config
-            ),
-            yaxis=dict(
-                title=dict(text="frequency", font=label_font),
-                tickfont=tick_font
-            ),
-            legend=dict(
-                font=legend_font
-            )
-        )
-
-        # Set the figure size to almost 4:3 using the auxiliary method.
-        fig = self.set_fig_size(fig)
-
-        return fig
+# End of module.
