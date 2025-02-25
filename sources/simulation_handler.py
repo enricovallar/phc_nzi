@@ -5,6 +5,7 @@ import re
 import sqlite3
 import tempfile
 import logging
+from typing import Optional, Union
 
 import h5py
 import numpy as np
@@ -34,12 +35,12 @@ class Simulation:
     CRITICAL = logging.CRITICAL
 
     def __init__(self, simulation_name: str, script: str, 
-                 directory: str = None, description: str = None, 
-                 log_level: int = logging.INFO, save_script=True):
+                 directory: Optional[str] = None, description: Optional[str] = None, 
+                 log_level: int = logging.INFO, save_script: bool = True):
         self.simulation_name = simulation_name
         self.directory = directory or simulation_name
         os.makedirs(self.directory, exist_ok=True)
-        if save_script is True:
+        if save_script:
             with open(os.path.join(self.directory, f"{simulation_name}.ctl"), "w") as f:
                 f.write(script)
                 
@@ -61,17 +62,15 @@ class Simulation:
                 f.write(description)
 
     def save_script(self, scheme_script: str, print_script: bool = False) -> str:
-        if scheme_script is None:
-            raise ValueError("Scheme script must be provided.")
-        elif not isinstance(scheme_script, str):
-            raise ValueError("Scheme script must be a string.")
-        else:
-            with open(os.path.join(self.directory, self.scheme_filename), "w") as f:
-                f.write(scheme_script)
-            if print_script:
-                print(scheme_script)
+        if not scheme_script or not isinstance(scheme_script, str):
+            raise ValueError("A valid scheme script must be provided as a string.")
+        with open(os.path.join(self.directory, self.scheme_filename), "w") as f:
+            f.write(scheme_script)
+        if print_script:
+            print(scheme_script)
+        return scheme_script
 
-    def _execute_command(self, cmd, shell: bool = False,
+    def _execute_command(self, cmd: str, shell: bool = False,
                          print_output: bool = False, print_error: bool = False):
         self.logger.debug("Executing command: %s", cmd)
         result = subprocess.run(cmd, shell=shell, capture_output=True,
@@ -113,20 +112,21 @@ class Simulation:
                              num_procs: int = 4,
                              walltime: str = "24:00",
                              mem: str = "4GB",
-                             extra_options: list[str] | None = None,
-                             user_email: str = None,
+                             extra_options: Optional[list[str]] = None,
+                             user_email: Optional[str] = None,
                              span_option: str = "hosts",
                              span_value: int = 1) -> list[str]:
         """
         Prepare the preamble lines for an LSF job submission script.
         """
-        preamble = []
-        preamble.append("#!/bin/bash")
-        preamble.append(f"#BSUB -J {simulation_name}")
-        preamble.append(f"#BSUB -q {queue}")
-        preamble.append(f"#BSUB -n {num_procs}")
-        preamble.append(f"#BSUB -W {walltime}")
-        preamble.append(f"#BSUB -R \"rusage[mem={mem}]\"")
+        preamble = [
+            "#!/bin/bash",
+            f"#BSUB -J {simulation_name}",
+            f"#BSUB -q {queue}",
+            f"#BSUB -n {num_procs}",
+            f"#BSUB -W {walltime}",
+            f"#BSUB -R \"rusage[mem={mem}]\""
+        ]
         
         span_str = {
             "hosts": f'span[hosts={span_value}]',
@@ -136,14 +136,15 @@ class Simulation:
         if span_str:
             preamble.append(f"#BSUB -R \"{span_str}\"")
         
-        preamble.append(f"#BSUB -oo {simulation_name}.out")
-        preamble.append(f"#BSUB -eo {simulation_name}.err")
+        preamble.extend([
+            f"#BSUB -oo {simulation_name}.out",
+            f"#BSUB -eo {simulation_name}.err"
+        ])
         
         if user_email:
             preamble.append(f"#BSUB -u {user_email}")
         if extra_options:
-            for option in extra_options:
-                preamble.append(option)
+            preamble.extend(extra_options)
         return preamble
 
     def run_hpc_lsf(self, 
@@ -242,19 +243,6 @@ class Simulation:
     def load_frequency_data(self, mode: str = "te") -> pd.DataFrame:
         """
         Load frequency data for the given mode from a .dat file.
-        
-        The file is expected to be named:
-        {simulation_name}.{mode}.dat
-        The data is also stored in an SQLite database for future use.
-        
-        Parameters:
-            mode (str): The polarization mode ('te', 'tm', etc.).
-        
-        Returns:
-            pd.DataFrame: The loaded frequency data.
-        
-        Raises:
-            FileNotFoundError: If the .dat file is not found.
         """
         filepath = os.path.join(self.directory, f"{self.simulation_name}.{mode}.dat")
         if not os.path.exists(filepath):
@@ -307,8 +295,6 @@ class Simulation:
     def _run_mpb_data_conversion(self, input_file: str, output_file: str, options: dict) -> None:
         """
         Build and run an mpb-data conversion command.
-        Common options (e.g., rectify, axis, resolution, periods, phase, transpose, pixellized, dataset)
-        are passed via the options dict.
         """
         cmd = "source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && mpb-data"
         if options.get("rectify", True):
@@ -323,6 +309,8 @@ class Simulation:
                 cmd += f" -m {periods}"
             elif isinstance(periods, (list, tuple)) and len(periods) == 3:
                 cmd += f" -x {periods[0]} -y {periods[1]} -z {periods[2]}"
+            elif isinstance(periods, (list, tuple)) and len(periods) == 2:
+                cmd += f" -x {periods[0]} -y {periods[1]}"
         if "phase" in options and options["phase"] is not None:
             cmd += f" -P {options['phase']}"
         if options.get("transpose", False):
@@ -344,12 +332,9 @@ class Simulation:
                            comp: str,
                            polarization: str,
                            field_type: str = "e",
-                           conversion_options: dict = None) -> str:
+                           conversion_options: Optional[dict] = None) -> str:
         """
         Convert the field data file using mpb-data.
-        
-        Constructs the input filename from simulation metadata and uses conversion_options (a dict)
-        to pass common options (e.g., rectangular, axis, resolution, periods, etc.).
         Returns the path to the converted file.
         """
         conversion_options = conversion_options or {}
@@ -360,11 +345,9 @@ class Simulation:
         return output_filepath
 
     def convert_epsilon_data(self,
-                             conversion_options: dict = None) -> str:
+                             conversion_options: Optional[dict] = None) -> str:
         """
         Convert the epsilon file using mpb-data.
-        
-        The input epsilon file is assumed to be {simulation_name}-epsilon.h5.
         Returns the path to the converted epsilon file.
         """
         conversion_options = conversion_options or {}
@@ -437,114 +420,94 @@ class Simulation:
             raise ValueError(f"Invalid verbosity level: {level}")
         self.verbosity = level
     
-    def find_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e"):
+    def find_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e") -> str:
         """
         Find the field data file based on the given parameters.
-        
-        The file is expected to be named as:
-        {simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5
-        
-        Parameters:
-            k_value (int): The k-point index (used both for the filename and for extracting the Bloch wavevector).
-            b_value (int): The band index.
-            comp (str): The field component specifier (e.g., 'x', 'y', or 'z').
-            polarization (str): One of 'te', 'tm', 'zeven', or 'zodd'.
-            field_type (str): The field type (default "e").
-            
-        Returns:
-            str: The full path to the field data file.
         """
         filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5"
         filepath = os.path.join(self.directory, filename)
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File {filepath} not found.")
         return filepath
-    
-    def load_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e"):
+
+    def load_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e") -> dict:
         """
         Load the field data file using h5py.
-        
-        The file is expected to be named as:
-        {simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5
-        
-        Parameters:
-            k_value (int): The k-point index.
-            b_value (int): The band index.
-            comp (str): The field component specifier.
-            polarization (str): The polarization mode.
-            field_type (str): The field type (default "e").
-        
-        Returns:
-            dict: The loaded data from the file.
         """
         filename = self.find_field_data(k_value, b_value, comp, polarization, field_type)
         return self.load_h5_data(filename)
 
 class SimulationViewer:
-    def __init__(self, simulation: Simulation):
+    def __init__(self, simulation: Simulation) -> None:
         self.simulation = simulation
 
-    def _apply_title(self, default_title: str, title: str | None):
-        """
-        Apply a title to the current matplotlib figure.
-        """
-        if title is False:
-            return
-        elif title is not None:
-            new_title = title
-        else:
-            new_title = default_title
-        plt.title(new_title)
+    def newfig(self) -> None:
+        """Create a new figure (clearing any existing figure)."""
+        plt.figure()
 
-    def plot_epsilon_2d(self, title: str | bool | None = None,
-                        cmap: str = 'viridis', aspect_ratio: tuple = (1, 1), 
-                        conversion_options: dict = {"rectify": True, "periods": 3}):
+    def _apply_title(self, ax: plt.Axes, main_title: str, subtitle: Optional[str] = None) -> None:
         """
-        Plot the 2D epsilon data using convert_epsilon_data.
+        Apply a main title to the given Axes, and optionally a subtitle at the figure level.
+        """
+        if main_title:
+            ax.set_title(main_title)
+        if subtitle:
+            plt.suptitle(subtitle)
+
+    def plot_epsilon_2d(self,
+                        title: Optional[str] = None,
+                        cmap: str = 'viridis',
+                        aspect_ratio: tuple[float, float] = (1, 1),
+                        conversion_options: dict = {"rectify": True, "periods": 3}
+                       ) -> None:
+        """
+        Plot the 2D epsilon data using the converted epsilon file on the current axes.
+        Does not call plt.show().
         """
         if self.simulation.epsilon is None:
-            raise ValueError("Epsilon data not loaded. Call load_epsilon() on the simulation object.")
-        # Convert the epsilon file using mpb-data conversion.
+            raise ValueError("Epsilon data not loaded. Call load_epsilon() first.")
         converted_filepath = self.simulation.convert_epsilon_data(conversion_options)
-        # Load the converted data from the file.
         data = self.simulation.load_h5_data(converted_filepath)
         eps = data.get("data")
         if eps is None:
-            raise KeyError("Converted data not found in the file.")
-        # If the data is three-dimensional, take the mid-plane.
+            raise KeyError("Converted epsilon data not found.")
         if eps.ndim == 3:
             mid_index = eps.shape[2] // 2
             eps = eps[:, :, mid_index]
-        fig = plt.figure()
         plt.imshow(eps, interpolation='spline36', cmap=cmap)
         plt.colorbar()
         plt.gca().set_aspect(aspect_ratio[0] / aspect_ratio[1])
-        self._apply_title(self.simulation.simulation_name, title)
-        plt.show()
-        return fig
+        ax = plt.gca()
+        self._apply_title(ax, main_title=self.simulation.simulation_name, subtitle=title)
 
-    def plot_epsilon_3d(self, title: str | bool | None = None,
-                          cmap: str = 'viridis', alpha: float = 0.3,
-                          aspect_ratio: tuple = (1, 1, 1), 
-                          conversion_options: dict = {"rectify": True, "periods": 3}):
+    def plot_epsilon_3d(self,
+                        title: Optional[str] = None,
+                        cmap: str = 'viridis',
+                        alpha: float = 0.3,
+                        aspect_ratio: tuple[float, float, float] = (1, 1, 1),
+                        conversion_options: dict = {"rectify": True, "periods": 3}
+                       ) -> None:
         """
-        Plot the 3D epsilon data as an isosurface.
+        Overlay the 3D epsilon isosurface on the current 3D axes. Does not call plt.show().
         """
         filepath = self.simulation.convert_epsilon_data(conversion_options)
         data = self.simulation.load_h5_data(filepath)
         eps = data.get("data")
-        iso = (np.min(eps) + np.max(eps)) / 2.0
-        try:
-            from skimage import measure
-        except ImportError:
-            raise ImportError("scikit-image is required for 3D plotting. Please install it.")
-        verts, faces, normals, values = measure.marching_cubes(eps, level=iso)
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        if eps is None:
+            raise KeyError("Converted epsilon data not found.")
+        iso = 0.5 * (np.min(eps) + np.max(eps))
+        from skimage import measure
+        verts, faces, normals, _ = measure.marching_cubes(eps, level=iso)
+        fig = plt.gcf()
+        old_ax = plt.gca()
+        if not hasattr(old_ax, 'view_init'):
+            fig.delaxes(old_ax)
+            ax = fig.add_subplot(111, projection='3d')
+        else:
+            ax = old_ax
         from mpl_toolkits.mplot3d.art3d import Poly3DCollection
         mesh = Poly3DCollection(verts[faces], alpha=alpha)
-        colormap = plt.get_cmap(cmap)
-        face_color = colormap(0.5)
+        face_color = plt.get_cmap(cmap)(0.5)
         mesh.set_facecolor(face_color)
         ax.add_collection3d(mesh)
         nx, ny, nz = eps.shape
@@ -559,84 +522,259 @@ class SimulationViewer:
         import matplotlib.colors as mcolors
         mappable = cm.ScalarMappable(cmap=cmap, norm=mcolors.Normalize(vmin=np.min(eps), vmax=np.max(eps)))
         mappable.set_array(eps)
-        fig.colorbar(mappable, ax=ax, pad=0.1, label="Epsilon")
-        default_title = f"{self.simulation.simulation_name} epsilon 3D"
-        self._apply_title(default_title, title)
-        plt.show()
-        return fig
+        plt.colorbar(mappable, ax=ax, pad=0.1, label="Epsilon")
+        if title:
+            ax.set_title(title)
 
-    def rotate_fig(self, fig: plt.Figure, azim: float, elev: float) -> plt.Figure:
+    def plot_epsilon_contour(self,
+                             conversion_options: dict = {"rectify": True, "periods": 3},
+                             title: Optional[str] = None
+                            ) -> None:
         """
-        Rotate the 3D view in the given figure.
-        """
-        ax = fig.axes[0] if fig.axes else None
-        if ax is None:
-            raise ValueError("The figure does not contain any axes.")
-        ax.view_init(elev=elev, azim=azim)
-        plt.draw()
-        return fig
-
-    def plot_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, 
-                        field_type: str = "e", plot_mode: str = "real", cmap: str = "RdBu",
-                        conversion_options: dict = {"rectify": True, "periods": 3}):    
-        """
-        Plot the custom field data.
-        
-        If conversion is requested, the field data file is converted using mpb-data and then loaded.
-        The complex field is reconstructed from 'z.r' and 'z.i' and then visualized based on plot_mode.
-        """
-        conversion_options = conversion_options or {}
-        # Convert the field data file and get the converted file path.
-        data = self.simulation.load_field_data(k_value, b_value, comp, polarization, field_type)
-        description = data.get("description")
-        converted_filepath = self.simulation.convert_field_data(k_value, b_value, comp, polarization, field_type, conversion_options)
-        data = self.simulation.load_h5_data(converted_filepath)
-        if "z.r" not in data or "z.i" not in data:
-            raise KeyError("Field file must contain keys 'z.r' and 'z.i'.")
-        field_complex = data["z.r"] + 1j * data["z.i"]
-        if plot_mode == "real":
-            field_to_plot = np.real(field_complex)
-            title_mode = "Real"
-        elif plot_mode == "imag":
-            field_to_plot = np.imag(field_complex)
-            title_mode = "Imaginary"
-        elif plot_mode == "phase":
-            field_to_plot = np.angle(field_complex)
-            title_mode = "Phase"
-        elif plot_mode == "abs":
-            field_to_plot = np.abs(field_complex)
-            title_mode = "Absolute"
-        else:
-            raise ValueError("plot_mode must be one of 'real', 'imag', 'phase', or 'abs'")
-        plt.figure()
-        im = plt.imshow(field_to_plot, interpolation='spline36', cmap=cmap)
-        cbar = plt.colorbar(im)
-        cbar.set_label(f"{field_type.upper()}{comp}, {title_mode}")
-
-        plt.title(f"{self.simulation.simulation_name} {field_type} field: k{k_value:02d}, b{b_value:02d}, comp={comp}, {polarization}, {title_mode}")
-        plt.suptitle(description)
-
-    def plot_epsilon_contour(self, title: str | bool | None = None, conversion_options: dict = {"rectify": True, "periods": 3}):
-        """
-        Plot a contour of the 2D epsilon data.
+        Overlay an epsilon contour on the current axes. Does not call plt.show().
         """
         output_filepath = self.simulation.convert_epsilon_data(conversion_options)
         data = self.simulation.load_h5_data(output_filepath)
         epsilon_converted = data.get("data")
         if epsilon_converted is None:
-            raise KeyError("Converted data not found in the file.")
-        iso = (np.min(epsilon_converted) + np.max(epsilon_converted)) / 2.0
+            raise KeyError("Converted epsilon data not found.")
+        iso = 0.5 * (np.min(epsilon_converted) + np.max(epsilon_converted))
         plt.contour(epsilon_converted, levels=[iso], colors='red', linewidths=3)
-        self._apply_title(self.simulation.simulation_name, title)
+        ax = plt.gca()
+        self._apply_title(ax, main_title=self.simulation.simulation_name, subtitle=title)
 
-    def plot_band_diagram(self, mode: str = "te", title: str | None = None, 
-                          colors: list[str] | str | None = None, grid: bool = True, 
-                          fig: plt.Figure | None = None,
-                          k_points_path: dict | None = None) -> plt.Figure:
+    def rotate_fig(self, azim: float, elev: float) -> None:
         """
-        Plot the band diagram for the given mode.
+        Rotate the 3D view in the current axes.
         """
-        fig = plt.figure() if fig is None else fig  
+        ax = plt.gca()
+        if not hasattr(ax, "view_init"):
+            raise ValueError("Current axes is not 3D.")
+        ax.view_init(elev=elev, azim=azim)
+
+    def plot_field_data(self,
+                        k_value: int,
+                        b_value: int,
+                        comp: str,
+                        polarization: str,
+                        field_type: str = "e",
+                        plot_mode: str = "real",
+                        cmap: str = "RdBu",
+                        conversion_options: dict = {"rectify": True, "periods": 3},
+                        slice_axis: int = 0,
+                        slice_index: Optional[int] = None,
+                        overlay_epsilon: bool = False,
+                        epsilon_cmap: str = "viridis",
+                        epsilon_alpha: float = 0.3,
+                        overlay_epsilon_slice_contour: bool = False
+                       ) -> None:
+        """
+        Plot field data on the current axes. Does not call plt.show().
+        """
+        field_complex, description = self._load_and_convert_field_data(
+            k_value, b_value, comp, polarization, field_type, conversion_options
+        )
+        if field_complex.ndim == 3:
+            self._plot_3d_field(
+                field_complex, plot_mode, slice_axis, slice_index,
+                field_type, comp, k_value, b_value, polarization, cmap,
+                description, overlay_epsilon, epsilon_cmap, epsilon_alpha,
+                conversion_options, overlay_epsilon_slice_contour
+            )
+        elif field_complex.ndim == 2:
+            self._plot_2d_field(
+                field_complex, plot_mode, field_type, comp, k_value, b_value,
+                polarization, cmap, description, overlay_epsilon, conversion_options
+            )
+        else:
+            raise ValueError("Unsupported field dimensions (expected 2 or 3).")
+
+    def _load_and_convert_field_data(self,
+                                     k_value: int,
+                                     b_value: int,
+                                     comp: str,
+                                     polarization: str,
+                                     field_type: str,
+                                     conversion_options: dict
+                                    ) -> tuple[np.ndarray, str]:
+        """
+        Load and convert the field data, then reconstruct the complex field.
+        """
+        data = self.simulation.load_field_data(k_value, b_value, comp, polarization, field_type)
+        description = data.get("description", "")
+        converted_filepath = self.simulation.convert_field_data(
+            k_value, b_value, comp, polarization, field_type, conversion_options
+        )
+        data = self.simulation.load_h5_data(converted_filepath)
+        if "z.r" not in data or "z.i" not in data:
+            raise KeyError("Field file must contain 'z.r' and 'z.i'.")
+        field_complex = data["z.r"] + 1j * data["z.i"]
+        return field_complex, description
+
+    def _extract_field_data(self, field_complex: np.ndarray, plot_mode: str) -> tuple[np.ndarray, str]:
+        """
+        Extract the desired 2D field array and a label for the title.
+        """
+        if plot_mode == "real":
+            return np.real(field_complex), "Real"
+        elif plot_mode == "imag":
+            return np.imag(field_complex), "Imaginary"
+        elif plot_mode == "phase":
+            return np.angle(field_complex), "Phase"
+        elif plot_mode == "abs":
+            return np.abs(field_complex), "Absolute"
+        else:
+            raise ValueError("plot_mode must be 'real', 'imag', 'phase', or 'abs'")
+
+    def _plot_2d_field(self,
+                       field_complex: np.ndarray,
+                       plot_mode: str,
+                       field_type: str,
+                       comp: str,
+                       k_value: int,
+                       b_value: int,
+                       polarization: str,
+                       cmap: str,
+                       description: str,
+                       overlay_epsilon: bool,
+                       epsilon_conversion_options: dict
+                      ) -> None:
+        """
+        Plot a 2D field using imshow. Optionally overlay an epsilon contour.
+        """
+        field_2d, title_mode = self._extract_field_data(field_complex, plot_mode)
+        plt.imshow(field_2d, interpolation='spline36', cmap=cmap)
+        cbar = plt.colorbar()
+        cbar.set_label(f"{field_type.upper()}{comp}, {title_mode}")
+        plt.title(f"{self.simulation.simulation_name} {field_type} field: k{k_value:02d}, b{b_value:02d}, "
+                  f"comp={comp}, {polarization}, {title_mode}")
+        plt.suptitle(description)
+        if overlay_epsilon:
+            self.plot_epsilon_contour(epsilon_conversion_options)
+
+    def _plot_3d_field(self,
+                       field_complex: np.ndarray,
+                       plot_mode: str,
+                       slice_axis: int,
+                       slice_index: Optional[int],
+                       field_type: str,
+                       comp: str,
+                       k_value: int,
+                       b_value: int,
+                       polarization: str,
+                       cmap: str,
+                       description: str,
+                       overlay_epsilon: bool,
+                       epsilon_cmap: str,
+                       epsilon_alpha: float,
+                       conversion_options: dict,
+                       overlay_epsilon_slice_contour: bool
+                      ) -> None:
+        """
+        Plot a 2D slice of a 3D field on a 3D axes, with orientation depending on slice_axis.
+        Optionally overlay epsilon as a 3D isosurface or a 2D contour on the same slice.
+        """
+        field_data, title_mode = self._extract_field_data(field_complex, plot_mode)
+        if slice_index is None:
+            slice_index = field_data.shape[slice_axis] // 2
+        if slice_axis == 0:
+            field_slice = np.take(field_data, slice_index, axis=0)
+            Y, Z = np.meshgrid(
+                np.arange(field_slice.shape[0]),
+                np.arange(field_slice.shape[1]),
+                indexing='ij'
+            )
+            X = np.full_like(Y, slice_index)
+            plane_label = "(yz plane)"
+            zdir_for_contour = 'x'
+            # Instead of offset_for_contour = slice_index, use the maximum x value
+            offset_for_contour = field_data.shape[0] - 1
+        elif slice_axis == 1:
+            field_slice = np.take(field_data, slice_index, axis=1)
+            X, Z = np.meshgrid(
+                np.arange(field_slice.shape[0]),
+                np.arange(field_slice.shape[1]),
+                indexing='ij'
+            )
+            Y = np.full_like(X, slice_index)
+            plane_label = "(xz plane)"
+            zdir_for_contour = 'y'
+            # Use the maximum y value
+            offset_for_contour = field_data.shape[1] - 1
+        elif slice_axis == 2:
+            field_slice = np.take(field_data, slice_index, axis=2)
+            X, Y = np.meshgrid(
+                np.arange(field_slice.shape[0]),
+                np.arange(field_slice.shape[1]),
+                indexing='ij'
+            )
+            Z = np.full_like(X, slice_index)
+            plane_label = "(xy plane)"
+            zdir_for_contour = 'z'
+            # Use the maximum z value
+            offset_for_contour = field_data.shape[2] - 1
+        else:
+            raise ValueError("slice_axis must be 0, 1, or 2.")
+
+        fig = plt.gcf()
+        old_ax = plt.gca()
+        if not hasattr(old_ax, 'view_init'):
+            fig.delaxes(old_ax)
+            ax = fig.add_subplot(111, projection='3d')
+        else:
+            ax = old_ax
+        norm_field = plt.Normalize(vmin=field_slice.min(), vmax=field_slice.max())
+        facecolors_field = plt.cm.get_cmap(cmap)(norm_field(field_slice))
+        ax.plot_surface(X, Y, Z, rstride=1, cstride=1,
+                        facecolors=facecolors_field,
+                        shade=False, antialiased=False)
+        mappable_field = plt.cm.ScalarMappable(norm=norm_field, cmap=cmap)
+        mappable_field.set_array(field_slice)
+        plt.colorbar(mappable_field, ax=ax, shrink=0.5, aspect=5,
+                     label=f"{field_type.upper()}{comp}, {title_mode}")
+        if overlay_epsilon:
+            self.plot_epsilon_3d(title=None,
+                                 cmap=epsilon_cmap,
+                                 alpha=epsilon_alpha,
+                                 conversion_options=conversion_options)
+        if overlay_epsilon_slice_contour:
+            self._plot_epsilon_contour_on_slice(ax, slice_index, slice_axis, 
+                                                X, Y, 
+                                                zdir_for_contour, 
+                                                offset_for_contour, 
+                                                conversion_options)
+
+        main_title = (f"{self.simulation.simulation_name} {field_type} field: "
+                      f"k{k_value:02d}, b{b_value:02d}, comp={comp}, {polarization}, {title_mode}\n"
+                      f"slice_axis={slice_axis}, index={slice_index} {plane_label}")
+        self._apply_title(ax, main_title=main_title)
+
+    def _plot_epsilon_contour_on_slice(self, ax: plt.Axes, slice_index: int, slice_axis: int, X, Y, zdir: str, offset: float, conversion_options: dict) -> None:
+        try:
+            eps_filepath = self.simulation.convert_epsilon_data(conversion_options)
+            eps_data = self.simulation.load_h5_data(eps_filepath).get("data")
+        except Exception as e:
+            raise RuntimeError(f"Error loading epsilon data: {e}")
+        if eps_data is None or eps_data.ndim != 3:
+            return
+        eps_slice = np.take(eps_data, slice_index, axis=slice_axis)
+        # Adjust iso level to ensure the contour stands out
+        if np.ptp(eps_slice) == 0:
+            iso = np.mean(eps_slice)
+        else:
+            iso = np.mean(eps_slice) + 0.1 * np.ptp(eps_slice)
+        ax.contour(X, Y, eps_slice, zdir=zdir, offset=offset, levels=[iso], colors='red', linewidths=2)
+
+    def plot_band_diagram(self,
+                          mode: str = "te",
+                          title: Optional[str] = None,
+                          colors: Optional[Union[list[str], str]] = None,
+                          grid: bool = True,
+                          k_points_path: Optional[dict] = None
+                         ) -> None:
+        """
+        Plot the band diagram for the given mode on the current axes. Does not call plt.show().
+        """
         if mode not in self.simulation.bands_df:
             df = self.simulation.load_frequency_data(mode)
         else:
@@ -652,7 +790,7 @@ class SimulationViewer:
                 plt.plot(df["k index"], df[col], label=f"{mode.upper()} bands", color=plot_color)
             else:
                 plt.plot(df["k index"], df[col], color=plot_color)
-        if k_points_path is not None and "k_points_values" in k_points_path and "k_points_labels" in k_points_path:
+        if k_points_path and "k_points_values" in k_points_path and "k_points_labels" in k_points_path:
             k_points_values = k_points_path["k_points_values"]
             k_points_labels = k_points_path["k_points_labels"]
             custom_tick_positions = []
@@ -669,22 +807,18 @@ class SimulationViewer:
             plt.xticks(df["k index"])
         plt.xlabel("k index")
         plt.ylabel("Frequency")
-        self._apply_title(self.simulation.simulation_name, title)
+        ax = plt.gca()
+        self._apply_title(ax, main_title=self.simulation.simulation_name, subtitle=title)
         plt.legend()
         plt.grid(grid)
-        return fig
 
-    def plot_light_cone(self, df, fig: plt.Figure | None = None) -> plt.Figure:
+    def plot_light_cone(self, df: pd.DataFrame) -> None:
         """
-        Plot the light cone for the simulation.
+        Plot the light cone for the simulation on the current axes. Does not call plt.show().
         """
-        fig = plt.figure() if fig is None else fig
-        w = df['kmag/2pi']
-        plt.plot(df['k index'], w, color='black', label='Light cone')
-        return fig
+        plt.plot(df['k index'], df['kmag/2pi'], color='black', label='Light cone')
+        plt.legend()
 
-    def show(self):
+    def show(self) -> None:
+        """Show the current figure."""
         plt.show()
-
-
-# End of module.
