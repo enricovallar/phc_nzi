@@ -329,17 +329,23 @@ class Simulation:
     def convert_field_data(self,
                            k_value: int,
                            b_value: int,
-                           comp: str,
                            polarization: str,
                            field_type: str = "e",
-                           conversion_options: Optional[dict] = None) -> str:
+                           conversion_options: Optional[dict] = None, 
+                           file_comp: str|None = None,
+                           nonbloch = True
+                           ) -> str:
         """
         Convert the field data file using mpb-data.
         Returns the path to the converted file.
         """
         conversion_options = conversion_options or {}
-        input_file = self.find_field_data(k_value, b_value, comp, polarization, field_type)
-        output_filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.converted.h5"
+        input_file = self.find_field_data(k_value, b_value, polarization, field_type, file_comp, nonbloch)
+        field_type = f"{field_type}.v" if nonbloch is True else field_type
+        if file_comp is not None:
+            output_filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{file_comp}.{polarization}.converted.h5"
+        else:
+            output_filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{polarization}.converted.h5"
         output_filepath = os.path.join(self.directory, output_filename)
         self._run_mpb_data_conversion(input_file, output_filepath, conversion_options)
         return output_filepath
@@ -420,22 +426,51 @@ class Simulation:
             raise ValueError(f"Invalid verbosity level: {level}")
         self.verbosity = level
     
-    def find_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e") -> str:
+    def find_field_data(self, k_value: int, b_value: int, polarization: str, field_type: str = "e", file_comp: str|None = None, nonbloch = True) -> str:
         """
         Find the field data file based on the given parameters.
         """
-        filename = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{comp}.{polarization}.h5"
-        filepath = os.path.join(self.directory, filename)
+        if nonbloch is True:
+            field_type = f"{field_type}.v"
+        if file_comp is not None: 
+            filepath = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{file_comp}.{polarization}.h5"
+        else:
+            filepath = f"{self.simulation_name}-{field_type}.k{k_value:02d}.b{b_value:02d}.{polarization}.h5"
+        filepath = os.path.join(self.directory, filepath)   
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"File {filepath} not found.")
         return filepath
 
-    def load_field_data(self, k_value: int, b_value: int, comp: str, polarization: str, field_type: str = "e") -> dict:
+    def load_field_data(self, k_value: int, b_value: int, polarization: str, field_type: str = "e", file_comp: str|None = None, nonbloch = True) -> dict:
         """
         Load the field data file using h5py.
         """
-        filename = self.find_field_data(k_value, b_value, comp, polarization, field_type)
+        filename = self.find_field_data(k_value, b_value, polarization, field_type, file_comp, nonbloch)
         return self.load_h5_data(filename)
+    
+    def load_and_convert_field_data(self,
+                                     k_value: int,
+                                     b_value: int,
+                                     comp: str,
+                                     polarization: str,
+                                     field_type: str,
+                                     conversion_options: dict,
+                                     file_comp: str|None = None,
+                                     nonbloch = True,
+                                    ) -> tuple[np.ndarray, str]:
+        """
+        Load and convert the field data, then reconstruct the complex field.
+        """
+        data = self.load_field_data(k_value, b_value, polarization, field_type, file_comp, nonbloch)
+        description = data.get("description", "")
+        converted_filepath = self.convert_field_data(
+            k_value, b_value, polarization, field_type, conversion_options, file_comp=file_comp, nonbloch = nonbloch
+        )
+        data = self.load_h5_data(converted_filepath)
+        if f"{comp}.r" not in data or f"{comp}.i" not in data:
+            raise KeyError(f"Field file must contain '{comp}.r' and '{comp}.i'.")
+        field_complex = data[f"{comp}.r"] + 1j * data[f"{comp}.i"]
+        return field_complex, description
 
 class SimulationViewer:
     def __init__(self, simulation: Simulation) -> None:
@@ -555,7 +590,7 @@ class SimulationViewer:
     def plot_field_data(self,
                         k_value: int,
                         b_value: int,
-                        comp: str,
+                        comp: str, 
                         polarization: str,
                         field_type: str = "e",
                         plot_mode: str = "real",
@@ -566,13 +601,15 @@ class SimulationViewer:
                         overlay_epsilon: bool = False,
                         epsilon_cmap: str = "viridis",
                         epsilon_alpha: float = 0.3,
-                        overlay_epsilon_slice_contour: bool = False
+                        overlay_epsilon_slice_contour: bool = False, 
+                        file_comp: str= None,
+                        nonbloch = True
                        ) -> None:
         """
         Plot field data on the current axes. Does not call plt.show().
         """
-        field_complex, description = self._load_and_convert_field_data(
-            k_value, b_value, comp, polarization, field_type, conversion_options
+        field_complex, description = self.simulation.load_and_convert_field_data(
+            k_value, b_value, comp, polarization, field_type, conversion_options, file_comp, nonbloch
         )
         if field_complex.ndim == 3:
             self._plot_3d_field(
@@ -589,27 +626,7 @@ class SimulationViewer:
         else:
             raise ValueError("Unsupported field dimensions (expected 2 or 3).")
 
-    def _load_and_convert_field_data(self,
-                                     k_value: int,
-                                     b_value: int,
-                                     comp: str,
-                                     polarization: str,
-                                     field_type: str,
-                                     conversion_options: dict
-                                    ) -> tuple[np.ndarray, str]:
-        """
-        Load and convert the field data, then reconstruct the complex field.
-        """
-        data = self.simulation.load_field_data(k_value, b_value, comp, polarization, field_type)
-        description = data.get("description", "")
-        converted_filepath = self.simulation.convert_field_data(
-            k_value, b_value, comp, polarization, field_type, conversion_options
-        )
-        data = self.simulation.load_h5_data(converted_filepath)
-        if "z.r" not in data or "z.i" not in data:
-            raise KeyError("Field file must contain 'z.r' and 'z.i'.")
-        field_complex = data["z.r"] + 1j * data["z.i"]
-        return field_complex, description
+    
 
     def _extract_field_data(self, field_complex: np.ndarray, plot_mode: str) -> tuple[np.ndarray, str]:
         """

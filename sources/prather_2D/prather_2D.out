@@ -1,0 +1,260 @@
+command-line param: r=0.35
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 2 dimensions.
+Grid size is 64 x 64 x 1.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 1)
+Cell volume = 0.866025
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 1)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,1e+20)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 20, mu = 1
+     cylinder, center = (0,0,0)
+          radius 0.35, height 1e+20, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Initializing epsilon function...
+Allocating fields...
+2 k-points:
+     (0,0,0)
+     (-0.23,0,0)
+Solving for band polarization: te.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-20, mean 11.5568, harm. mean 2.18542, 58.0322% > 1, 55.5619% "fill"
+Outputting prather_2D-epsilon...
+solve_kpoint (0,0,0):
+tefreqs:, k index, k1, k2, k3, kmag/2pi, te band 1, te band 2, te band 3, te band 4, te band 5, te band 6, te band 7, te band 8
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 23 iterations.
+tefreqs:, 1, 0, 0, 0, 0, 0, 0.319935, 0.377577, 0.387524, 0.38769, 0.487706, 0.487767, 0.536135
+elapsed time for k point: 0 seconds.
+solve_kpoint (-0.23,0,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+tefreqs:, 2, -0.23, 0, 0, 0.265581, 0.0889519, 0.308765, 0.343122, 0.384451, 0.402932, 0.492473, 0.492799, 0.534593
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -5.38939e-07i; max ampl. = 0.610416
+Outputting fields to prather_2D-e.v.k02.b01.z.te...
+Outputting fields to prather_2D-h.v.k02.b01.y.te...
+Fixing e-field (band 2) phase by -1 + 3.27756e-05i; max ampl. = 0.616968
+Outputting fields to prather_2D-e.v.k02.b02.z.te...
+Outputting fields to prather_2D-h.v.k02.b02.y.te...
+Fixing e-field (band 3) phase by -7.66673e-05 + -1i; max ampl. = 0.520934
+Outputting fields to prather_2D-e.v.k02.b03.z.te...
+Outputting fields to prather_2D-h.v.k02.b03.y.te...
+Fixing e-field (band 4) phase by 0.110533 + -0.993872i; max ampl. = 0.888731
+Outputting fields to prather_2D-e.v.k02.b04.z.te...
+Outputting fields to prather_2D-h.v.k02.b04.y.te...
+Fixing e-field (band 5) phase by -0.000329856 + -1i; max ampl. = 0.796726
+Outputting fields to prather_2D-e.v.k02.b05.z.te...
+Outputting fields to prather_2D-h.v.k02.b05.y.te...
+Fixing e-field (band 6) phase by 1 + -4.53006e-05i; max ampl. = 0.476959
+Outputting fields to prather_2D-e.v.k02.b06.z.te...
+Outputting fields to prather_2D-h.v.k02.b06.y.te...
+Fixing e-field (band 7) phase by -0.999999 + 0.00110386i; max ampl. = 0.678415
+Outputting fields to prather_2D-e.v.k02.b07.z.te...
+Outputting fields to prather_2D-h.v.k02.b07.y.te...
+Fixing e-field (band 8) phase by 1 + 0.000205271i; max ampl. = 0.536399
+Outputting fields to prather_2D-e.v.k02.b08.z.te...
+Outputting fields to prather_2D-h.v.k02.b08.y.te...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.08895186794027725 at #(-0.23 0.0 0.0)
+Band 2 range: 0.308764704345768 at #(-0.23 0.0 0.0) to 0.31993546643575616 at #(0.0 0.0 0.0)
+Band 3 range: 0.3431217092998465 at #(-0.23 0.0 0.0) to 0.3775768966237923 at #(0.0 0.0 0.0)
+Band 4 range: 0.38445050401206715 at #(-0.23 0.0 0.0) to 0.3875235295713656 at #(0.0 0.0 0.0)
+Band 5 range: 0.387689582987106 at #(0.0 0.0 0.0) to 0.4029322881388722 at #(-0.23 0.0 0.0)
+Band 6 range: 0.4877059903284319 at #(0.0 0.0 0.0) to 0.4924734372508289 at #(-0.23 0.0 0.0)
+Band 7 range: 0.48776733140295686 at #(0.0 0.0 0.0) to 0.4927988004852635 at #(-0.23 0.0 0.0)
+Band 8 range: 0.5345931749209375 at #(-0.23 0.0 0.0) to 0.536134575451565 at #(0.0 0.0 0.0)
+Gap from band 1 (0.08895186794027725) to band 2 (0.308764704345768), 110.53742877347199%
+Gap from band 2 (0.31993546643575616) to band 3 (0.3431217092998465), 6.993738613375916%
+Gap from band 3 (0.3775768966237923) to band 4 (0.38445050401206715), 1.8040315564871574%
+Gap from band 4 (0.3875235295713656) to band 5 (0.387689582987106), 0.04284071387604685%
+Gap from band 5 (0.4029322881388722) to band 6 (0.4877059903284319), 19.03661772441365%
+Gap from band 7 (0.4927988004852635) to band 8 (0.5345931749209375), 8.136013407959457%
+total elapsed time for run: 1 seconds.
+done.
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 2 dimensions.
+Grid size is 64 x 64 x 1.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 1)
+Cell volume = 0.866025
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 1)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,1e+20)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 20, mu = 1
+     cylinder, center = (0,0,0)
+          radius 0.35, height 1e+20, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Initializing epsilon function...
+2 k-points:
+     (0,0,0)
+     (-0.23,0,0)
+Solving for band polarization: tm.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-20, mean 11.5568, harm. mean 2.18542, 58.0322% > 1, 55.5619% "fill"
+Outputting prather_2D-epsilon...
+solve_kpoint (0,0,0):
+tmfreqs:, k index, k1, k2, k3, kmag/2pi, tm band 1, tm band 2, tm band 3, tm band 4, tm band 5, tm band 6, tm band 7, tm band 8
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 8 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 36 iterations.
+tmfreqs:, 1, 0, 0, 0, 0, 0, 0.266793, 0.286696, 0.286717, 0.376789, 0.376847, 0.468681, 0.523005
+elapsed time for k point: 0 seconds.
+solve_kpoint (-0.23,0,0):
+Solving for bands 1 to 8...
+    linmin: converged after 13 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+tmfreqs:, 2, -0.23, 0, 0, 0.265581, 0.0770426, 0.2301, 0.280624, 0.312022, 0.372091, 0.391273, 0.461974, 0.488075
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by -1 + -6.34608e-06i; max ampl. = 0.322762
+Outputting fields to prather_2D-e.v.k02.b01.z.tm...
+Outputting fields to prather_2D-h.v.k02.b01.y.tm...
+Fixing e-field (band 2) phase by -0.00179697 + -0.999998i; max ampl. = 0.408616
+Outputting fields to prather_2D-e.v.k02.b02.z.tm...
+Outputting fields to prather_2D-h.v.k02.b02.y.tm...
+Fixing e-field (band 3) phase by 0.968956 + -0.247233i; max ampl. = 0.565611
+Outputting fields to prather_2D-e.v.k02.b03.z.tm...
+Outputting fields to prather_2D-h.v.k02.b03.y.tm...
+Fixing e-field (band 4) phase by -0.00115042 + 0.999999i; max ampl. = 0.48726
+Outputting fields to prather_2D-e.v.k02.b04.z.tm...
+Outputting fields to prather_2D-h.v.k02.b04.y.tm...
+Fixing e-field (band 5) phase by -0.000107864 + -1i; max ampl. = 0.488453
+Outputting fields to prather_2D-e.v.k02.b05.z.tm...
+Outputting fields to prather_2D-h.v.k02.b05.y.tm...
+Fixing e-field (band 6) phase by -0.50214 + -0.864786i; max ampl. = 0.533743
+Outputting fields to prather_2D-e.v.k02.b06.z.tm...
+Outputting fields to prather_2D-h.v.k02.b06.y.tm...
+Fixing e-field (band 7) phase by 1 + -0.000978932i; max ampl. = 0.568812
+Outputting fields to prather_2D-e.v.k02.b07.z.tm...
+Outputting fields to prather_2D-h.v.k02.b07.y.tm...
+Fixing e-field (band 8) phase by 0.883706 + -0.468042i; max ampl. = 0.491918
+Outputting fields to prather_2D-e.v.k02.b08.z.tm...
+Outputting fields to prather_2D-h.v.k02.b08.y.tm...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.07704261521514395 at #(-0.23 0.0 0.0)
+Band 2 range: 0.2300995394956073 at #(-0.23 0.0 0.0) to 0.26679349827522225 at #(0.0 0.0 0.0)
+Band 3 range: 0.28062407044885734 at #(-0.23 0.0 0.0) to 0.28669643654650906 at #(0.0 0.0 0.0)
+Band 4 range: 0.28671662673123544 at #(0.0 0.0 0.0) to 0.3120222715374399 at #(-0.23 0.0 0.0)
+Band 5 range: 0.37209098264900636 at #(-0.23 0.0 0.0) to 0.3767891978933887 at #(0.0 0.0 0.0)
+Band 6 range: 0.3768471211041428 at #(0.0 0.0 0.0) to 0.39127260261875735 at #(-0.23 0.0 0.0)
+Band 7 range: 0.46197408532156614 at #(-0.23 0.0 0.0) to 0.46868088072889635 at #(0.0 0.0 0.0)
+Band 8 range: 0.48807461675879793 at #(-0.23 0.0 0.0) to 0.5230048311849764 at #(0.0 0.0 0.0)
+Gap from band 1 (0.07704261521514395) to band 2 (0.2300995394956073), 99.66520188321498%
+Gap from band 2 (0.26679349827522225) to band 3 (0.28062407044885734), 5.053024588111549%
+Gap from band 3 (0.28669643654650906) to band 4 (0.28671662673123544), 0.007042108392496392%
+Gap from band 4 (0.3120222715374399) to band 5 (0.37209098264900636), 17.56104292497614%
+Gap from band 5 (0.3767891978933887) to band 6 (0.3768471211041428), 0.015371661182981243%
+Gap from band 6 (0.39127260261875735) to band 7 (0.46197408532156614), 16.572342723879096%
+Gap from band 7 (0.46868088072889635) to band 8 (0.48807461675879793), 4.054063150058046%
+total elapsed time for run: 1 seconds.
+done.

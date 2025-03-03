@@ -166,6 +166,9 @@ class MPBSchemeConfigurator():
         # Set the lattice and geometry
         commands += self.generate_lattice_and_geometry_commands()
 
+        # Extra run functions   
+        commands += self.generate_extra_run_functions()
+
         # Set the simulation type
         commands += self.generate_runner_commands()
 
@@ -231,7 +234,99 @@ class MPBSchemeConfigurator():
         else:
             raise ValueError("Invalid k-points interpolation factor")
         
+    def generate_extra_run_functions(self):
+        def output_nonbloch_efield():
+            str = """
+
+(define (output-nonbloch-efield which-band)
+    (get-efield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file -1 (string-append (get-filename-prefix)"e."))
+)
+"""
+            return str
         
+        def output_nonbloch_hfield():
+            str = """
+(define (output-nonbloch-hfield which-band)
+    (get-hfield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file -1 (string-append (get-filename-prefix)"h."))
+)
+"""
+            return str
+        
+        def output_nonbloch_efield_x():
+            str = """
+(define (output-nonbloch-efield-x which-band)
+    (get-efield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 0 (string-append (get-filename-prefix)"e."))
+)
+"""
+            return str
+        
+        def output_nonbloch_hfield_x():
+            str = """
+(define (output-nonbloch-hfield-x which-band)
+    (get-hfield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 0 (string-append (get-filename-prefix)"h."))
+)
+"""
+            return str
+        
+
+        def output_nonbloch_efield_y():
+            str = """
+(define (output-nonbloch-efield-y which-band)
+    (get-efield which-band)   
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 1 (string-append (get-filename-prefix)"e."))
+)
+"""
+            return str
+        
+        def output_nonbloch_hfield_y():
+            str = """
+(define (output-nonbloch-hfield-y which-band)
+    (get-hfield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 1 (string-append (get-filename-prefix)"h."))
+)
+"""
+            return str
+        
+
+        def output_nonbloch_efield_z(): 
+            str = """
+(define (output-nonbloch-efield-z which-band)
+    (get-efield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 2 (string-append (get-filename-prefix)"e."))
+)
+"""
+            return str
+        
+        def output_nonbloch_hfield_z():
+            str = """
+(define (output-nonbloch-hfield-z which-band)
+    (get-hfield which-band)
+    (cvector-field-nonbloch! cur-field)
+    (output-field-to-file 2 (string-append (get-filename-prefix)"h."))
+)
+"""
+            return str
+        
+
+
+        
+        return [output_nonbloch_efield(), output_nonbloch_hfield(), 
+                output_nonbloch_efield_x(), output_nonbloch_hfield_x(), 
+                output_nonbloch_efield_y(), output_nonbloch_hfield_y(), 
+                output_nonbloch_efield_z(), output_nonbloch_hfield_z()]
+    
+    
     def generate_runner_commands(self, extra_commands=None):
         commands = []
         if extra_commands is None:

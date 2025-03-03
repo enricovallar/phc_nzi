@@ -20,7 +20,7 @@ class Lattice:
 
     NO_SIZE = "no-size"
 
-    def __init__(self, type: str, size: tuple | int = (1, 1, "no-size")):
+    def __init__(self, type: str, size: tuple | int = (1, 1, 0)):
         """Create a lattice object. 
         
         Args:
@@ -67,6 +67,9 @@ class Lattice:
         self._mp_lattice = mp.Lattice(size=self._size,
                                         basis1=mp.Vector3(1, 0, 0),
                                         basis2=mp.Vector3(0.5, np.sqrt(3)/2, 0))
+        
+    def cartesian_to_reciprocal(self, vector: mp.Vector3):
+        return mp.cartesian_to_reciprocal(vector, self._mp_lattice)
 
         
     def get_centers(self):
@@ -86,7 +89,10 @@ class Lattice:
         return self._mp_lattice 
     
     def to_scheme(self) -> str:
-        return f"(make lattice (size {self._size[0]} {self._size[1]} {self._size[2]})  " + \
+        size_0 = self._size[0] if self._size[0] != 0 else "no-size"
+        size_1 = self._size[1] if self._size[1] != 0 else "no-size"
+        size_2 = self._size[2] if self._size[2] != 0 else "no-size"
+        return f"(make lattice (size {size_0} {size_1} {size_2}) " + \
                f"(basis1  (vector3 {self._mp_lattice.basis1[0]} {self._mp_lattice.basis1[1]} {self._mp_lattice.basis1[2]})) " + \
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
@@ -141,11 +147,13 @@ class Lattice:
         Returns:
             dict: A dictionary with the keys "k_points_values" and "k_points_labels".
         """
-        K_X = mp.Vector3(distance, 0, 0)   
-        K_Y = mp.Vector3(0, distance, 0)
+        K_X_cartesian = mp.Vector3(distance, 0, 0)   
+        K_Y_cartesian = mp.Vector3(0, distance, 0)
+        K_X_reciprocal = mp.cartesian_to_reciprocal(K_X_cartesian, self._mp_lattice)
+        K_Y_reciprocal = mp.cartesian_to_reciprocal(K_Y_cartesian, self._mp_lattice)
         Gamma = mp.Vector3(0, 0, 0) 
 
-        k_points_values = [K_X, Gamma, K_Y]
+        k_points_values = [K_X_reciprocal, Gamma, K_Y_reciprocal]
         k_points_labels = ["X", "Γ", "Y"]
         return {"k_points_values": k_points_values, "k_points_labels": k_points_labels}
         
