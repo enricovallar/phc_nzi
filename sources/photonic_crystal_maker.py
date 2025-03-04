@@ -97,13 +97,13 @@ class Lattice:
                f"(basis2  (vector3 {self._mp_lattice.basis2[0]} {self._mp_lattice.basis2[1]} {self._mp_lattice.basis2[2]})) " + \
                 ")"
     
-    def get_high_symmetry_k_points(self, centerd_in_gamma=False):
+    def get_high_symmetry_k_points(self, centred_in_gamma=False):
         """Get the high symmetry k points of the lattice.
         
         Returns:
             dict: A dictionary with the keys "k_points_values" and "k_points_labels".
         """
-        if not centerd_in_gamma:
+        if not centred_in_gamma:
             if self._type in ("SX", "SXY"):
                 # Square lattice
                 k_points_values = [mp.Vector3(0, 0, 0),

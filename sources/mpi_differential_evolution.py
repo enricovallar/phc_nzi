@@ -40,7 +40,8 @@ class MPIDiffEvoSimulation:
                  polarization: str = "te", 
                  maxiter: int = 100, 
                  de_options: dict = None, 
-                 param_bounds: list = None):
+                 param_bounds: list = None, 
+                 bands: list = [2,3,4]):
         """
         Parameters:
           simulation_name : str
@@ -69,6 +70,7 @@ class MPIDiffEvoSimulation:
         self.de_options = de_options if de_options is not None else {}
         self.scheme_script = scheme_script
         self.log_file = os.path.join(simulation_name, f"{simulation_name}.log")
+        self.bands = bands
 
     def objective(self, params):
         """
@@ -98,15 +100,19 @@ class MPIDiffEvoSimulation:
         # Wait briefly for output to be written.
         time.sleep(0.5)
         df = self.simulation.load_frequency_data(self.polarization)
-        freqs = self.simulation.get_frequencies_by_band(df, self.polarization)
-        cost = abs(freqs[4] - freqs[2])
+        freqs = self.simulation.get_frequencies_by_band(df, self.polarization, bands=self.bands)
+        idx_high = np.max(self.bands)
+        idx_low = np.min(self.bands)
+        idx_central = idx_low + 1
+
+        cost = abs(freqs[idx_high] - freqs[idx_low])
         # Optionally: restore the directory.
         self.simulation.directory = old_dir
 
         with open(self.log_file, "a") as f:
             line = f"{self.param_names[0]}: {params[0]}, {self.param_names[1]}: {params[1]}"
             line += f", cost: {cost}"
-            line += f", freq_dirac: {freqs[3]}\n"
+            line += f", freq_dirac: {freqs[idx_central]}\n"
             f.write(line)
         return cost
 
@@ -221,13 +227,16 @@ class MPIDiffEvoSimulation:
                f"--maxiter={self.maxiter} --polarization=\"{self.polarization}\" "
                f"--param_bounds " + " ".join(bound_strings) + " " +
                f"--popsize={self.de_options.get('popsize', 15)} "
-               f"--strategy=\"{self.de_options.get('strategy', 'rand1bin')}\"")
+               f"--strategy=\"{self.de_options.get('strategy', 'rand1bin')}\" "
+               f"--bands {' '.join(map(str, self.bands))}")
+             
         lsf_commands.append(cmd)
         lsf_script = "\n".join(lsf_commands) + "\n"
         
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".sh", delete=False) as tmp_file:
-            tmp_file.write(lsf_script)
-            job_script_path = tmp_file.name
+        # Create a job script in the simulation directory
+        job_script_path = os.path.join(self.simulation.simulation_name, f"{self.simulation.simulation_name}_lsf_job.sh")
+        with open(job_script_path, 'w') as script_file:
+            script_file.write(lsf_script)
 
         print("LSF job script written to:", job_script_path)
         try:
@@ -244,8 +253,6 @@ class MPIDiffEvoSimulation:
             print("Job submission failed:")
             print(e.output)
             submission_output = None
-
-        os.remove(job_script_path)
         return submission_output
 
     def plot_optimization_points(self, 
@@ -425,11 +432,16 @@ if __name__ == '__main__':
     parser.add_argument("--strategy", type=str, default="rand1bin", help="DE strategy")
     parser.add_argument("--polarization", type=str, default="te", help="Polarization mode (e.g., te or tm)")
     parser.add_argument("--param_bounds", type=str, nargs='+', help="Parameter bounds (e.g., 0.1,0.9 0.1,0.9)", required=True)
+    parser.add_argument("--bands", type=int, nargs='+', help="Bands to optimize (e.g., 1 2 3)")
     args = parser.parse_args()
     
     scheme_script_path = os.path.join(args.simulation_name, args.simulation_name + ".ctl")
     with open(scheme_script_path, "r") as f:
         scheme_script = f.read()
+
+    # test the scheme script saving it to a test file
+    with open("test.ctl", "w") as f:
+        f.write(scheme_script)  
 
     if args.run_opt:
         if not args.param_names:
@@ -438,6 +450,7 @@ if __name__ == '__main__':
         simulation_name = args.simulation_name
         maxiter = args.maxiter
         polarization = args.polarization
+        bands = args.bands
 
         param_bounds = []
         for b in args.param_bounds:
@@ -457,7 +470,8 @@ if __name__ == '__main__':
                                           maxiter=maxiter,
                                           polarization=polarization,
                                           param_bounds=param_bounds, 
-                                          de_options=de_options)
+                                          de_options=de_options,
+                                          bands=bands)
 
         result = optimizer.optimize_parameters()
         if result is not None:

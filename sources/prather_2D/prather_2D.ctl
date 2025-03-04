@@ -1,7 +1,7 @@
 (set! num-bands 8)
 (set! resolution 64)
-(set! k-points (list (vector3 0.0 0.0 0.0) (vector3 -0.23 0.0 0.0)))
-
+(set! k-points (list (vector3 0.0 0.0 0.0) (vector3 0.05 0.02500000000000001 0.0)))
+(set! k-points (interpolate 10 k-points))
 (define-param r 0.35)
 (set! geometry-lattice (make lattice (size 1 1 no-size) (basis1  (vector3 1.0 0.0 0.0)) (basis2  (vector3 0.5000000000000001 0.8660254037844388 0.0)) ))
 (set! geometry (list 
@@ -70,5 +70,5 @@
     (output-field-to-file 2 (string-append (get-filename-prefix)"h."))
 )
 
-(run-te (output-at-kpoint (list-ref k-points 1) fix-efield-phase output-nonbloch-efield-z output-nonbloch-hfield-y))
-(run-tm (output-at-kpoint (list-ref k-points 1) fix-efield-phase output-nonbloch-efield-z output-nonbloch-hfield-y))
+(run-te fix-efield-phase output-nonbloch-efield-z output-nonbloch-hfield-y)
+(run-tm fix-efield-phase output-nonbloch-efield-z output-nonbloch-hfield-y)

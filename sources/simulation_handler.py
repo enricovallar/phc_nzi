@@ -471,6 +471,77 @@ class Simulation:
             raise KeyError(f"Field file must contain '{comp}.r' and '{comp}.i'.")
         field_complex = data[f"{comp}.r"] + 1j * data[f"{comp}.i"]
         return field_complex, description
+    
+    def get_kmag(self, df, k_idx):
+        """
+        Get the k magnitude for a given k_index.
+        
+        Args:
+            df: DataFrame containing band structure data
+            k_idx: k index value to look up
+            
+        Returns:
+            The kmag/2pi value for the given k index
+        """
+        row = df[df["k index"] == k_idx]
+        if row.empty:
+            raise ValueError(f"k index {k_idx} not found in the dataframe")
+        return row["kmag/2pi"].values[0]
+    
+    def get_freq(self, df, k_idx, polarization, band_num):
+        """
+        Get the frequency for a specific k index, polarization and band number.
+        
+        Args:
+            df: DataFrame containing band structure data
+            k_idx: k index value to look up
+            polarization: Polarization type (e.g., 'tm', 'te')
+            band_num: Band number to retrieve
+            
+        Returns:
+            The frequency value for the specified parameters
+        """
+        column_name = f"{polarization} band {band_num}"
+        if column_name not in df.columns:
+            raise ValueError(f"Column '{column_name}' not found in the dataframe")
+        
+        row = df[df["k index"] == k_idx]
+        if row.empty:
+            raise ValueError(f"k index {k_idx} not found in the dataframe")
+        
+        return row[column_name].values[0]
+
+    def get_kmag_freq(self, df, k_idx, polarization, band_num):
+        """
+        Get the k magnitude and frequency for a specific k index, polarization and band number.
+        
+        Args:
+            df: DataFrame containing band structure data
+            k_idx: k index value to look up
+            polarization: Polarization type (e.g., 'tm', 'te')
+            band_num: Band number to retrieve
+
+        Returns:
+            A tuple containing the k magnitude and frequency values
+
+        """
+        kmag = self.get_kmag(df, k_idx)
+        freq = self.get_freq(df, k_idx, polarization, band_num)
+        return kmag, freq
+    
+    def get_kpoints_indices(self, df):
+        """
+        Get the unique k-point indices from the DataFrame.
+        
+        Args:
+            df: DataFrame containing band structure data
+
+        Returns:
+            A list of unique k-point indices
+
+        """
+        return  df["k index"]
+        
 
 class SimulationViewer:
     def __init__(self, simulation: Simulation) -> None:
@@ -829,11 +900,12 @@ class SimulationViewer:
         plt.legend()
         plt.grid(grid)
 
-    def plot_light_cone(self, df: pd.DataFrame) -> None:
+    def plot_light_cone(self, df: pd.DataFrame, opts: str |None = None) -> None:
         """
         Plot the light cone for the simulation on the current axes. Does not call plt.show().
         """
-        plt.plot(df['k index'], df['kmag/2pi'], color='black', label='Light cone')
+        opts = "k--" if opts is None else opts
+        plt.plot(df['k index'], df['kmag/2pi'], opts, label='Light cone')
         plt.legend()
 
     def show(self) -> None:

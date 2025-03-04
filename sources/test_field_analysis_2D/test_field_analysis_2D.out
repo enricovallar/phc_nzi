@@ -104,51 +104,46 @@ solve_kpoint (0,0,0):
 tefreqs:, k index, k1, k2, k3, kmag/2pi, te band 1, te band 2, te band 3, te band 4, te band 5, te band 6, te band 7, te band 8
 Solving for bands 2 to 8...
     linmin: converged after 8 iterations.
-    linmin: converged after 6 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 3 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 6 iterations.
+    linmin: converged after 8 iterations.
     linmin: converged after 5 iterations.
-    linmin: converged after 6 iterations.
-    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 3 iterations.
-    linmin: converged after 3 iterations.
-    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-Finished solving for bands 2 to 8 after 21 iterations.
+Finished solving for bands 2 to 8 after 16 iterations.
 tefreqs:, 1, 0, 0, 0, 0, 0, 0.444035, 0.522434, 0.54029, 0.540603, 0.675595, 0.675738, 0.762549
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
 Outputting fields to test_field_analysis_2D-e.k01.b01.te...
 Outputting fields to test_field_analysis_2D-h.k01.b01.te...
-Fixing e-field (band 2) phase by 0.772617 + 0.634872i; max ampl. = 0.693914
+Fixing e-field (band 2) phase by 0.200759 + 0.979641i; max ampl. = 0.693838
 Outputting fields to test_field_analysis_2D-e.k01.b02.te...
 Outputting fields to test_field_analysis_2D-h.k01.b02.te...
-Fixing e-field (band 3) phase by -0.962408 + 0.271607i; max ampl. = 0.719921
+Fixing e-field (band 3) phase by 0.9455 + 0.325623i; max ampl. = 0.719902
 Outputting fields to test_field_analysis_2D-e.k01.b03.te...
 Outputting fields to test_field_analysis_2D-h.k01.b03.te...
-Fixing e-field (band 4) phase by -0.798686 + 0.601748i; max ampl. = 1.08399
+Fixing e-field (band 4) phase by -0.912275 + -0.409578i; max ampl. = 1.08422
 Outputting fields to test_field_analysis_2D-e.k01.b04.te...
 Outputting fields to test_field_analysis_2D-h.k01.b04.te...
-Fixing e-field (band 5) phase by 0.59062 + -0.80695i; max ampl. = 1.0345
+Fixing e-field (band 5) phase by -0.993705 + -0.112029i; max ampl. = 1.03432
 Outputting fields to test_field_analysis_2D-e.k01.b05.te...
 Outputting fields to test_field_analysis_2D-h.k01.b05.te...
-Fixing e-field (band 6) phase by 0.733187 + 0.680027i; max ampl. = 1.26732
+Fixing e-field (band 6) phase by 0.756136 + 0.654415i; max ampl. = 1.26739
 Outputting fields to test_field_analysis_2D-e.k01.b06.te...
 Outputting fields to test_field_analysis_2D-h.k01.b06.te...
-Fixing e-field (band 7) phase by 0.610353 + -0.792129i; max ampl. = 1.21226
+Fixing e-field (band 7) phase by -0.523703 + -0.851901i; max ampl. = 1.21227
 Outputting fields to test_field_analysis_2D-e.k01.b07.te...
 Outputting fields to test_field_analysis_2D-h.k01.b07.te...
-Fixing e-field (band 8) phase by -0.127156 + -0.991883i; max ampl. = 0.697525
+Fixing e-field (band 8) phase by 0.183664 + 0.982989i; max ampl. = 0.697768
 Outputting fields to test_field_analysis_2D-e.k01.b08.te...
 Outputting fields to test_field_analysis_2D-h.k01.b08.te...
 solve_kpoint (0,0.0238095,0):
@@ -193,7 +188,7 @@ Solving for bands 1 to 8...
     linmin: converged after 3 iterations.
 Finished solving for bands 1 to 8 after 9 iterations.
 tefreqs:, 4, 0, 0.0714286, 0, 0.0824786, 0.0392119, 0.441687, 0.514425, 0.539312, 0.54328, 0.678016, 0.684466, 0.756373
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (0,0.0952381,0):
 Solving for bands 1 to 8...
     linmin: converged after 3 iterations.
@@ -684,7 +679,7 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 8 after 10 iterations.
 tefreqs:, 34, -0.190476, 0.404762, 0, 0.607959, 0.241881, 0.351357, 0.398451, 0.556778, 0.606213, 0.646862, 0.752795, 0.77604
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (-0.206349,0.396825,0):
 Solving for bands 1 to 8...
     linmin: converged after 3 iterations.
@@ -823,7 +818,7 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 8 after 11 iterations.
 tefreqs:, 43, -0.333333, 0.333333, 0, 0.666667, 0.255171, 0.36391, 0.366476, 0.586417, 0.58993, 0.635516, 0.759443, 0.784168
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (-0.31746,0.31746,0):
 Solving for bands 1 to 8...
     linmin: converged after 4 iterations.
@@ -1161,39 +1156,39 @@ elapsed time for k point: 0 seconds.
 Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
 Outputting fields to test_field_analysis_2D-e.k64.b01.te...
 Outputting fields to test_field_analysis_2D-h.k64.b01.te...
-Fixing e-field (band 2) phase by 0.0239903 + -0.999712i; max ampl. = 0.693879
+Fixing e-field (band 2) phase by 0.0239889 + -0.999712i; max ampl. = 0.693879
 Outputting fields to test_field_analysis_2D-e.k64.b02.te...
 Outputting fields to test_field_analysis_2D-h.k64.b02.te...
-Fixing e-field (band 3) phase by 0.0232077 + -0.999731i; max ampl. = 0.719895
+Fixing e-field (band 3) phase by 0.0232063 + -0.999731i; max ampl. = 0.719895
 Outputting fields to test_field_analysis_2D-e.k64.b03.te...
 Outputting fields to test_field_analysis_2D-h.k64.b03.te...
-Fixing e-field (band 4) phase by -0.211264 + -0.977429i; max ampl. = 1.08444
+Fixing e-field (band 4) phase by -0.211265 + -0.977429i; max ampl. = 1.08444
 Outputting fields to test_field_analysis_2D-e.k64.b04.te...
 Outputting fields to test_field_analysis_2D-h.k64.b04.te...
-Fixing e-field (band 5) phase by -0.999713 + -0.0239517i; max ampl. = 1.03438
+Fixing e-field (band 5) phase by -0.999713 + -0.0239503i; max ampl. = 1.03438
 Outputting fields to test_field_analysis_2D-e.k64.b05.te...
 Outputting fields to test_field_analysis_2D-h.k64.b05.te...
-Fixing e-field (band 6) phase by 0.024574 + -0.999698i; max ampl. = 1.26726
+Fixing e-field (band 6) phase by 0.0245726 + -0.999698i; max ampl. = 1.26726
 Outputting fields to test_field_analysis_2D-e.k64.b06.te...
 Outputting fields to test_field_analysis_2D-h.k64.b06.te...
-Fixing e-field (band 7) phase by -0.999728 + -0.0233235i; max ampl. = 1.21233
+Fixing e-field (band 7) phase by -0.999728 + -0.0233221i; max ampl. = 1.21233
 Outputting fields to test_field_analysis_2D-e.k64.b07.te...
 Outputting fields to test_field_analysis_2D-h.k64.b07.te...
-Fixing e-field (band 8) phase by -0.0199451 + 0.999801i; max ampl. = 0.697914
+Fixing e-field (band 8) phase by -0.0199437 + 0.999801i; max ampl. = 0.697914
 Outputting fields to test_field_analysis_2D-e.k64.b08.te...
 Outputting fields to test_field_analysis_2D-h.k64.b08.te...
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.2551709329624327 at #(-0.3333333333333333 0.3333333333333333 0.0)
-Band 2 range: 0.34423654502325635 at #(0.0 0.5 0.0) to 0.4440350783160379 at #(0.0 0.0 0.0)
-Band 3 range: 0.3664761786930881 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.5224335282779092 at #(0.0 0.0 0.0)
-Band 4 range: 0.522567210886106 at #(0.0 0.5 0.0) to 0.5864174174934235 at #(-0.3333333333333333 0.3333333333333333 0.0)
-Band 5 range: 0.5406026318208456 at #(0.0 0.0 0.0) to 0.6183400591925403 at #(0.0 0.5 0.0)
-Band 6 range: 0.6355160865546704 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.7059148506824895 at #(-0.15873015873015872 0.15873015873015872 0.0)
-Band 7 range: 0.6757379922793271 at #(0.0 0.0 0.0) to 0.7594432765928474 at #(-0.3333333333333333 0.3333333333333333 0.0)
-Band 8 range: 0.7302162507584085 at #(-0.1111111111111111 0.1111111111111111 0.0) to 0.7872188934082079 at #(0.0 0.357142857142857 0.0)
-Gap from band 1 (0.2551709329624327) to band 2 (0.34423654502325635), 29.71788485526705%
-Gap from band 3 (0.5224335282779092) to band 4 (0.522567210886106), 0.025585170074374993%
-Gap from band 5 (0.6183400591925403) to band 6 (0.6355160865546704), 2.739712593089277%
-total elapsed time for run: 3 seconds.
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.25517093296243265 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.3442365450232562 at #(0.0 0.5 0.0) to 0.44403507831603767 at #(0.0 0.0 0.0)
+Band 3 range: 0.3664761786930886 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.5224335282779092 at #(0.0 0.0 0.0)
+Band 4 range: 0.5225672108861059 at #(0.0 0.5 0.0) to 0.5864174174934244 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.5406026318208456 at #(0.0 0.0 0.0) to 0.6183400591925404 at #(0.0 0.5 0.0)
+Band 6 range: 0.63551608655467 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.7059148506824893 at #(-0.15873015873015872 0.15873015873015872 0.0)
+Band 7 range: 0.6757379900130922 at #(0.0 0.0 0.0) to 0.7594432765928474 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 8 range: 0.7302162507584097 at #(-0.1111111111111111 0.1111111111111111 0.0) to 0.7872188934081816 at #(0.0 0.357142857142857 0.0)
+Gap from band 1 (0.25517093296243265) to band 2 (0.3442365450232562), 29.717884855267027%
+Gap from band 3 (0.5224335282779092) to band 4 (0.5225672108861059), 0.025585170074353746%
+Gap from band 5 (0.6183400591925404) to band 6 (0.63551608655467), 2.7397125930891892%
+total elapsed time for run: 5 seconds.
 done.
 init-params: initializing eigensolver data
 Computing 8 bands with 1.000000e-07 tolerance.
@@ -1297,9 +1292,12 @@ Outputting test_field_analysis_2D-epsilon...
 solve_kpoint (0,0,0):
 tmfreqs:, k index, k1, k2, k3, kmag/2pi, tm band 1, tm band 2, tm band 3, tm band 4, tm band 5, tm band 6, tm band 7, tm band 8
 Solving for bands 2 to 8...
-    linmin: converged after 8 iterations.
-    linmin: converged after 7 iterations.
-    linmin: converged after 5 iterations.
+    linmin: converged after 9 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
@@ -1324,33 +1322,31 @@ Solving for bands 2 to 8...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-Finished solving for bands 2 to 8 after 29 iterations.
-tmfreqs:, 1, 0, 0, 0, 0, 0, 0.408168, 0.408183, 0.408233, 0.521222, 0.521597, 0.718144, 0.742934
+Finished solving for bands 2 to 8 after 30 iterations.
+tmfreqs:, 1, 0, 0, 0, 0, 0, 0.408168, 0.408183, 0.408233, 0.521222, 0.521597, 0.718144, 0.742997
 elapsed time for k point: 0 seconds.
 Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
 Outputting fields to test_field_analysis_2D-e.k01.b01.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b01.tm...
-Fixing e-field (band 2) phase by -0.565672 + 0.824631i; max ampl. = 0.84673
+Fixing e-field (band 2) phase by 0.98872 + 0.149772i; max ampl. = 0.846767
 Outputting fields to test_field_analysis_2D-e.k01.b02.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b02.tm...
-Fixing e-field (band 3) phase by 0.991607 + -0.129288i; max ampl. = 0.961944
+Fixing e-field (band 3) phase by 0.173769 + 0.984787i; max ampl. = 0.961891
 Outputting fields to test_field_analysis_2D-e.k01.b03.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b03.tm...
-Fixing e-field (band 4) phase by -0.90221 + 0.431296i; max ampl. = 0.82773
+Fixing e-field (band 4) phase by -0.999408 + 0.0344074i; max ampl. = 0.827573
 Outputting fields to test_field_analysis_2D-e.k01.b04.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b04.tm...
-Fixing e-field (band 5) phase by -0.545432 + 0.838155i; max ampl. = 0.794019
+Fixing e-field (band 5) phase by 0.332915 + -0.942957i; max ampl. = 0.793993
 Outputting fields to test_field_analysis_2D-e.k01.b05.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b05.tm...
-Fixing e-field (band 6) phase by 0.898111 + 0.439768i; max ampl. = 0.913298
+Fixing e-field (band 6) phase by 0.432038 + -0.901855i; max ampl. = 0.913269
 Outputting fields to test_field_analysis_2D-e.k01.b06.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b06.tm...
-Fixing e-field (band 7) phase by -0.504556 + -0.863379i; max ampl. = 1.19561
+Fixing e-field (band 7) phase by -0.99358 + 0.113132i; max ampl. = 1.19566
 Outputting fields to test_field_analysis_2D-e.k01.b07.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b07.tm...
-Fixing e-field (band 8) phase by -0.999741 + -0.0227571i; max ampl. = 0.820107
+Fixing e-field (band 8) phase by -0.998726 + 0.0504646i; max ampl. = 0.900233
 Outputting fields to test_field_analysis_2D-e.k01.b08.tm...
 Outputting fields to test_field_analysis_2D-h.k01.b08.tm...
 solve_kpoint (0,0.0238095,0):
@@ -1371,58 +1367,7 @@ Solving for bands 1 to 8...
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
     linmin: converged after 3 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
@@ -1436,15 +1381,64 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-    linmin: converged after 4 iterations.
-    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 4 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 1 to 8 after 89 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 87 iterations.
 tmfreqs:, 2, 0, 0.0238095, 0, 0.0274929, 0.011506, 0.401521, 0.408044, 0.414705, 0.521148, 0.521843, 0.71797, 0.741
 elapsed time for k point: 0 seconds.
 solve_kpoint (0,0.047619,0):
@@ -1469,7 +1463,8 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
     linmin: converged after 2 iterations.
-Finished solving for bands 1 to 8 after 20 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 21 iterations.
 tmfreqs:, 3, 0, 0.047619, 0, 0.0549857, 0.0230048, 0.394703, 0.407598, 0.421022, 0.520811, 0.522708, 0.717271, 0.736479
 elapsed time for k point: 0 seconds.
 solve_kpoint (0,0.0714286,0):
@@ -1707,7 +1702,7 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 8 after 5 iterations.
 tmfreqs:, 23, -0.015873, 0.492063, 0, 0.577568, 0.214161, 0.253514, 0.386695, 0.454232, 0.570501, 0.594472, 0.607454, 0.629479
-elapsed time for k point: 1 seconds.
+elapsed time for k point: 0 seconds.
 solve_kpoint (-0.031746,0.484127,0):
 Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
@@ -1822,7 +1817,7 @@ Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
 Finished solving for bands 1 to 8 after 7 iterations.
 tmfreqs:, 34, -0.190476, 0.404762, 0, 0.607959, 0.224727, 0.258401, 0.353662, 0.490159, 0.550147, 0.583929, 0.614461, 0.649202
-elapsed time for k point: 0 seconds.
+elapsed time for k point: 1 seconds.
 solve_kpoint (-0.206349,0.396825,0):
 Solving for bands 1 to 8...
     linmin: converged after 2 iterations.
@@ -2276,37 +2271,37 @@ elapsed time for k point: 0 seconds.
 Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
 Outputting fields to test_field_analysis_2D-e.k64.b01.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b01.tm...
-Fixing e-field (band 2) phase by -0.932833 + 0.360309i; max ampl. = 0.846739
+Fixing e-field (band 2) phase by -0.932829 + 0.360318i; max ampl. = 0.846739
 Outputting fields to test_field_analysis_2D-e.k64.b02.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b02.tm...
-Fixing e-field (band 3) phase by 0.931075 + -0.364828i; max ampl. = 0.961921
+Fixing e-field (band 3) phase by -0.931071 + 0.364838i; max ampl. = 0.961921
 Outputting fields to test_field_analysis_2D-e.k64.b03.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b03.tm...
-Fixing e-field (band 4) phase by -0.360873 + -0.932615i; max ampl. = 0.827656
+Fixing e-field (band 4) phase by -0.360883 + -0.932611i; max ampl. = 0.827656
 Outputting fields to test_field_analysis_2D-e.k64.b04.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b04.tm...
-Fixing e-field (band 5) phase by -0.35978 + -0.933037i; max ampl. = 0.793987
+Fixing e-field (band 5) phase by -0.359789 + -0.933034i; max ampl. = 0.793987
 Outputting fields to test_field_analysis_2D-e.k64.b05.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b05.tm...
-Fixing e-field (band 6) phase by -0.931847 + 0.362851i; max ampl. = 0.913265
+Fixing e-field (band 6) phase by -0.931843 + 0.362861i; max ampl. = 0.913265
 Outputting fields to test_field_analysis_2D-e.k64.b06.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b06.tm...
-Fixing e-field (band 7) phase by -0.931816 + 0.36293i; max ampl. = 1.19567
+Fixing e-field (band 7) phase by -0.931813 + 0.362939i; max ampl. = 1.19567
 Outputting fields to test_field_analysis_2D-e.k64.b07.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b07.tm...
-Fixing e-field (band 8) phase by -0.93179 + 0.362998i; max ampl. = 0.88117
+Fixing e-field (band 8) phase by 0.931786 + -0.363008i; max ampl. = 0.88117
 Outputting fields to test_field_analysis_2D-e.k64.b08.tm...
 Outputting fields to test_field_analysis_2D-h.k64.b08.tm...
-Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.23971348606010173 at #(-0.3333333333333333 0.3333333333333333 0.0)
-Band 2 range: 0.25346434845014026 at #(0.0 0.5 0.0) to 0.4081678367914631 at #(0.0 0.0 0.0)
-Band 3 range: 0.33570059893823806 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.40818319401933684 at #(0.0 0.0 0.0)
-Band 4 range: 0.4082325610839107 at #(0.0 0.0 0.0) to 0.516976691495005 at #(-0.3333333333333333 0.3333333333333333 0.0)
-Band 5 range: 0.516211009760724 at #(-0.12698412698412698 0.12698412698412698 0.0) to 0.5707669391514275 at #(0.0 0.5 0.0)
-Band 6 range: 0.5215973872584222 at #(0.0 0.0 0.0) to 0.5972593951019936 at #(-0.07936507936507936 0.46031746031746074 0.0)
-Band 7 range: 0.6036203378333357 at #(-0.07936507936507936 0.46031746031746074 0.0) to 0.7181435623563182 at #(0.0 0.0 0.0)
-Band 8 range: 0.629181754093786 at #(0.0 0.5 0.0) to 0.743011880104141 at #(0.0 0.0 0.0)
-Gap from band 1 (0.23971348606010173) to band 2 (0.25346434845014026), 5.576431634927%
-Gap from band 3 (0.40818319401933684) to band 4 (0.4082325610839107), 0.012093608989117427%
-Gap from band 6 (0.5972593951019936) to band 7 (0.6036203378333357), 1.0593804786419339%
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.23971348606010165 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.2534643484501403 at #(0.0 0.5 0.0) to 0.4081678427707323 at #(0.0 0.0 0.0)
+Band 3 range: 0.33570059893823717 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.4081831899900154 at #(0.0 0.0 0.0)
+Band 4 range: 0.4082325610839105 at #(0.0 0.0 0.0) to 0.5169766914950056 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.5162110097607243 at #(-0.12698412698412698 0.12698412698412698 0.0) to 0.5707669391514275 at #(0.0 0.5 0.0)
+Band 6 range: 0.5215973872584235 at #(0.0 0.0 0.0) to 0.5972593951019936 at #(-0.07936507936507936 0.46031746031746074 0.0)
+Band 7 range: 0.6036203378333355 at #(-0.07936507936507936 0.46031746031746074 0.0) to 0.7181435623563168 at #(0.0 0.0 0.0)
+Band 8 range: 0.6291817540937857 at #(0.0 0.5 0.0) to 0.7430118801041402 at #(0.0 0.0 0.0)
+Gap from band 1 (0.23971348606010165) to band 2 (0.2534643484501403), 5.576431634927056%
+Gap from band 3 (0.4081831899900154) to band 4 (0.4082325610839105), 0.01209459612461792%
+Gap from band 6 (0.5972593951019936) to band 7 (0.6036203378333355), 1.0593804786418972%
 total elapsed time for run: 3 seconds.
 done.
