@@ -1,0 +1,19 @@
+name: mpb-nzi-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy=
+  - scipy=1.15
+  - numpy=1.26
+  - pandas=2.2
+  - mpi4py=4.0.2
+  - h5py=3.10
+  - matplotlib-base=3.10
+  - matplotlib-inline=0.1.6
+  - pymeep=1.29.0
+  - pymeep-extras=1.29.0
+  - pip
+  - pip:
+    - pre-commit==4.1

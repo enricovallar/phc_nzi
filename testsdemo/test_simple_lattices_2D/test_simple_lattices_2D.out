@@ -1,0 +1,1526 @@
+command-line param: r1=0.2
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 2 dimensions.
+Grid size is 32 x 32 x 1.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 1)
+Cell volume = 0.866025
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 1)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,1e+20)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 9.61, mu = 1
+     cylinder, center = (0,0,0)
+          radius 0.2, height 1e+20, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Initializing epsilon function...
+Allocating fields...
+16 k-points:
+     (0,0,0)
+     (0,0.1,0)
+     (0,0.2,0)
+     (0,0.3,0)
+     (0,0.4,0)
+     (0,0.5,0)
+     (-0.0666667,0.466667,0)
+     (-0.133333,0.433333,0)
+     (-0.2,0.4,0)
+     (-0.266667,0.366667,0)
+     (-0.333333,0.333333,0)
+     (-0.266667,0.266667,0)
+     (-0.2,0.2,0)
+     (-0.133333,0.133333,0)
+     (-0.0666667,0.0666667,0)
+     (0,0,0)
+Solving for band polarization: te.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-9.61, mean 8.36066, harm. mean 4.56772, 88.1836% > 1, 85.4896% "fill"
+Outputting test_simple_lattices_2D-epsilon...
+solve_kpoint (0,0,0):
+tefreqs:, k index, k1, k2, k3, kmag/2pi, te band 1, te band 2, te band 3, te band 4, te band 5, te band 6, te band 7, te band 8
+Solving for bands 2 to 8...
+    linmin: converged after 8 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 43 iterations.
+tefreqs:, 1, 0, 0, 0, 0, 0, 0.376877, 0.394755, 0.394864, 0.396657, 0.475796, 0.475891, 0.679771
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 0.846612 + 0.532211i; max ampl. = 0.566206
+Fixing e-field (band 3) phase by 0.936918 + 0.34955i; max ampl. = 0.602697
+Fixing e-field (band 4) phase by -0.87682 + 0.480819i; max ampl. = 0.563568
+Fixing e-field (band 5) phase by 1 + 0.00074734i; max ampl. = 0.528257
+Fixing e-field (band 6) phase by -0.0616211 + -0.9981i; max ampl. = 0.866811
+Fixing e-field (band 7) phase by -0.828252 + -0.560355i; max ampl. = 0.852097
+Fixing e-field (band 8) phase by -0.984426 + -0.175802i; max ampl. = 0.618479
+Outputting fields to test_simple_lattices_2D-e.k01.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k01.b08.z.te...
+solve_kpoint (0,0.1,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 10 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 54 iterations.
+tefreqs:, 2, 0, 0.1, 0, 0.11547, 0.0419082, 0.358432, 0.38425, 0.392827, 0.412578, 0.480251, 0.491197, 0.65791
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -1.99504e-07i; max ampl. = 0.703283
+Fixing e-field (band 2) phase by 1 + 2.36457e-05i; max ampl. = 0.458759
+Fixing e-field (band 3) phase by -1.56651e-05 + 1i; max ampl. = 0.475475
+Fixing e-field (band 4) phase by -0.00226085 + -0.999997i; max ampl. = 0.608753
+Fixing e-field (band 5) phase by 0.000149608 + 1i; max ampl. = 0.588342
+Fixing e-field (band 6) phase by 0.999889 + -0.0148815i; max ampl. = 0.923398
+Fixing e-field (band 7) phase by -1 + -0.000130477i; max ampl. = 0.878854
+Fixing e-field (band 8) phase by 0.99798 + -0.0635292i; max ampl. = 0.570518
+Outputting fields to test_simple_lattices_2D-e.k02.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k02.b08.z.te...
+solve_kpoint (0,0.2,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 8 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 77 iterations.
+tefreqs:, 3, 0, 0.2, 0, 0.23094, 0.0836382, 0.328561, 0.364754, 0.388277, 0.437997, 0.492031, 0.521427, 0.629311
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -3.71111e-06i; max ampl. = 0.688154
+Fixing e-field (band 2) phase by -0.000644641 + -1i; max ampl. = 0.559008
+Fixing e-field (band 3) phase by 0.00159299 + -0.999999i; max ampl. = 0.551057
+Fixing e-field (band 4) phase by -0.0122228 + 0.999925i; max ampl. = 0.596342
+Fixing e-field (band 5) phase by -0.000944391 + 1i; max ampl. = 0.518964
+Fixing e-field (band 6) phase by 0.999988 + 0.00496956i; max ampl. = 0.830701
+Fixing e-field (band 7) phase by 1 + 0.000550876i; max ampl. = 0.747869
+Fixing e-field (band 8) phase by 4.98353e-05 + 1i; max ampl. = 0.574436
+Outputting fields to test_simple_lattices_2D-e.k03.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k03.b08.z.te...
+solve_kpoint (0,0.3,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 18 iterations.
+tefreqs:, 4, 0, 0.3, 0, 0.34641, 0.124862, 0.293079, 0.350431, 0.383479, 0.465216, 0.50869, 0.550374, 0.60282
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 3.94693e-08i; max ampl. = 0.660546
+Fixing e-field (band 2) phase by -1 + -2.62128e-07i; max ampl. = 0.644592
+Fixing e-field (band 3) phase by -1.0778e-05 + -1i; max ampl. = 0.629451
+Fixing e-field (band 4) phase by -0.00122423 + -0.999999i; max ampl. = 0.586868
+Fixing e-field (band 5) phase by 9.07943e-07 + -1i; max ampl. = 0.470416
+Fixing e-field (band 6) phase by 0.999991 + 0.0041956i; max ampl. = 0.728449
+Fixing e-field (band 7) phase by -1 + -3.29398e-06i; max ampl. = 0.541123
+Fixing e-field (band 8) phase by 1 + 5.60089e-05i; max ampl. = 0.604633
+Outputting fields to test_simple_lattices_2D-e.k04.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k04.b08.z.te...
+solve_kpoint (0,0.4,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 8 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 73 iterations.
+tefreqs:, 5, 0, 0.4, 0, 0.46188, 0.164401, 0.256041, 0.34203, 0.380064, 0.493235, 0.527887, 0.551211, 0.580491
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 4.89454e-08i; max ampl. = 0.606404
+Fixing e-field (band 2) phase by -1 + 7.62054e-08i; max ampl. = 0.751123
+Fixing e-field (band 3) phase by 7.76342e-06 + 1i; max ampl. = 0.666745
+Fixing e-field (band 4) phase by -0.000322619 + 1i; max ampl. = 0.581801
+Fixing e-field (band 5) phase by -4.78807e-07 + 1i; max ampl. = 0.449134
+Fixing e-field (band 6) phase by 1 + 1.30935e-05i; max ampl. = 0.596899
+Fixing e-field (band 7) phase by 1 + -4.28772e-05i; max ampl. = 0.590276
+Fixing e-field (band 8) phase by -1 + -2.44522e-05i; max ampl. = 0.801496
+Outputting fields to test_simple_lattices_2D-e.k05.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k05.b08.z.te...
+solve_kpoint (0,0.5,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 10 iterations.
+tefreqs:, 6, 0, 0.5, 0, 0.57735, 0.190233, 0.23092, 0.33925, 0.378846, 0.514601, 0.53295, 0.541804, 0.564885
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -1.2149e-10i; max ampl. = 0.50962
+Fixing e-field (band 2) phase by -1 + 1.78057e-10i; max ampl. = 0.912507
+Fixing e-field (band 3) phase by -6.12637e-10 + -1i; max ampl. = 0.678792
+Fixing e-field (band 4) phase by 1 + -3.99498e-07i; max ampl. = 0.69824
+Fixing e-field (band 5) phase by -2.47407e-07 + -1i; max ampl. = 0.527323
+Fixing e-field (band 6) phase by -1 + -3.87977e-09i; max ampl. = 0.710964
+Fixing e-field (band 7) phase by -3.27509e-05 + 1i; max ampl. = 0.648617
+Fixing e-field (band 8) phase by -1 + 1.58822e-05i; max ampl. = 0.988097
+Outputting fields to test_simple_lattices_2D-e.k06.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k06.b08.z.te...
+solve_kpoint (-0.0666667,0.466667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 11 iterations.
+tefreqs:, 7, -0.0666667, 0.466667, 0, 0.581187, 0.191861, 0.231898, 0.329308, 0.388504, 0.510795, 0.525945, 0.548885, 0.568715
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -5.30859e-12i; max ampl. = 0.50542
+Fixing e-field (band 2) phase by -1 + -1.19987e-08i; max ampl. = 0.906662
+Fixing e-field (band 3) phase by 2.13555e-10 + 1i; max ampl. = 0.622385
+Fixing e-field (band 4) phase by 1 + 1.84156e-10i; max ampl. = 0.650643
+Fixing e-field (band 5) phase by -1 + -1.41116e-10i; max ampl. = 0.44725
+Fixing e-field (band 6) phase by 1 + -1.88192e-07i; max ampl. = 0.591049
+Fixing e-field (band 7) phase by -2.93271e-06 + -1i; max ampl. = 0.508122
+Fixing e-field (band 8) phase by 1 + 5.87894e-10i; max ampl. = 0.942227
+Outputting fields to test_simple_lattices_2D-e.k07.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k07.b08.z.te...
+solve_kpoint (-0.133333,0.433333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 12 iterations.
+tefreqs:, 8, -0.133333, 0.433333, 0, 0.592546, 0.196597, 0.234803, 0.310404, 0.406498, 0.502027, 0.515998, 0.55904, 0.577488
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -1.83098e-13i; max ampl. = 0.49302
+Fixing e-field (band 2) phase by -1 + -2.59875e-11i; max ampl. = 0.888978
+Fixing e-field (band 3) phase by 1 + 2.06214e-12i; max ampl. = 0.563997
+Fixing e-field (band 4) phase by -9.20647e-12 + -1i; max ampl. = 0.509491
+Fixing e-field (band 5) phase by -1 + 1.47246e-12i; max ampl. = 0.447149
+Fixing e-field (band 6) phase by 1 + 1.67139e-09i; max ampl. = 0.549398
+Fixing e-field (band 7) phase by -6.07531e-10 + 1i; max ampl. = 0.459229
+Fixing e-field (band 8) phase by -1 + 5.23225e-13i; max ampl. = 0.84557
+Outputting fields to test_simple_lattices_2D-e.k08.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k08.b08.z.te...
+solve_kpoint (-0.2,0.4,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 13 iterations.
+tefreqs:, 9, -0.2, 0.4, 0, 0.61101, 0.203953, 0.239561, 0.289699, 0.425379, 0.492111, 0.506015, 0.569256, 0.587447
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 1.23967e-15i; max ampl. = 0.47276
+Fixing e-field (band 2) phase by 1 + -6.07509e-12i; max ampl. = 0.860506
+Fixing e-field (band 3) phase by 1 + 2.18649e-14i; max ampl. = 0.626521
+Fixing e-field (band 4) phase by 2.72732e-13 + 1i; max ampl. = 0.502156
+Fixing e-field (band 5) phase by -1 + 2.99084e-14i; max ampl. = 0.539626
+Fixing e-field (band 6) phase by -1 + -6.8953e-12i; max ampl. = 0.532883
+Fixing e-field (band 7) phase by 1.70369e-13 + 1i; max ampl. = 0.433378
+Fixing e-field (band 8) phase by 1 + -2.34593e-14i; max ampl. = 0.725076
+Outputting fields to test_simple_lattices_2D-e.k09.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k09.b08.z.te...
+solve_kpoint (-0.266667,0.366667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+tefreqs:, 10, -0.266667, 0.366667, 0, 0.635959, 0.21272, 0.246055, 0.269441, 0.44173, 0.484652, 0.496264, 0.578828, 0.596606
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -1.71582e-16i; max ampl. = 0.44004
+Fixing e-field (band 2) phase by -1 + 2.48516e-12i; max ampl. = 0.822872
+Fixing e-field (band 3) phase by 1 + 2.8282e-17i; max ampl. = 0.690173
+Fixing e-field (band 4) phase by 2.94781e-15 + 1i; max ampl. = 0.494915
+Fixing e-field (band 5) phase by 1 + -7.51225e-15i; max ampl. = 0.613447
+Fixing e-field (band 6) phase by -1 + -4.72726e-12i; max ampl. = 0.524371
+Fixing e-field (band 7) phase by 1 + -8.51167e-13i; max ampl. = 0.478135
+Fixing e-field (band 8) phase by 1 + 4.11442e-15i; max ampl. = 0.613747
+Outputting fields to test_simple_lattices_2D-e.k10.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k10.b08.z.te...
+solve_kpoint (-0.333333,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 35 iterations.
+tefreqs:, 11, -0.333333, 0.333333, 0, 0.666667, 0.218344, 0.254124, 0.254174, 0.448666, 0.486804, 0.486844, 0.584594, 0.604277
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 1.96322e-14i; max ampl. = 0.41315
+Fixing e-field (band 2) phase by 1 + 4.31408e-13i; max ampl. = 0.700101
+Fixing e-field (band 3) phase by -1 + -2.37308e-13i; max ampl. = 0.641924
+Fixing e-field (band 4) phase by 2.04221e-12 + -1i; max ampl. = 0.437294
+Fixing e-field (band 5) phase by 1 + -3.61854e-13i; max ampl. = 0.596165
+Fixing e-field (band 6) phase by 4.76358e-12 + 1i; max ampl. = 0.510792
+Fixing e-field (band 7) phase by -1 + 1.10177e-10i; max ampl. = 0.417782
+Fixing e-field (band 8) phase by -1.879e-12 + 1i; max ampl. = 0.558252
+Outputting fields to test_simple_lattices_2D-e.k11.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k11.b08.z.te...
+solve_kpoint (-0.266667,0.266667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 96 iterations.
+tefreqs:, 12, -0.266667, 0.266667, 0, 0.533333, 0.18949, 0.268056, 0.274444, 0.435974, 0.468991, 0.51857, 0.560142, 0.614481
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -3.4397e-14i; max ampl. = 0.508115
+Fixing e-field (band 2) phase by -1 + 5.11127e-14i; max ampl. = 0.589862
+Fixing e-field (band 3) phase by 1 + -1.8278e-11i; max ampl. = 0.568251
+Fixing e-field (band 4) phase by -5.82369e-14 + 1i; max ampl. = 0.47507
+Fixing e-field (band 5) phase by 1 + 3.04282e-12i; max ampl. = 0.634936
+Fixing e-field (band 6) phase by 8.82244e-13 + -1i; max ampl. = 0.492076
+Fixing e-field (band 7) phase by -1 + 2.80945e-11i; max ampl. = 0.505018
+Fixing e-field (band 8) phase by -1 + -1.50288e-12i; max ampl. = 0.51178
+Outputting fields to test_simple_lattices_2D-e.k12.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k12.b08.z.te...
+solve_kpoint (-0.2,0.2,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 6 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 38 iterations.
+tefreqs:, 13, -0.2, 0.2, 0, 0.4, 0.143966, 0.299019, 0.302543, 0.419359, 0.452241, 0.527948, 0.548475, 0.591026
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 7.1368e-16i; max ampl. = 0.588801
+Fixing e-field (band 2) phase by 1 + 1.20435e-12i; max ampl. = 0.495785
+Fixing e-field (band 3) phase by -3.66657e-13 + 1i; max ampl. = 0.478261
+Fixing e-field (band 4) phase by -4.94621e-15 + -1i; max ampl. = 0.515692
+Fixing e-field (band 5) phase by -1 + 8.76737e-13i; max ampl. = 0.636704
+Fixing e-field (band 6) phase by -1 + -4.91156e-13i; max ampl. = 0.582414
+Fixing e-field (band 7) phase by -1 + 4.77007e-14i; max ampl. = 0.452351
+Fixing e-field (band 8) phase by -1 + -8.37208e-15i; max ampl. = 0.747258
+Outputting fields to test_simple_lattices_2D-e.k13.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k13.b08.z.te...
+solve_kpoint (-0.133333,0.133333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 11 iterations.
+tefreqs:, 14, -0.133333, 0.133333, 0, 0.266667, 0.0965008, 0.326496, 0.340472, 0.406266, 0.434856, 0.500291, 0.530099, 0.611113
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 8.77353e-17i; max ampl. = 0.620073
+Fixing e-field (band 2) phase by 1 + -1.30288e-10i; max ampl. = 0.414463
+Fixing e-field (band 3) phase by 3.3919e-15 + 1i; max ampl. = 0.516726
+Fixing e-field (band 4) phase by 2.72577e-15 + -1i; max ampl. = 0.557014
+Fixing e-field (band 5) phase by 1 + -1.38053e-12i; max ampl. = 0.557279
+Fixing e-field (band 6) phase by -1 + -1.96625e-12i; max ampl. = 0.694233
+Fixing e-field (band 7) phase by -1 + 9.60232e-16i; max ampl. = 0.653876
+Fixing e-field (band 8) phase by -1 + -4.67256e-13i; max ampl. = 0.564947
+Outputting fields to test_simple_lattices_2D-e.k14.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k14.b08.z.te...
+solve_kpoint (-0.0666667,0.0666667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 16 iterations.
+tefreqs:, 15, -0.0666667, 0.0666667, 0, 0.133333, 0.0483795, 0.35518, 0.37666, 0.398069, 0.413939, 0.482011, 0.495222, 0.649276
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -2.31268e-17i; max ampl. = 0.637212
+Fixing e-field (band 2) phase by 1 + -3.14733e-11i; max ampl. = 0.4407
+Fixing e-field (band 3) phase by 7.16666e-15 + 1i; max ampl. = 0.57101
+Fixing e-field (band 4) phase by 1.27178e-14 + 1i; max ampl. = 0.580317
+Fixing e-field (band 5) phase by -2.02483e-11 + -1i; max ampl. = 0.413267
+Fixing e-field (band 6) phase by -1 + 2.71166e-12i; max ampl. = 0.797838
+Fixing e-field (band 7) phase by -1 + -3.84302e-16i; max ampl. = 0.77437
+Fixing e-field (band 8) phase by -1.02753e-14 + -1i; max ampl. = 0.453591
+Outputting fields to test_simple_lattices_2D-e.k15.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k15.b08.z.te...
+solve_kpoint (0,0,0):
+Solving for bands 2 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 34 iterations.
+tefreqs:, 16, 0, 0, 0, 0, 0, 0.376877, 0.394755, 0.394864, 0.396657, 0.475796, 0.475891, 0.679771
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 1 + -5.1379e-15i; max ampl. = 0.566204
+Fixing e-field (band 3) phase by -1.75587e-08 + 1i; max ampl. = 0.603188
+Fixing e-field (band 4) phase by -6.27848e-15 + -1i; max ampl. = 0.563385
+Fixing e-field (band 5) phase by 5.00754e-10 + -1i; max ampl. = 0.52814
+Fixing e-field (band 6) phase by 1 + -2.51074e-09i; max ampl. = 0.866671
+Fixing e-field (band 7) phase by 1 + -5.6278e-15i; max ampl. = 0.851991
+Fixing e-field (band 8) phase by -1 + 6.42418e-12i; max ampl. = 0.618447
+Outputting fields to test_simple_lattices_2D-e.k16.b01.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b02.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b03.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b04.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b05.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b06.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b07.z.te...
+Outputting fields to test_simple_lattices_2D-e.k16.b08.z.te...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.21834360513774334 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.2309202052419961 at #(0.0 0.5 0.0) to 0.37687726126140153 at #(0.0 0.0 0.0)
+Band 3 range: 0.2541736543765535 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.39475474093630425 at #(0.0 0.0 0.0)
+Band 4 range: 0.3788456908037524 at #(0.0 0.5 0.0) to 0.44866574336388426 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.39665711729026515 at #(0.0 0.0 0.0) to 0.5146014623964342 at #(0.0 0.5 0.0)
+Band 6 range: 0.47579578054512844 at #(0.0 0.0 0.0) to 0.5329499701684469 at #(0.0 0.5 0.0)
+Band 7 range: 0.47589072701008034 at #(0.0 0.0 0.0) to 0.5845943521682939 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 8 range: 0.5648852306571402 at #(0.0 0.5 0.0) to 0.679771474167805 at #(0.0 0.0 0.0)
+Gap from band 1 (0.21834360513774334) to band 2 (0.2309202052419961), 5.598759487714988%
+total elapsed time for run: 6 seconds.
+done.
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 2 dimensions.
+Grid size is 32 x 32 x 1.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 1)
+Cell volume = 0.866025
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 1)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,1e+20)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 9.61, mu = 1
+     cylinder, center = (0,0,0)
+          radius 0.2, height 1e+20, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 1 and 10 object nodes (vs. 2 actual objects)
+Initializing epsilon function...
+16 k-points:
+     (0,0,0)
+     (0,0.1,0)
+     (0,0.2,0)
+     (0,0.3,0)
+     (0,0.4,0)
+     (0,0.5,0)
+     (-0.0666667,0.466667,0)
+     (-0.133333,0.433333,0)
+     (-0.2,0.4,0)
+     (-0.266667,0.366667,0)
+     (-0.333333,0.333333,0)
+     (-0.266667,0.266667,0)
+     (-0.2,0.2,0)
+     (-0.133333,0.133333,0)
+     (-0.0666667,0.0666667,0)
+     (0,0,0)
+Solving for band polarization: tm.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-9.61, mean 8.36066, harm. mean 4.56772, 88.1836% > 1, 85.4896% "fill"
+Outputting test_simple_lattices_2D-epsilon...
+solve_kpoint (0,0,0):
+tmfreqs:, k index, k1, k2, k3, kmag/2pi, tm band 1, tm band 2, tm band 3, tm band 4, tm band 5, tm band 6, tm band 7, tm band 8
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 29 iterations.
+tmfreqs:, 1, 0, 0, 0, 0, 0, 0.372715, 0.374821, 0.374823, 0.396486, 0.396638, 0.487346, 0.651218
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by -0.817891 + -0.575373i; max ampl. = 0.733341
+Fixing e-field (band 3) phase by 0.404427 + -0.91457i; max ampl. = 0.813537
+Fixing e-field (band 4) phase by -0.0276854 + 0.999617i; max ampl. = 0.704727
+Fixing e-field (band 5) phase by -0.0784441 + -0.996919i; max ampl. = 0.719995
+Fixing e-field (band 6) phase by -0.904918 + -0.425585i; max ampl. = 0.740454
+Fixing e-field (band 7) phase by 0.709593 + -0.704612i; max ampl. = 0.714218
+Fixing e-field (band 8) phase by 0.268076 + 0.963398i; max ampl. = 0.747676
+Outputting fields to test_simple_lattices_2D-e.k01.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k01.b08.z.tm...
+solve_kpoint (0,0.1,0):
+Solving for bands 1 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 7 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 17 iterations.
+tmfreqs:, 2, 0, 0.1, 0, 0.11547, 0.039917, 0.34373, 0.365253, 0.383796, 0.408964, 0.40966, 0.496454, 0.627078
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by -1 + -1.95431e-07i; max ampl. = 0.372301
+Fixing e-field (band 2) phase by 1 + 0.000379802i; max ampl. = 0.562709
+Fixing e-field (band 3) phase by 0.852192 + -0.523228i; max ampl. = 0.612245
+Fixing e-field (band 4) phase by -0.000274898 + 1i; max ampl. = 0.73374
+Fixing e-field (band 5) phase by -0.00362215 + 0.999993i; max ampl. = 0.622147
+Fixing e-field (band 6) phase by 0.000765754 + 1i; max ampl. = 0.421296
+Fixing e-field (band 7) phase by 1 + -0.000131921i; max ampl. = 0.659734
+Fixing e-field (band 8) phase by -0.00133344 + -0.999999i; max ampl. = 0.606429
+Outputting fields to test_simple_lattices_2D-e.k02.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k02.b08.z.tm...
+solve_kpoint (0,0.2,0):
+Solving for bands 1 to 8...
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 7 iterations.
+tmfreqs:, 3, 0, 0.2, 0, 0.23094, 0.079723, 0.310083, 0.352306, 0.374707, 0.430316, 0.436942, 0.518329, 0.597078
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -4.56743e-10i; max ampl. = 0.374475
+Fixing e-field (band 2) phase by -1 + 1.80102e-07i; max ampl. = 0.530788
+Fixing e-field (band 3) phase by -0.999999 + -0.0012496i; max ampl. = 0.56854
+Fixing e-field (band 4) phase by 6.97597e-08 + 1i; max ampl. = 0.724743
+Fixing e-field (band 5) phase by 0.000201275 + -1i; max ampl. = 0.571955
+Fixing e-field (band 6) phase by -1 + -1.52944e-06i; max ampl. = 0.633721
+Fixing e-field (band 7) phase by -1 + -1.27362e-07i; max ampl. = 0.586454
+Fixing e-field (band 8) phase by -0.000176424 + 1i; max ampl. = 0.596839
+Outputting fields to test_simple_lattices_2D-e.k03.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k03.b08.z.tm...
+solve_kpoint (0,0.3,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 7 iterations.
+tmfreqs:, 4, 0, 0.3, 0, 0.34641, 0.119266, 0.274394, 0.342172, 0.365193, 0.454457, 0.465124, 0.54405, 0.567126
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -2.03373e-11i; max ampl. = 0.379585
+Fixing e-field (band 2) phase by -2.74497e-11 + 1i; max ampl. = 0.425244
+Fixing e-field (band 3) phase by 1 + 8.13754e-06i; max ampl. = 0.55215
+Fixing e-field (band 4) phase by 1.68936e-10 + 1i; max ampl. = 0.69228
+Fixing e-field (band 5) phase by -1.36917e-06 + -1i; max ampl. = 0.543661
+Fixing e-field (band 6) phase by 1 + -1.30079e-08i; max ampl. = 0.622632
+Fixing e-field (band 7) phase by 1 + 8.63291e-09i; max ampl. = 0.616556
+Fixing e-field (band 8) phase by -4.0359e-06 + -1i; max ampl. = 0.599423
+Outputting fields to test_simple_lattices_2D-e.k04.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k04.b08.z.tm...
+solve_kpoint (0,0.4,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 10 iterations.
+tmfreqs:, 5, 0, 0.4, 0, 0.46188, 0.158167, 0.237596, 0.33584, 0.358786, 0.480236, 0.493078, 0.537962, 0.550868
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -4.05244e-12i; max ampl. = 0.395558
+Fixing e-field (band 2) phase by 1 + 8.38562e-11i; max ampl. = 0.494645
+Fixing e-field (band 3) phase by 1 + 1.51525e-06i; max ampl. = 0.545298
+Fixing e-field (band 4) phase by -4.46011e-11 + 1i; max ampl. = 0.672988
+Fixing e-field (band 5) phase by -1.26361e-06 + 1i; max ampl. = 0.501906
+Fixing e-field (band 6) phase by 1 + 1.73004e-09i; max ampl. = 0.558583
+Fixing e-field (band 7) phase by -2.5768e-06 + 1i; max ampl. = 0.622976
+Fixing e-field (band 8) phase by 1 + 2.46833e-09i; max ampl. = 0.691073
+Outputting fields to test_simple_lattices_2D-e.k05.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k05.b08.z.tm...
+solve_kpoint (0,0.5,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 7 iterations.
+tmfreqs:, 6, 0, 0.5, 0, 0.57735, 0.189067, 0.207363, 0.333691, 0.356561, 0.502071, 0.513204, 0.515014, 0.534413
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -8.25513e-14i; max ampl. = 0.500573
+Fixing e-field (band 2) phase by 1 + -2.66018e-14i; max ampl. = 0.605404
+Fixing e-field (band 3) phase by 1 + 1.47152e-08i; max ampl. = 0.543358
+Fixing e-field (band 4) phase by 1.00148e-12 + -1i; max ampl. = 0.662878
+Fixing e-field (band 5) phase by -7.79704e-07 + -1i; max ampl. = 0.554979
+Fixing e-field (band 6) phase by 1 + 1.35741e-11i; max ampl. = 0.574981
+Fixing e-field (band 7) phase by -3.67584e-07 + 1i; max ampl. = 0.798325
+Fixing e-field (band 8) phase by 1 + 1.69075e-11i; max ampl. = 0.960762
+Outputting fields to test_simple_lattices_2D-e.k06.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k06.b08.z.tm...
+solve_kpoint (-0.0666667,0.466667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 6 iterations.
+tmfreqs:, 7, -0.0666667, 0.466667, 0, 0.581187, 0.190321, 0.208564, 0.320615, 0.369609, 0.493344, 0.509525, 0.522162, 0.539713
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 9.31072e-16i; max ampl. = 0.500609
+Fixing e-field (band 2) phase by -1 + -1.91488e-12i; max ampl. = 0.607416
+Fixing e-field (band 3) phase by -1 + 5.92319e-12i; max ampl. = 0.467004
+Fixing e-field (band 4) phase by -1.47687e-11 + -1i; max ampl. = 0.574617
+Fixing e-field (band 5) phase by -1.45023e-12 + 1i; max ampl. = 0.535216
+Fixing e-field (band 6) phase by 1.73291e-09 + 1i; max ampl. = 0.723954
+Fixing e-field (band 7) phase by -1 + -1.90899e-12i; max ampl. = 0.557584
+Fixing e-field (band 8) phase by 1 + 4.29205e-10i; max ampl. = 0.866529
+Outputting fields to test_simple_lattices_2D-e.k07.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k07.b08.z.tm...
+solve_kpoint (-0.133333,0.433333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 6 iterations.
+tmfreqs:, 8, -0.133333, 0.433333, 0, 0.592546, 0.194033, 0.212016, 0.300453, 0.389749, 0.481073, 0.4995, 0.535088, 0.549211
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -2.61582e-18i; max ampl. = 0.50071
+Fixing e-field (band 2) phase by 1 + 2.6837e-12i; max ampl. = 0.614063
+Fixing e-field (band 3) phase by -1 + 3.52602e-13i; max ampl. = 0.440084
+Fixing e-field (band 4) phase by 5.25985e-12 + -1i; max ampl. = 0.545981
+Fixing e-field (band 5) phase by 1 + 3.50191e-14i; max ampl. = 0.538311
+Fixing e-field (band 6) phase by -1 + -4.51733e-12i; max ampl. = 0.576334
+Fixing e-field (band 7) phase by 1 + 8.23058e-15i; max ampl. = 0.55702
+Fixing e-field (band 8) phase by 1 + 1.34528e-11i; max ampl. = 0.786195
+Outputting fields to test_simple_lattices_2D-e.k08.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k08.b08.z.tm...
+solve_kpoint (-0.2,0.4,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 7 iterations.
+tmfreqs:, 9, -0.2, 0.4, 0, 0.61101, 0.200065, 0.217113, 0.280094, 0.410381, 0.468926, 0.488946, 0.548195, 0.559055
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -4.06068e-16i; max ampl. = 0.500889
+Fixing e-field (band 2) phase by 1 + -1.84279e-12i; max ampl. = 0.627079
+Fixing e-field (band 3) phase by 1 + 5.90726e-13i; max ampl. = 0.452417
+Fixing e-field (band 4) phase by -2.46853e-12 + -1i; max ampl. = 0.545186
+Fixing e-field (band 5) phase by 1 + -5.66824e-14i; max ampl. = 0.534523
+Fixing e-field (band 6) phase by 1 + -2.83826e-12i; max ampl. = 0.590827
+Fixing e-field (band 7) phase by 1 + -1.38216e-14i; max ampl. = 0.564225
+Fixing e-field (band 8) phase by 2.70168e-12 + -1i; max ampl. = 0.507108
+Outputting fields to test_simple_lattices_2D-e.k09.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k09.b08.z.tm...
+solve_kpoint (-0.266667,0.366667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 8 iterations.
+tmfreqs:, 10, -0.266667, 0.366667, 0, 0.635959, 0.208213, 0.221747, 0.262061, 0.430283, 0.457258, 0.479262, 0.560896, 0.568405
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 6.98195e-17i; max ampl. = 0.50116
+Fixing e-field (band 2) phase by -1 + 1.30017e-12i; max ampl. = 0.641234
+Fixing e-field (band 3) phase by 1 + -3.59616e-13i; max ampl. = 0.491996
+Fixing e-field (band 4) phase by 1.5416e-13 + -1i; max ampl. = 0.567964
+Fixing e-field (band 5) phase by 1 + -6.98677e-15i; max ampl. = 0.532971
+Fixing e-field (band 6) phase by 1 + -5.556e-12i; max ampl. = 0.626621
+Fixing e-field (band 7) phase by 4.09174e-14 + -1i; max ampl. = 0.604006
+Fixing e-field (band 8) phase by -1.72024e-12 + 1i; max ampl. = 0.511566
+Outputting fields to test_simple_lattices_2D-e.k10.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k10.b08.z.tm...
+solve_kpoint (-0.333333,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 12 iterations.
+tmfreqs:, 11, -0.333333, 0.333333, 0, 0.666667, 0.218233, 0.218255, 0.253892, 0.446199, 0.446259, 0.473812, 0.571112, 0.576794
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 1.41834e-14i; max ampl. = 0.578934
+Fixing e-field (band 2) phase by 1 + 4.9831e-14i; max ampl. = 0.501388
+Fixing e-field (band 3) phase by 1 + -1.08619e-12i; max ampl. = 0.548561
+Fixing e-field (band 4) phase by 1 + -5.15775e-15i; max ampl. = 0.614478
+Fixing e-field (band 5) phase by 4.18056e-14 + -1i; max ampl. = 0.537265
+Fixing e-field (band 6) phase by -1 + 5.68272e-12i; max ampl. = 0.639549
+Fixing e-field (band 7) phase by 2.02788e-13 + -1i; max ampl. = 0.624591
+Fixing e-field (band 8) phase by 8.6145e-12 + -1i; max ampl. = 0.528634
+Outputting fields to test_simple_lattices_2D-e.k11.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k11.b08.z.tm...
+solve_kpoint (-0.266667,0.266667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 19 iterations.
+tmfreqs:, 12, -0.266667, 0.266667, 0, 0.533333, 0.181704, 0.242947, 0.271253, 0.42643, 0.441512, 0.50077, 0.535028, 0.583615
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -1.51877e-15i; max ampl. = 0.420641
+Fixing e-field (band 2) phase by 1 + 1.19231e-09i; max ampl. = 0.502137
+Fixing e-field (band 3) phase by -1 + 1.96313e-15i; max ampl. = 0.504101
+Fixing e-field (band 4) phase by -2.99912e-11 + -1i; max ampl. = 0.531556
+Fixing e-field (band 5) phase by -1 + 1.8626e-14i; max ampl. = 0.636945
+Fixing e-field (band 6) phase by 1.62705e-14 + -1i; max ampl. = 0.513809
+Fixing e-field (band 7) phase by 1.88799e-13 + -1i; max ampl. = 0.571635
+Fixing e-field (band 8) phase by -1 + -2.15375e-14i; max ampl. = 0.647288
+Outputting fields to test_simple_lattices_2D-e.k12.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k12.b08.z.tm...
+solve_kpoint (-0.2,0.2,0):
+Solving for bands 1 to 8...
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 8 iterations.
+tmfreqs:, 13, -0.2, 0.2, 0, 0.4, 0.137461, 0.272341, 0.29996, 0.410147, 0.426031, 0.495352, 0.538618, 0.562507
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -5.75124e-17i; max ampl. = 0.385349
+Fixing e-field (band 2) phase by -1 + 1.17897e-10i; max ampl. = 0.503135
+Fixing e-field (band 3) phase by 3.07034e-14 + 1i; max ampl. = 0.538823
+Fixing e-field (band 4) phase by 4.32289e-10 + 1i; max ampl. = 0.528672
+Fixing e-field (band 5) phase by 1 + 1.38002e-15i; max ampl. = 0.595563
+Fixing e-field (band 6) phase by -2.42679e-12 + 1i; max ampl. = 0.56184
+Fixing e-field (band 7) phase by -1 + 1.27113e-14i; max ampl. = 0.447279
+Fixing e-field (band 8) phase by 1 + -2.06333e-15i; max ampl. = 0.7091
+Outputting fields to test_simple_lattices_2D-e.k13.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k13.b08.z.tm...
+solve_kpoint (-0.133333,0.133333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 7 iterations.
+tmfreqs:, 14, -0.133333, 0.133333, 0, 0.266667, 0.0919954, 0.304984, 0.330961, 0.397905, 0.413029, 0.456191, 0.526001, 0.583851
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 3.69152e-17i; max ampl. = 0.375634
+Fixing e-field (band 2) phase by 1 + 1.78291e-10i; max ampl. = 0.504285
+Fixing e-field (band 3) phase by -2.98152e-14 + 1i; max ampl. = 0.51927
+Fixing e-field (band 4) phase by 1.56155e-09 + -1i; max ampl. = 0.528505
+Fixing e-field (band 5) phase by -1 + -8.36591e-16i; max ampl. = 0.545222
+Fixing e-field (band 6) phase by 6.39767e-11 + 1i; max ampl. = 0.567561
+Fixing e-field (band 7) phase by -1 + -1.59473e-15i; max ampl. = 0.59586
+Fixing e-field (band 8) phase by -1 + -4.69234e-15i; max ampl. = 0.613975
+Outputting fields to test_simple_lattices_2D-e.k14.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k14.b08.z.tm...
+solve_kpoint (-0.0666667,0.0666667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 8 iterations.
+tmfreqs:, 15, -0.0666667, 0.0666667, 0, 0.133333, 0.0460854, 0.339651, 0.359544, 0.389556, 0.402864, 0.418689, 0.499219, 0.62176
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -3.97588e-18i; max ampl. = 0.372455
+Fixing e-field (band 2) phase by 1 + 5.20261e-11i; max ampl. = 0.504051
+Fixing e-field (band 3) phase by -1 + 5.85291e-17i; max ampl. = 0.679981
+Fixing e-field (band 4) phase by 3.39723e-10 + 1i; max ampl. = 0.540604
+Fixing e-field (band 5) phase by -2.72577e-15 + -1i; max ampl. = 0.525357
+Fixing e-field (band 6) phase by 9.60016e-12 + 1i; max ampl. = 0.613016
+Fixing e-field (band 7) phase by -1 + -2.22631e-16i; max ampl. = 0.644491
+Fixing e-field (band 8) phase by -2.05963e-15 + 1i; max ampl. = 0.564186
+Outputting fields to test_simple_lattices_2D-e.k15.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k15.b08.z.tm...
+solve_kpoint (0,0,0):
+Solving for bands 2 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 20 iterations.
+tmfreqs:, 16, 0, 0, 0, 0, 0, 0.372715, 0.374821, 0.374823, 0.396486, 0.396638, 0.487346, 0.651218
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by -3.02593e-14 + -1i; max ampl. = 0.733334
+Fixing e-field (band 3) phase by 1 + -4.80937e-08i; max ampl. = 0.813482
+Fixing e-field (band 4) phase by 1 + -2.98882e-14i; max ampl. = 0.704708
+Fixing e-field (band 5) phase by -6.67333e-10 + -1i; max ampl. = 0.71999
+Fixing e-field (band 6) phase by -2.69286e-14 + -1i; max ampl. = 0.740451
+Fixing e-field (band 7) phase by -1 + -6.01374e-10i; max ampl. = 0.714282
+Fixing e-field (band 8) phase by 1.51933e-09 + -1i; max ampl. = 0.747534
+Outputting fields to test_simple_lattices_2D-e.k16.b01.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b02.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b03.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b04.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b05.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b06.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b07.z.tm...
+Outputting fields to test_simple_lattices_2D-e.k16.b08.z.tm...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.2182326385538008 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.2073626690796372 at #(0.0 0.5 0.0) to 0.3727151075790058 at #(0.0 0.0 0.0)
+Band 3 range: 0.25389236589095376 at #(-0.3333333333333333 0.3333333333333333 0.0) to 0.3748212042951238 at #(0.0 0.0 0.0)
+Band 4 range: 0.3565614856674087 at #(0.0 0.5 0.0) to 0.44619876317837426 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.3964860387363702 at #(0.0 0.0 0.0) to 0.5020712819193945 at #(0.0 0.5 0.0)
+Band 6 range: 0.3966381927699573 at #(0.0 0.0 0.0) to 0.513203923627782 at #(0.0 0.5 0.0)
+Band 7 range: 0.4873457180633118 at #(0.0 0.0 0.0) to 0.5711119521604062 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 8 range: 0.53441286017405 at #(0.0 0.5 0.0) to 0.6512180772730957 at #(0.0 0.0 0.0)
+total elapsed time for run: 5 seconds.
+done.

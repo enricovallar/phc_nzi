@@ -1,0 +1,1751 @@
+command-line param: r1=0.1
+command-line param: r2=0.339
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 3 dimensions.
+Grid size is 32 x 32 x 96.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 3)
+Cell volume = 2.59808
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 0.333333)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,0.4)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 9.61, mu = 1
+     cylinder, center = (0.333333,0.333333,0)
+          radius 0.1, height 0.4, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+     cylinder, center = (0.666667,0.666667,0)
+          radius 0.339, height 0.4, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 3 and 32 object nodes (vs. 3 actual objects)
+Initializing epsilon function...
+Allocating fields...
+19 k-points:
+     (0,0,0)
+     (0,0.0833333,0)
+     (0,0.166667,0)
+     (0,0.25,0)
+     (0,0.333333,0)
+     (0,0.416667,0)
+     (0,0.5,0)
+     (-0.0555556,0.472222,0)
+     (-0.111111,0.444444,0)
+     (-0.166667,0.416667,0)
+     (-0.222222,0.388889,0)
+     (-0.277778,0.361111,0)
+     (-0.333333,0.333333,0)
+     (-0.277778,0.277778,0)
+     (-0.222222,0.222222,0)
+     (-0.166667,0.166667,0)
+     (-0.111111,0.111111,0)
+     (-0.0555556,0.0555556,0)
+     (0,0,0)
+Solving for band polarization: zeven.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-9.61, mean 1.62974, harm. mean 1.07542, 8.1604% > 1, 7.31409% "fill"
+Outputting test_mpi_slab-epsilon...
+solve_kpoint (0,0,0):
+zevenfreqs:, k index, k1, k2, k3, kmag/2pi, zeven band 1, zeven band 2, zeven band 3, zeven band 4, zeven band 5, zeven band 6, zeven band 7, zeven band 8
+Solving for bands 2 to 8...
+    linmin: converged after 8 iterations.
+    linmin: converged after 9 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 43 iterations.
+zevenfreqs:, 1, 0, 0, 0, 0, 0, 0.252479, 0.252522, 0.522967, 0.551017, 0.551032, 0.604342, 0.623286
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 0.679986 + -0.733225i; max ampl. = 0.910972
+Fixing e-field (band 3) phase by 0.895143 + -0.445779i; max ampl. = 0.873868
+Fixing e-field (band 4) phase by 0.863794 + -0.503846i; max ampl. = 1.19003
+Fixing e-field (band 5) phase by 0.55442 + 0.832237i; max ampl. = 0.688333
+Fixing e-field (band 6) phase by -0.600113 + 0.799915i; max ampl. = 0.696419
+Fixing e-field (band 7) phase by -0.292118 + -0.956382i; max ampl. = 1.30563
+Fixing e-field (band 8) phase by -0.118036 + 0.993009i; max ampl. = 1.69827
+Outputting fields to test_mpi_slab-e.k01.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k01.b08.z.zeven...
+solve_kpoint (0,0.0833333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 9 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 24 iterations.
+zevenfreqs:, 2, 0, 0.0833333, 0, 0.096225, 0.0785061, 0.264722, 0.268955, 0.520422, 0.554268, 0.55655, 0.599836, 0.623475
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000222023i; max ampl. = 1.04572
+Fixing e-field (band 2) phase by -1 + 0.000104841i; max ampl. = 0.960383
+Fixing e-field (band 3) phase by -0.998229 + 0.059494i; max ampl. = 0.899697
+Fixing e-field (band 4) phase by 0.601842 + 0.798615i; max ampl. = 1.17383
+Fixing e-field (band 5) phase by 0.999982 + -0.00604332i; max ampl. = 0.805031
+Fixing e-field (band 6) phase by 0.999996 + 0.00274438i; max ampl. = 0.844152
+Fixing e-field (band 7) phase by -0.171337 + 0.985213i; max ampl. = 1.17308
+Fixing e-field (band 8) phase by -0.861925 + 0.507037i; max ampl. = 1.74209
+Outputting fields to test_mpi_slab-e.k02.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k02.b08.z.zeven...
+solve_kpoint (0,0.166667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 16 iterations.
+zevenfreqs:, 3, 0, 0.166667, 0, 0.19245, 0.151173, 0.300797, 0.312854, 0.512754, 0.554221, 0.571015, 0.600189, 0.625754
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -2.8315e-05i; max ampl. = 1.16308
+Fixing e-field (band 2) phase by -1 + -0.000750632i; max ampl. = 0.881156
+Fixing e-field (band 3) phase by -0.387424 + 0.921902i; max ampl. = 0.80994
+Fixing e-field (band 4) phase by 0.996682 + -0.0813881i; max ampl. = 1.15776
+Fixing e-field (band 5) phase by 0.954056 + 0.299629i; max ampl. = 0.685789
+Fixing e-field (band 6) phase by -0.928158 + -0.372187i; max ampl. = 0.951609
+Fixing e-field (band 7) phase by -0.995795 + 0.0916042i; max ampl. = 0.641736
+Fixing e-field (band 8) phase by -0.884163 + 0.467179i; max ampl. = 1.64836
+Outputting fields to test_mpi_slab-e.k03.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k03.b08.z.zeven...
+solve_kpoint (0,0.25,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 12 iterations.
+zevenfreqs:, 4, 0, 0.25, 0, 0.288675, 0.212892, 0.358225, 0.373951, 0.498897, 0.540943, 0.586322, 0.623493, 0.63748
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000338804i; max ampl. = 1.29738
+Fixing e-field (band 2) phase by -1 + -0.000769403i; max ampl. = 0.911653
+Fixing e-field (band 3) phase by -0.98898 + 0.148049i; max ampl. = 0.795939
+Fixing e-field (band 4) phase by -0.999948 + 0.0101703i; max ampl. = 1.32745
+Fixing e-field (band 5) phase by -0.893296 + -0.449469i; max ampl. = 0.823914
+Fixing e-field (band 6) phase by 0.993114 + 0.117152i; max ampl. = 1.29921
+Fixing e-field (band 7) phase by -0.999997 + 0.00237852i; max ampl. = 0.734855
+Fixing e-field (band 8) phase by -0.264328 + 0.964433i; max ampl. = 1.15741
+Outputting fields to test_mpi_slab-e.k04.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k04.b08.z.zeven...
+solve_kpoint (0,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+zevenfreqs:, 5, 0, 0.333333, 0, 0.3849, 0.262373, 0.42878, 0.443497, 0.480183, 0.529039, 0.593603, 0.65542, 0.666072
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000779495i; max ampl. = 1.4303
+Fixing e-field (band 2) phase by -0.999998 + 0.00206873i; max ampl. = 0.86722
+Fixing e-field (band 3) phase by -0.981764 + -0.190103i; max ampl. = 0.973991
+Fixing e-field (band 4) phase by -0.997877 + 0.0651327i; max ampl. = 1.47072
+Fixing e-field (band 5) phase by 0.789856 + 0.613293i; max ampl. = 0.969982
+Fixing e-field (band 6) phase by 0.939721 + 0.341942i; max ampl. = 1.74228
+Fixing e-field (band 7) phase by -0.999575 + -0.0291481i; max ampl. = 0.948039
+Fixing e-field (band 8) phase by -0.0530551 + 0.998592i; max ampl. = 0.839521
+Outputting fields to test_mpi_slab-e.k05.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k05.b08.z.zeven...
+solve_kpoint (0,0.416667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 28 iterations.
+zevenfreqs:, 6, 0, 0.416667, 0, 0.481125, 0.298928, 0.447246, 0.512634, 0.517043, 0.52677, 0.597677, 0.676523, 0.68576
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000252466i; max ampl. = 1.56406
+Fixing e-field (band 2) phase by -0.9999 + 0.0141635i; max ampl. = 1.60404
+Fixing e-field (band 3) phase by -0.79838 + -0.602154i; max ampl. = 1.24829
+Fixing e-field (band 4) phase by 0.997844 + 0.065626i; max ampl. = 0.861348
+Fixing e-field (band 5) phase by -0.991626 + 0.12914i; max ampl. = 0.77355
+Fixing e-field (band 6) phase by 0.390067 + 0.920786i; max ampl. = 1.36556
+Fixing e-field (band 7) phase by 0.60332 + -0.7975i; max ampl. = 1.5873
+Fixing e-field (band 8) phase by 0.899969 + 0.435954i; max ampl. = 1.04109
+Outputting fields to test_mpi_slab-e.k06.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k06.b08.z.zeven...
+solve_kpoint (0,0.5,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 18 iterations.
+zevenfreqs:, 7, 0, 0.5, 0, 0.57735, 0.314177, 0.437255, 0.520031, 0.551309, 0.606603, 0.608819, 0.609103, 0.641683
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 0.999991 + -0.00416594i; max ampl. = 1.61715
+Fixing e-field (band 2) phase by -0.999958 + -0.00917208i; max ampl. = 1.74512
+Fixing e-field (band 3) phase by -0.658916 + 0.752217i; max ampl. = 1.36066
+Fixing e-field (band 4) phase by -0.943881 + 0.330286i; max ampl. = 1.6054
+Fixing e-field (band 5) phase by -0.980088 + -0.198562i; max ampl. = 1.29927
+Fixing e-field (band 6) phase by 0.990828 + -0.135132i; max ampl. = 1.30066
+Fixing e-field (band 7) phase by -0.96113 + 0.276095i; max ampl. = 1.65465
+Fixing e-field (band 8) phase by -0.966549 + -0.256482i; max ampl. = 1.23418
+Outputting fields to test_mpi_slab-e.k07.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k07.b08.z.zeven...
+solve_kpoint (-0.0555556,0.472222,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 11 iterations.
+zevenfreqs:, 8, -0.0555556, 0.472222, 0, 0.580017, 0.315536, 0.43772, 0.513869, 0.557399, 0.609087, 0.611024, 0.611444, 0.643425
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000563567i; max ampl. = 1.59864
+Fixing e-field (band 2) phase by 0.152959 + 0.988233i; max ampl. = 1.74277
+Fixing e-field (band 3) phase by -0.0766874 + 0.997055i; max ampl. = 1.23404
+Fixing e-field (band 4) phase by 0.196785 + -0.980447i; max ampl. = 1.51215
+Fixing e-field (band 5) phase by 0.997848 + 0.0655736i; max ampl. = 1.29103
+Fixing e-field (band 6) phase by 0.287183 + 0.957876i; max ampl. = 0.991597
+Fixing e-field (band 7) phase by -0.756815 + -0.653629i; max ampl. = 1.18453
+Fixing e-field (band 8) phase by -0.23697 + 0.971517i; max ampl. = 1.25439
+Outputting fields to test_mpi_slab-e.k08.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k08.b08.z.zeven...
+solve_kpoint (-0.111111,0.444444,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 12 iterations.
+zevenfreqs:, 9, -0.111111, 0.444444, 0, 0.587945, 0.31943, 0.439109, 0.501417, 0.569856, 0.616459, 0.617561, 0.618317, 0.648316
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.999998 + 0.00196529i; max ampl. = 1.55858
+Fixing e-field (band 2) phase by -0.0586795 + -0.998277i; max ampl. = 1.72617
+Fixing e-field (band 3) phase by -0.121945 + 0.992537i; max ampl. = 1.23622
+Fixing e-field (band 4) phase by -0.190031 + 0.981778i; max ampl. = 1.43298
+Fixing e-field (band 5) phase by 0.994747 + 0.102365i; max ampl. = 1.25997
+Fixing e-field (band 6) phase by -0.848324 + -0.529477i; max ampl. = 1.56419
+Fixing e-field (band 7) phase by -0.112684 + -0.993631i; max ampl. = 1.22881
+Fixing e-field (band 8) phase by 0.259714 + -0.965686i; max ampl. = 1.254
+Outputting fields to test_mpi_slab-e.k09.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k09.b08.z.zeven...
+solve_kpoint (-0.166667,0.416667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 15 iterations.
+zevenfreqs:, 10, -0.166667, 0.416667, 0, 0.600925, 0.325291, 0.441403, 0.487446, 0.584465, 0.627367, 0.628645, 0.629843, 0.655315
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 0.999992 + 0.00401348i; max ampl. = 1.49742
+Fixing e-field (band 2) phase by -0.0285283 + -0.999593i; max ampl. = 1.6948
+Fixing e-field (band 3) phase by -0.114676 + 0.993403i; max ampl. = 1.2693
+Fixing e-field (band 4) phase by 0.179863 + -0.983692i; max ampl. = 1.39496
+Fixing e-field (band 5) phase by -0.977328 + -0.21173i; max ampl. = 1.7017
+Fixing e-field (band 6) phase by 0.988279 + 0.152661i; max ampl. = 1.22206
+Fixing e-field (band 7) phase by 0.213447 + -0.976955i; max ampl. = 1.22762
+Fixing e-field (band 8) phase by -0.302591 + 0.95312i; max ampl. = 1.22326
+Outputting fields to test_mpi_slab-e.k10.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k10.b08.z.zeven...
+solve_kpoint (-0.222222,0.388889,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 19 iterations.
+zevenfreqs:, 11, -0.222222, 0.388889, 0, 0.61864, 0.332077, 0.44454, 0.473744, 0.600137, 0.638905, 0.645047, 0.645915, 0.661919
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 0.999974 + 0.00719382i; max ampl. = 1.41198
+Fixing e-field (band 2) phase by 0.00528422 + -0.999986i; max ampl. = 1.64843
+Fixing e-field (band 3) phase by 0.0166253 + 0.999862i; max ampl. = 1.29861
+Fixing e-field (band 4) phase by 0.173969 + -0.984751i; max ampl. = 1.35243
+Fixing e-field (band 5) phase by -0.709077 + -0.705131i; max ampl. = 1.7563
+Fixing e-field (band 6) phase by 0.9263 + 0.376787i; max ampl. = 1.19329
+Fixing e-field (band 7) phase by 0.435506 + -0.900186i; max ampl. = 1.15361
+Fixing e-field (band 8) phase by 0.305764 + -0.952107i; max ampl. = 1.15843
+Outputting fields to test_mpi_slab-e.k11.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k11.b08.z.zeven...
+solve_kpoint (-0.277778,0.361111,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 19 iterations.
+zevenfreqs:, 12, -0.277778, 0.361111, 0, 0.640698, 0.338074, 0.448317, 0.462051, 0.615506, 0.647983, 0.661924, 0.666196, 0.666852
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.999928 + 0.0119803i; max ampl. = 1.29568
+Fixing e-field (band 2) phase by 0.102629 + -0.99472i; max ampl. = 1.56357
+Fixing e-field (band 3) phase by -0.660181 + -0.751107i; max ampl. = 1.24542
+Fixing e-field (band 4) phase by 0.208712 + -0.977977i; max ampl. = 1.22328
+Fixing e-field (band 5) phase by -0.808037 + -0.589132i; max ampl. = 1.73072
+Fixing e-field (band 6) phase by 0.52136 + 0.853337i; max ampl. = 1.11431
+Fixing e-field (band 7) phase by 0.663569 + -0.748115i; max ampl. = 1.10317
+Fixing e-field (band 8) phase by -0.825962 + -0.563725i; max ampl. = 1.01771
+Outputting fields to test_mpi_slab-e.k12.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k12.b08.z.zeven...
+solve_kpoint (-0.333333,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 52 iterations.
+zevenfreqs:, 13, -0.333333, 0.333333, 0, 0.666667, 0.340737, 0.45101, 0.45619, 0.624409, 0.649908, 0.662207, 0.688259, 0.68898
+elapsed time for k point: 2 seconds.
+Fixing e-field (band 1) phase by 0.99983 + 0.0184163i; max ampl. = 1.13607
+Fixing e-field (band 2) phase by -0.488618 + 0.872498i; max ampl. = 1.28513
+Fixing e-field (band 3) phase by 0.463196 + 0.886256i; max ampl. = 1.29591
+Fixing e-field (band 4) phase by 0.374839 + -0.92709i; max ampl. = 1.23586
+Fixing e-field (band 5) phase by 0.335018 + 0.942212i; max ampl. = 1.521
+Fixing e-field (band 6) phase by 0.0982379 + 0.995163i; max ampl. = 1.31363
+Fixing e-field (band 7) phase by -0.719317 + 0.694682i; max ampl. = 0.873755
+Fixing e-field (band 8) phase by -0.104147 + -0.994562i; max ampl. = 0.963569
+Outputting fields to test_mpi_slab-e.k13.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k13.b08.z.zeven...
+solve_kpoint (-0.277778,0.277778,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 18 iterations.
+zevenfreqs:, 14, -0.277778, 0.277778, 0, 0.555556, 0.326811, 0.456307, 0.465193, 0.578164, 0.587698, 0.64406, 0.660257, 0.692209
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000226183i; max ampl. = 1.26384
+Fixing e-field (band 2) phase by -1 + -0.000313951i; max ampl. = 1.2708
+Fixing e-field (band 3) phase by -0.999983 + -0.00585474i; max ampl. = 1.21604
+Fixing e-field (band 4) phase by 0.999956 + 0.00943092i; max ampl. = 1.08992
+Fixing e-field (band 5) phase by 0.99999 + -0.00438911i; max ampl. = 0.798127
+Fixing e-field (band 6) phase by -0.00120855 + 0.999999i; max ampl. = 1.24425
+Fixing e-field (band 7) phase by -0.000663169 + 1i; max ampl. = 1.31852
+Fixing e-field (band 8) phase by 0.999944 + 0.0105601i; max ampl. = 1.45428
+Outputting fields to test_mpi_slab-e.k14.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k14.b08.z.zeven...
+solve_kpoint (-0.222222,0.222222,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 30 iterations.
+zevenfreqs:, 15, -0.222222, 0.222222, 0, 0.444444, 0.28956, 0.467794, 0.469772, 0.499996, 0.505772, 0.628507, 0.645459, 0.695429
+elapsed time for k point: 2 seconds.
+Fixing e-field (band 1) phase by 1 + 0.00026242i; max ampl. = 1.22673
+Fixing e-field (band 2) phase by -1 + -0.000432612i; max ampl. = 0.892216
+Fixing e-field (band 3) phase by -0.999988 + -0.00494944i; max ampl. = 1.09422
+Fixing e-field (band 4) phase by 0.999995 + -0.00328646i; max ampl. = 0.910547
+Fixing e-field (band 5) phase by -0.999996 + 0.00271461i; max ampl. = 1.15717
+Fixing e-field (band 6) phase by 0.00848649 + -0.999964i; max ampl. = 1.22794
+Fixing e-field (band 7) phase by 0.0180207 + -0.999838i; max ampl. = 1.25393
+Fixing e-field (band 8) phase by -0.00784938 + 0.999969i; max ampl. = 0.716556
+Outputting fields to test_mpi_slab-e.k15.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k15.b08.z.zeven...
+solve_kpoint (-0.166667,0.166667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 30 iterations.
+zevenfreqs:, 16, -0.166667, 0.166667, 0, 0.333333, 0.237736, 0.390754, 0.40497, 0.498711, 0.518854, 0.606643, 0.629954, 0.64988
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 0.000556598i; max ampl. = 1.13297
+Fixing e-field (band 2) phase by -0.999993 + -0.00382564i; max ampl. = 0.791233
+Fixing e-field (band 3) phase by -0.982682 + -0.185298i; max ampl. = 0.891003
+Fixing e-field (band 4) phase by 0.12074 + -0.992684i; max ampl. = 1.20853
+Fixing e-field (band 5) phase by -0.99999 + -0.00442472i; max ampl. = 0.974695
+Fixing e-field (band 6) phase by -0.0469692 + 0.998896i; max ampl. = 1.03803
+Fixing e-field (band 7) phase by 0.9989 + 0.0468948i; max ampl. = 0.651104
+Fixing e-field (band 8) phase by 0.999982 + -0.00607558i; max ampl. = 0.59725
+Outputting fields to test_mpi_slab-e.k16.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k16.b08.z.zeven...
+solve_kpoint (-0.111111,0.111111,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 20 iterations.
+zevenfreqs:, 17, -0.111111, 0.111111, 0, 0.222222, 0.171616, 0.31654, 0.33032, 0.510496, 0.546746, 0.57965, 0.605088, 0.629499
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 6.19146e-05i; max ampl. = 1.01839
+Fixing e-field (band 2) phase by -1 + -0.000195675i; max ampl. = 0.775203
+Fixing e-field (band 3) phase by -0.999658 + -0.0261355i; max ampl. = 0.671543
+Fixing e-field (band 4) phase by -0.00415014 + 0.999991i; max ampl. = 1.17475
+Fixing e-field (band 5) phase by -0.999999 + -0.00107607i; max ampl. = 0.853433
+Fixing e-field (band 6) phase by 0.000921262 + -1i; max ampl. = 0.822318
+Fixing e-field (band 7) phase by 0.999998 + 0.00212812i; max ampl. = 0.59448
+Fixing e-field (band 8) phase by 0.0429844 + -0.999076i; max ampl. = 1.55885
+Outputting fields to test_mpi_slab-e.k17.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k17.b08.z.zeven...
+solve_kpoint (-0.0555556,0.0555556,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 22 iterations.
+zevenfreqs:, 18, -0.0555556, 0.0555556, 0, 0.111111, 0.090278, 0.268773, 0.274206, 0.519608, 0.554695, 0.558592, 0.598792, 0.62408
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 9.38412e-05i; max ampl. = 0.901383
+Fixing e-field (band 2) phase by -1 + -0.000526401i; max ampl. = 0.818954
+Fixing e-field (band 3) phase by 0.0223797 + 0.99975i; max ampl. = 0.823128
+Fixing e-field (band 4) phase by 0.0047877 + -0.999989i; max ampl. = 1.17264
+Fixing e-field (band 5) phase by 0.999995 + 0.00323485i; max ampl. = 0.748414
+Fixing e-field (band 6) phase by -0.000912699 + -1i; max ampl. = 0.769301
+Fixing e-field (band 7) phase by -0.00509859 + 0.999987i; max ampl. = 1.17344
+Fixing e-field (band 8) phase by -0.14523 + -0.989398i; max ampl. = 1.60295
+Outputting fields to test_mpi_slab-e.k18.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k18.b08.z.zeven...
+solve_kpoint (0,0,0):
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 18 iterations.
+zevenfreqs:, 19, 0, 0, 0, 0, 0, 0.252479, 0.252522, 0.522967, 0.551017, 0.551032, 0.604342, 0.623288
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 1 + 0.000825432i; max ampl. = 0.911128
+Fixing e-field (band 3) phase by 0.999999 + -0.00169053i; max ampl. = 0.87401
+Fixing e-field (band 4) phase by -0.00225882 + 0.999997i; max ampl. = 1.19024
+Fixing e-field (band 5) phase by -0.999816 + 0.0192052i; max ampl. = 0.688334
+Fixing e-field (band 6) phase by -0.999465 + -0.0327188i; max ampl. = 0.696549
+Fixing e-field (band 7) phase by -0.739135 + 0.673558i; max ampl. = 1.30566
+Fixing e-field (band 8) phase by -0.0102865 + -0.999947i; max ampl. = 1.66597
+Outputting fields to test_mpi_slab-e.k19.b01.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b02.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b03.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b04.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b05.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b06.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b07.z.zeven...
+Outputting fields to test_mpi_slab-e.k19.b08.z.zeven...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.34073725751366063 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.25247879861533085 at #(0.0 0.0 0.0) to 0.4677937367671248 at #(-0.2222222222222222 0.2222222222222222 0.0)
+Band 3 range: 0.2525215398115098 at #(0.0 0.0 0.0) to 0.5200305452897462 at #(0.0 0.5 0.0)
+Band 4 range: 0.48018294425488134 at #(0.0 0.33333333333333337 0.0) to 0.6244085260502535 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.5057722774213331 at #(-0.2222222222222222 0.2222222222222222 0.0) to 0.6499080548914906 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 6 range: 0.5510317869478296 at #(0.0 0.0 0.0) to 0.6622071944208214 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 7 range: 0.5987917027832628 at #(-0.05555555555555555 0.05555555555555555 0.0) to 0.6882586018118776 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 8 range: 0.6232863009569195 at #(0.0 0.0 0.0) to 0.6954293215364098 at #(-0.2222222222222222 0.2222222222222222 0.0)
+total elapsed time for run: 2 minutes, 43 seconds.
+done.
+init-params: initializing eigensolver data
+Computing 8 bands with 1.000000e-07 tolerance.
+Working in 3 dimensions.
+Grid size is 32 x 32 x 96.
+Solving for 8 bands at a time.
+Creating Maxwell data...
+Mesh size is 3.
+Lattice vectors:
+     (1, 0, 0)
+     (0.5, 0.866025, 0)
+     (0, 0, 3)
+Cell volume = 2.59808
+Reciprocal lattice vectors (/ 2 pi):
+     (1, -0.57735, 0)
+     (-0, 1.1547, -0)
+     (0, -0, 0.333333)
+Geometric objects:
+     block, center = (0,0,0)
+          size (1e+20,1e+20,0.4)
+          axes (1,0,0), (0,1,0), (0,0,1)
+          epsilon = 9.61, mu = 1
+     cylinder, center = (0.333333,0.333333,0)
+          radius 0.1, height 0.4, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+     cylinder, center = (0.666667,0.666667,0)
+          radius 0.339, height 0.4, axis (0, 0, 1)
+          epsilon = 1, mu = 1
+Geometric object tree has depth 3 and 32 object nodes (vs. 3 actual objects)
+Initializing epsilon function...
+19 k-points:
+     (0,0,0)
+     (0,0.0833333,0)
+     (0,0.166667,0)
+     (0,0.25,0)
+     (0,0.333333,0)
+     (0,0.416667,0)
+     (0,0.5,0)
+     (-0.0555556,0.472222,0)
+     (-0.111111,0.444444,0)
+     (-0.166667,0.416667,0)
+     (-0.222222,0.388889,0)
+     (-0.277778,0.361111,0)
+     (-0.333333,0.333333,0)
+     (-0.277778,0.277778,0)
+     (-0.222222,0.222222,0)
+     (-0.166667,0.166667,0)
+     (-0.111111,0.111111,0)
+     (-0.0555556,0.0555556,0)
+     (0,0,0)
+Solving for band polarization: zodd.
+Initializing fields to random numbers...
+elapsed time for initialization: 0 seconds.
+epsilon: 1-9.61, mean 1.62974, harm. mean 1.07542, 8.1604% > 1, 7.31409% "fill"
+Outputting test_mpi_slab-epsilon...
+solve_kpoint (0,0,0):
+zoddfreqs:, k index, k1, k2, k3, kmag/2pi, zodd band 1, zodd band 2, zodd band 3, zodd band 4, zodd band 5, zodd band 6, zodd band 7, zodd band 8
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 10 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 21 iterations.
+zoddfreqs:, 1, 0, 0, 0, 0, 0, 0.320762, 0.320774, 0.538763, 0.538801, 0.576251, 0.597033, 0.597159
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 0.864299 + -0.502978i; max ampl. = 0.748232
+Fixing e-field (band 3) phase by 0.315312 + -0.948988i; max ampl. = 0.747285
+Fixing e-field (band 4) phase by 0.0590952 + 0.998252i; max ampl. = 1.03861
+Fixing e-field (band 5) phase by 0.837515 + 0.546414i; max ampl. = 1.03611
+Fixing e-field (band 6) phase by 0.732443 + -0.680828i; max ampl. = 1.3734
+Fixing e-field (band 7) phase by -0.0394328 + -0.999222i; max ampl. = 1.81908
+Fixing e-field (band 8) phase by -0.404718 + -0.914442i; max ampl. = 1.79523
+Outputting fields to test_mpi_slab-e.k01.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k01.b08.z.zodd...
+solve_kpoint (0,0.0833333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 6 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 15 iterations.
+zoddfreqs:, 2, 0, 0.0833333, 0, 0.096225, 0.0912262, 0.330786, 0.333475, 0.542118, 0.542139, 0.568868, 0.595876, 0.604181
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by -1 + -2.94085e-05i; max ampl. = 0.86208
+Fixing e-field (band 2) phase by -0.00080363 + 1i; max ampl. = 0.788529
+Fixing e-field (band 3) phase by -0.100415 + 0.994946i; max ampl. = 0.819547
+Fixing e-field (band 4) phase by 0.0132861 + -0.999912i; max ampl. = 0.916063
+Fixing e-field (band 5) phase by 0.0196429 + -0.999807i; max ampl. = 0.918314
+Fixing e-field (band 6) phase by 0.936483 + -0.350714i; max ampl. = 1.16824
+Fixing e-field (band 7) phase by 0.111901 + -0.993719i; max ampl. = 2.25642
+Fixing e-field (band 8) phase by 0.255564 + 0.966792i; max ampl. = 1.72979
+Outputting fields to test_mpi_slab-e.k02.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k02.b08.z.zodd...
+solve_kpoint (0,0.166667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+zoddfreqs:, 3, 0, 0.166667, 0, 0.19245, 0.181214, 0.358763, 0.368505, 0.544031, 0.550991, 0.565193, 0.594079, 0.613103
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -6.79512e-05i; max ampl. = 0.906791
+Fixing e-field (band 2) phase by -0.00248057 + 0.999997i; max ampl. = 0.72641
+Fixing e-field (band 3) phase by 0.51062 + 0.859806i; max ampl. = 0.8053
+Fixing e-field (band 4) phase by -0.580462 + 0.814287i; max ampl. = 1.0639
+Fixing e-field (band 5) phase by 0.0597426 + 0.998214i; max ampl. = 1.22702
+Fixing e-field (band 6) phase by -0.020796 + 0.999784i; max ampl. = 1.3474
+Fixing e-field (band 7) phase by -0.758794 + -0.651331i; max ampl. = 2.30643
+Fixing e-field (band 8) phase by -0.725882 + -0.68782i; max ampl. = 1.34664
+Outputting fields to test_mpi_slab-e.k03.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k03.b08.z.zodd...
+solve_kpoint (0,0.25,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 13 iterations.
+zoddfreqs:, 4, 0, 0.25, 0, 0.288675, 0.267747, 0.400442, 0.418598, 0.530075, 0.56097, 0.584043, 0.596753, 0.615935
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0.000269936i; max ampl. = 0.991867
+Fixing e-field (band 2) phase by -0.00343982 + 0.999994i; max ampl. = 0.768214
+Fixing e-field (band 3) phase by 0.537092 + 0.843524i; max ampl. = 0.866078
+Fixing e-field (band 4) phase by -0.987997 + -0.154476i; max ampl. = 1.01657
+Fixing e-field (band 5) phase by -0.188066 + 0.982156i; max ampl. = 1.31425
+Fixing e-field (band 6) phase by 0.168643 + -0.985677i; max ampl. = 1.01196
+Fixing e-field (band 7) phase by 0.963856 + 0.266424i; max ampl. = 2.32087
+Fixing e-field (band 8) phase by -0.332428 + 0.943129i; max ampl. = 1.27071
+Outputting fields to test_mpi_slab-e.k04.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k04.b08.z.zodd...
+solve_kpoint (0,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 13 iterations.
+zoddfreqs:, 5, 0, 0.333333, 0, 0.3849, 0.34587, 0.453572, 0.474501, 0.510402, 0.566318, 0.605462, 0.609929, 0.624251
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0.000690991i; max ampl. = 1.10859
+Fixing e-field (band 2) phase by -0.999982 + -0.00592143i; max ampl. = 0.731631
+Fixing e-field (band 3) phase by -0.757235 + -0.653142i; max ampl. = 0.995856
+Fixing e-field (band 4) phase by -0.988986 + -0.148011i; max ampl. = 1.18273
+Fixing e-field (band 5) phase by 0.999504 + -0.0314862i; max ampl. = 1.22926
+Fixing e-field (band 6) phase by -0.740678 + -0.67186i; max ampl. = 1.42407
+Fixing e-field (band 7) phase by 0.815621 + 0.578587i; max ampl. = 2.08024
+Fixing e-field (band 8) phase by -0.357542 + -0.933897i; max ampl. = 1.11496
+Outputting fields to test_mpi_slab-e.k05.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k05.b08.z.zodd...
+solve_kpoint (0,0.416667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 18 iterations.
+zoddfreqs:, 6, 0, 0.416667, 0, 0.481125, 0.407909, 0.484375, 0.521535, 0.521849, 0.569713, 0.605092, 0.632004, 0.663117
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.999998 + -0.00195692i; max ampl. = 1.19318
+Fixing e-field (band 2) phase by -0.849192 + -0.528084i; max ampl. = 1.11011
+Fixing e-field (band 3) phase by -0.820731 + 0.571314i; max ampl. = 1.15954
+Fixing e-field (band 4) phase by -0.99999 + 0.00441793i; max ampl. = 0.807989
+Fixing e-field (band 5) phase by -0.657913 + -0.753094i; max ampl. = 1.90195
+Fixing e-field (band 6) phase by -0.163671 + -0.986515i; max ampl. = 1.4885
+Fixing e-field (band 7) phase by -0.325161 + -0.945659i; max ampl. = 1.49741
+Fixing e-field (band 8) phase by 0.974819 + -0.222999i; max ampl. = 0.896902
+Outputting fields to test_mpi_slab-e.k06.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k06.b08.z.zodd...
+solve_kpoint (0,0.5,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 19 iterations.
+zoddfreqs:, 7, 0, 0.5, 0, 0.57735, 0.449351, 0.455477, 0.538668, 0.573606, 0.596446, 0.600093, 0.61029, 0.647529
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 0.997228 + -0.0744119i; max ampl. = 1.48977
+Fixing e-field (band 2) phase by 0.996633 + 0.0819872i; max ampl. = 1.60169
+Fixing e-field (band 3) phase by -0.799042 + 0.601275i; max ampl. = 1.4648
+Fixing e-field (band 4) phase by 0.654366 + 0.756178i; max ampl. = 2.35418
+Fixing e-field (band 5) phase by -0.918228 + -0.396053i; max ampl. = 0.888163
+Fixing e-field (band 6) phase by 0.990838 + -0.135057i; max ampl. = 1.04655
+Fixing e-field (band 7) phase by -0.302451 + -0.953165i; max ampl. = 1.00258
+Fixing e-field (band 8) phase by 0.604765 + -0.796404i; max ampl. = 1.10515
+Outputting fields to test_mpi_slab-e.k07.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k07.b08.z.zodd...
+solve_kpoint (-0.0555556,0.472222,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 11 iterations.
+zoddfreqs:, 8, -0.0555556, 0.472222, 0, 0.580017, 0.450316, 0.456461, 0.538259, 0.57176, 0.599755, 0.602144, 0.612254, 0.649697
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 0.999086 + -0.0427436i; max ampl. = 1.47113
+Fixing e-field (band 2) phase by -0.129565 + 0.991571i; max ampl. = 1.59893
+Fixing e-field (band 3) phase by 0.822414 + 0.56889i; max ampl. = 1.45341
+Fixing e-field (band 4) phase by 0.290647 + 0.95683i; max ampl. = 2.32772
+Fixing e-field (band 5) phase by -0.403442 + -0.915005i; max ampl. = 0.911417
+Fixing e-field (band 6) phase by -0.966993 + 0.254803i; max ampl. = 1.02797
+Fixing e-field (band 7) phase by 0.340433 + -0.940269i; max ampl. = 0.998934
+Fixing e-field (band 8) phase by -0.834433 + 0.55111i; max ampl. = 1.08669
+Outputting fields to test_mpi_slab-e.k08.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k08.b08.z.zodd...
+solve_kpoint (-0.111111,0.444444,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+zoddfreqs:, 9, -0.111111, 0.444444, 0, 0.587945, 0.45305, 0.45941, 0.535887, 0.569503, 0.60795, 0.608175, 0.61776, 0.655849
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.99351 + -0.113749i; max ampl. = 1.44181
+Fixing e-field (band 2) phase by -0.0607988 + 0.99815i; max ampl. = 1.63552
+Fixing e-field (band 3) phase by 0.817815 + 0.575481i; max ampl. = 1.38928
+Fixing e-field (band 4) phase by 0.358906 + 0.933374i; max ampl. = 2.27312
+Fixing e-field (band 5) phase by -0.743377 + 0.668873i; max ampl. = 1.00315
+Fixing e-field (band 6) phase by -0.785449 + -0.618927i; max ampl. = 1.06948
+Fixing e-field (band 7) phase by 0.58991 + -0.807469i; max ampl. = 0.931105
+Fixing e-field (band 8) phase by 0.852785 + -0.522262i; max ampl. = 1.04455
+Outputting fields to test_mpi_slab-e.k09.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k09.b08.z.zodd...
+solve_kpoint (-0.166667,0.416667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 18 iterations.
+zoddfreqs:, 10, -0.166667, 0.416667, 0, 0.600925, 0.457157, 0.464227, 0.529718, 0.570696, 0.616414, 0.620458, 0.626583, 0.66499
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.991005 + -0.133826i; max ampl. = 1.40865
+Fixing e-field (band 2) phase by -0.0225846 + 0.999745i; max ampl. = 1.69055
+Fixing e-field (band 3) phase by 0.745486 + 0.666521i; max ampl. = 1.25972
+Fixing e-field (band 4) phase by 0.350034 + 0.936737i; max ampl. = 2.11148
+Fixing e-field (band 5) phase by 0.959697 + -0.281036i; max ampl. = 0.992436
+Fixing e-field (band 6) phase by 0.533578 + 0.845751i; max ampl. = 1.01717
+Fixing e-field (band 7) phase by -0.686933 + 0.726721i; max ampl. = 0.940776
+Fixing e-field (band 8) phase by 0.868591 + -0.495529i; max ampl. = 0.987623
+Outputting fields to test_mpi_slab-e.k10.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k10.b08.z.zodd...
+solve_kpoint (-0.222222,0.388889,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 29 iterations.
+zoddfreqs:, 11, -0.222222, 0.388889, 0, 0.61864, 0.462219, 0.470443, 0.520221, 0.575113, 0.625317, 0.636254, 0.639448, 0.665318
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.995191 + -0.0979547i; max ampl. = 1.38468
+Fixing e-field (band 2) phase by -0.0440158 + 0.999031i; max ampl. = 1.67396
+Fixing e-field (band 3) phase by -0.577968 + -0.816059i; max ampl. = 1.12621
+Fixing e-field (band 4) phase by 0.280589 + 0.959828i; max ampl. = 1.90172
+Fixing e-field (band 5) phase by 0.961445 + -0.274999i; max ampl. = 1.10619
+Fixing e-field (band 6) phase by 0.479507 + 0.877538i; max ampl. = 0.986713
+Fixing e-field (band 7) phase by -0.736186 + 0.67678i; max ampl. = 1.04317
+Fixing e-field (band 8) phase by 0.646198 + 0.76317i; max ampl. = 1.03509
+Outputting fields to test_mpi_slab-e.k11.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k11.b08.z.zodd...
+solve_kpoint (-0.277778,0.361111,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 16 iterations.
+zoddfreqs:, 12, -0.277778, 0.361111, 0, 0.640698, 0.46787, 0.476469, 0.509819, 0.580187, 0.633047, 0.64999, 0.656912, 0.662751
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 0.999431 + -0.033731i; max ampl. = 1.38633
+Fixing e-field (band 2) phase by -0.149656 + 0.988738i; max ampl. = 1.65079
+Fixing e-field (band 3) phase by -0.34684 + -0.937924i; max ampl. = 1.02301
+Fixing e-field (band 4) phase by 0.210744 + 0.977541i; max ampl. = 1.68823
+Fixing e-field (band 5) phase by 0.999999 + 0.00157574i; max ampl. = 1.11342
+Fixing e-field (band 6) phase by 0.964587 + 0.263765i; max ampl. = 0.954342
+Fixing e-field (band 7) phase by 0.337311 + -0.941393i; max ampl. = 1.05425
+Fixing e-field (band 8) phase by -0.897541 + -0.44093i; max ampl. = 0.880172
+Outputting fields to test_mpi_slab-e.k12.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k12.b08.z.zodd...
+solve_kpoint (-0.333333,0.333333,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 40 iterations.
+zoddfreqs:, 13, -0.333333, 0.333333, 0, 0.666667, 0.472332, 0.478029, 0.504382, 0.582691, 0.636988, 0.649493, 0.67403, 0.680059
+elapsed time for k point: 2 seconds.
+Fixing e-field (band 1) phase by 0.947841 + 0.318742i; max ampl. = 1.3573
+Fixing e-field (band 2) phase by -0.751348 + 0.659906i; max ampl. = 1.58804
+Fixing e-field (band 3) phase by 0.208643 + 0.977992i; max ampl. = 0.856769
+Fixing e-field (band 4) phase by -0.219805 + 0.975544i; max ampl. = 1.44363
+Fixing e-field (band 5) phase by 0.943355 + 0.331786i; max ampl. = 1.00724
+Fixing e-field (band 6) phase by 0.868653 + -0.49542i; max ampl. = 1.1488
+Fixing e-field (band 7) phase by -0.839938 + 0.542682i; max ampl. = 1.00386
+Fixing e-field (band 8) phase by -0.999753 + -0.0222227i; max ampl. = 1.14709
+Outputting fields to test_mpi_slab-e.k13.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k13.b08.z.zodd...
+solve_kpoint (-0.277778,0.277778,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 5 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 22 iterations.
+zoddfreqs:, 14, -0.277778, 0.277778, 0, 0.555556, 0.442917, 0.489309, 0.517253, 0.567456, 0.581572, 0.635474, 0.656343, 0.670694
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -0.000295912i; max ampl. = 1.15258
+Fixing e-field (band 2) phase by 0.999998 + -0.00204942i; max ampl. = 1.25849
+Fixing e-field (band 3) phase by -1 + -0.000108246i; max ampl. = 1.19072
+Fixing e-field (band 4) phase by 1 + -0.000122123i; max ampl. = 1.55976
+Fixing e-field (band 5) phase by 0.999994 + 0.00335893i; max ampl. = 0.796235
+Fixing e-field (band 6) phase by 1 + 0.000547537i; max ampl. = 0.91848
+Fixing e-field (band 7) phase by 0.999831 + 0.018368i; max ampl. = 1.03376
+Fixing e-field (band 8) phase by 1 + 0.000317233i; max ampl. = 0.789681
+Outputting fields to test_mpi_slab-e.k14.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k14.b08.z.zodd...
+solve_kpoint (-0.222222,0.222222,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 28 iterations.
+zoddfreqs:, 15, -0.222222, 0.222222, 0, 0.444444, 0.386487, 0.492555, 0.498529, 0.517888, 0.545761, 0.62443, 0.628404, 0.651488
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + -7.60165e-05i; max ampl. = 1.15704
+Fixing e-field (band 2) phase by 1 + -9.32419e-05i; max ampl. = 0.728665
+Fixing e-field (band 3) phase by -0.999984 + -0.00561308i; max ampl. = 0.912995
+Fixing e-field (band 4) phase by -0.999995 + -0.00304587i; max ampl. = 1.06643
+Fixing e-field (band 5) phase by -0.999986 + 0.00522259i; max ampl. = 1.34764
+Fixing e-field (band 6) phase by 0.999998 + 0.00223418i; max ampl. = 1.0357
+Fixing e-field (band 7) phase by 0.999994 + -0.00338788i; max ampl. = 1.06563
+Fixing e-field (band 8) phase by -0.999995 + 0.00330865i; max ampl. = 0.837198
+Outputting fields to test_mpi_slab-e.k15.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k15.b08.z.zodd...
+solve_kpoint (-0.166667,0.166667,0):
+Solving for bands 1 to 8...
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+zoddfreqs:, 16, -0.166667, 0.166667, 0, 0.333333, 0.305504, 0.423672, 0.444368, 0.525992, 0.557152, 0.594737, 0.599423, 0.630969
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 6.52457e-06i; max ampl. = 1.04214
+Fixing e-field (band 2) phase by -0.000854027 + 1i; max ampl. = 0.707176
+Fixing e-field (band 3) phase by -0.999907 + 0.0136707i; max ampl. = 0.781183
+Fixing e-field (band 4) phase by -0.999986 + 0.00526805i; max ampl. = 1.07248
+Fixing e-field (band 5) phase by 0.999999 + 0.00154986i; max ampl. = 1.19445
+Fixing e-field (band 6) phase by 0.999999 + 0.00135771i; max ampl. = 1.0486
+Fixing e-field (band 7) phase by -0.999999 + -0.00117468i; max ampl. = 1.32057
+Fixing e-field (band 8) phase by -0.999998 + -0.00216062i; max ampl. = 0.987084
+Outputting fields to test_mpi_slab-e.k16.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k16.b08.z.zodd...
+solve_kpoint (-0.111111,0.111111,0):
+Solving for bands 1 to 8...
+    linmin: converged after 2 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 14 iterations.
+zoddfreqs:, 17, -0.111111, 0.111111, 0, 0.222222, 0.208513, 0.370385, 0.382779, 0.541383, 0.554434, 0.5688, 0.591358, 0.618858
+elapsed time for k point: 1 seconds.
+Fixing e-field (band 1) phase by 1 + 7.8106e-06i; max ampl. = 0.927731
+Fixing e-field (band 2) phase by -0.000106992 + 1i; max ampl. = 0.685193
+Fixing e-field (band 3) phase by -0.984691 + 0.17431i; max ampl. = 0.691774
+Fixing e-field (band 4) phase by -0.999999 + 0.00145793i; max ampl. = 0.937234
+Fixing e-field (band 5) phase by -1 + 0.000473287i; max ampl. = 1.04727
+Fixing e-field (band 6) phase by 0.00143905 + -0.999999i; max ampl. = 1.17312
+Fixing e-field (band 7) phase by 1 + 0.000641804i; max ampl. = 1.90255
+Fixing e-field (band 8) phase by 0.00468805 + -0.999989i; max ampl. = 1.33973
+Outputting fields to test_mpi_slab-e.k17.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k17.b08.z.zodd...
+solve_kpoint (-0.0555556,0.0555556,0):
+Solving for bands 1 to 8...
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 1 to 8 after 13 iterations.
+zoddfreqs:, 18, -0.0555556, 0.0555556, 0, 0.111111, 0.105266, 0.334043, 0.337585, 0.542859, 0.543418, 0.567307, 0.595249, 0.606071
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + 1.05908e-05i; max ampl. = 0.86696
+Fixing e-field (band 2) phase by -0.000761433 + 1i; max ampl. = 0.672914
+Fixing e-field (band 3) phase by -0.994935 + -0.100517i; max ampl. = 0.708597
+Fixing e-field (band 4) phase by 0.999063 + 0.0432717i; max ampl. = 0.792503
+Fixing e-field (band 5) phase by -0.0747274 + -0.997204i; max ampl. = 0.785449
+Fixing e-field (band 6) phase by 0.999972 + 0.00749211i; max ampl. = 1.14684
+Fixing e-field (band 7) phase by 0.999999 + 0.00153766i; max ampl. = 1.90673
+Fixing e-field (band 8) phase by -0.0175246 + 0.999846i; max ampl. = 1.55098
+Outputting fields to test_mpi_slab-e.k18.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k18.b08.z.zodd...
+solve_kpoint (0,0,0):
+Solving for bands 2 to 8...
+    linmin: converged after 7 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 3 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 4 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+    linmin: converged after 2 iterations.
+Finished solving for bands 2 to 8 after 14 iterations.
+zoddfreqs:, 19, 0, 0, 0, 0, 0, 0.320762, 0.320774, 0.538763, 0.538801, 0.576251, 0.597033, 0.597159
+elapsed time for k point: 0 seconds.
+Fixing e-field (band 1) phase by 1 + -0i; max ampl. = 0
+Fixing e-field (band 2) phase by 1 + 0.000130635i; max ampl. = 0.748085
+Fixing e-field (band 3) phase by -0.999941 + -0.0108864i; max ampl. = 0.74713
+Fixing e-field (band 4) phase by 0.99989 + 0.0147997i; max ampl. = 1.03856
+Fixing e-field (band 5) phase by 0.999959 + 0.00906956i; max ampl. = 1.03614
+Fixing e-field (band 6) phase by 0.0170919 + -0.999854i; max ampl. = 1.37331
+Fixing e-field (band 7) phase by 0.962907 + -0.269834i; max ampl. = 1.81894
+Fixing e-field (band 8) phase by 0.997306 + -0.07335i; max ampl. = 1.79515
+Outputting fields to test_mpi_slab-e.k19.b01.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b02.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b03.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b04.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b05.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b06.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b07.z.zodd...
+Outputting fields to test_mpi_slab-e.k19.b08.z.zodd...
+Band 1 range: 0.0 at #(0.0 0.0 0.0) to 0.4723318374976674 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 2 range: 0.3207624706057773 at #(0.0 0.0 0.0) to 0.4925545899921189 at #(-0.2222222222222222 0.2222222222222222 0.0)
+Band 3 range: 0.3207741282058556 at #(0.0 0.0 0.0) to 0.5386676368827091 at #(0.0 0.5 0.0)
+Band 4 range: 0.5104020547524902 at #(0.0 0.33333333333333337 0.0) to 0.5826906733707824 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 5 range: 0.5388014578427583 at #(0.0 0.0 0.0) to 0.6369880625795844 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 6 range: 0.5651925782564063 at #(0.0 0.16666666666666674 0.0) to 0.6499897514676725 at #(-0.2777777777777778 0.3611111111111111 0.0)
+Band 7 range: 0.5913582360305814 at #(-0.1111111111111111 0.1111111111111111 0.0) to 0.6740298466818274 at #(-0.3333333333333333 0.3333333333333333 0.0)
+Band 8 range: 0.597158696749487 at #(0.0 0.0 0.0) to 0.6800586474954394 at #(-0.3333333333333333 0.3333333333333333 0.0)
+total elapsed time for run: 2 minutes, 35 seconds.
+done.
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 24204699: <test_mpi_slab> in cluster <dcc> Done
+
+Job <test_mpi_slab> was submitted from host <gbarlogin2> by user <s232699> in cluster <dcc> at Tue Feb 25 13:05:54 2025
+Job was executed on host(s) <20*n-62-12-78>, in queue <fotonano>, as user <s232699> in cluster <dcc> at Tue Feb 25 13:05:56 2025
+</zhome/2f/7/202918> was used as the home directory.
+</zhome/2f/7/202918/phc_nzi/tests/test_mpi_slab> was used as the working directory.
+Started at Tue Feb 25 13:05:56 2025
+Terminated at Tue Feb 25 13:11:23 2025
+Results reported at Tue Feb 25 13:11:23 2025
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J test_mpi_slab
+#BSUB -q fotonano
+#BSUB -n 20
+#BSUB -W 24:00
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -R "span[hosts=1]"
+#BSUB -oo test_mpi_slab.out
+#BSUB -eo test_mpi_slab.err
+
+source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && mpirun -np $LSB_DJOB_NUMPROC mpb-mpi r1=0.1 r2=0.339 test_mpi_slab.ctl
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1871.90 sec.
+    Max Memory :                                 3023 MB
+    Average Memory :                             3015.40 MB
+    Total Requested Memory :                     81920.00 MB
+    Delta Memory :                               78897.00 MB
+    Max Swap :                                   -
+    Max Processes :                              24
+    Max Threads :                                408
+    Run time :                                   428 sec.
+    Turnaround time :                            329 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <test_mpi_slab.err> for stderr output of this job.
+
