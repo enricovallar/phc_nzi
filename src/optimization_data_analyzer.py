@@ -4,13 +4,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from scipy.interpolate import griddata
+import plotly.graph_objects as go
 
 from scipy.interpolate import griddata
-
-try:
-    from mpi_differential_evolution import MPIDiffEvoSimulation
-except ImportError:
-    from sources.mpi_differential_evolution import MPIDiffEvoSimulation
+import pandas as pd
 
 class OptimizationDataAnalyzer:
     # Precompile the regex for efficiency.
@@ -364,3 +362,349 @@ class OptimizationDataAnalyzer:
         plt.tight_layout()    
         plt.grid(True)
 
+
+    def get_points_above_treshold(self, threshold):
+        """
+        Get the points where 1/cost is above a certain threshold.
+        
+        Parameters:
+            threshold : float
+                The threshold value for 1/cost.
+        
+        Returns:
+            pd.DataFrame: DataFrame containing param1_vals, param2_vals, and cost_vals for points where 1/cost > threshold.
+        """
+        self.load_data()
+        valid = ~np.isnan(self.cost_vals)
+        valid &= (self.cost_vals != 0)  # Avoid division by zero
+        valid &= (1.0 / self.cost_vals) > threshold
+        
+        param1_vals = self.param1_vals[valid]
+        param2_vals = self.param2_vals[valid]
+        cost_vals = self.cost_vals[valid]
+        freq_dirac_vals = self.freq_dirac_vals[valid]
+        
+        df = pd.DataFrame({
+            self.param1_name: param1_vals,
+            self.param2_name: param2_vals,
+            'cost': cost_vals, 
+            'freq-dirac': freq_dirac_vals, 
+        })
+        
+        return df
+
+    def fit_ellipse(self, x, y, w=None):
+        """
+        Fit an ellipse to the given (x, y) points using a weighted direct least squares method.
+        
+        Parameters:
+            x, y : 1D numpy arrays of the same length containing the coordinates of the points.
+            w    : Optional 1D numpy array of weights for each point. If None, equal weights are used.
+        
+        Returns:
+            a : 1D numpy array of ellipse conic coefficients (A, B, C, D, E, F) for the general conic:
+                A*x**2 + B*x*y + C*y**2 + D*x + E*y + F = 0
+                with the constraint that the fitted conic is an ellipse (B**2 - 4*A*C < 0).
+                
+        Raises:
+            RuntimeError: If no valid ellipse (i.e. satisfying B**2 - 4*A*C < 0) is found.
+        """
+        x = np.asarray(x)
+        y = np.asarray(y)
+        
+        n = len(x)
+        if w is None:
+            w = np.ones(n)
+        else:
+            w = np.asarray(w)
+        
+        # Build the design matrix D with columns: x^2, x*y, y^2, x, y, 1.
+        D = np.column_stack((x**2, x*y, y**2, x, y, np.ones(n)))
+        
+        # Build the weight matrix W (diagonal).
+        W = np.diag(w)
+        
+        # Compute the weighted scatter matrix.
+        S = D.T @ W @ D
+        
+        # Constraint matrix C for the ellipse condition: 4*A*C - B^2 > 0
+        # Here we use the formulation as in Fitzgibbon et al. (1999).
+        C_matrix = np.zeros((6, 6))
+        C_matrix[0, 2] = 2
+        C_matrix[2, 0] = 2
+        C_matrix[1, 1] = -1
+        
+        # Solve the generalized eigenvalue problem S*a = lambda*C*a.
+        # We solve it by converting to a standard eigenvalue problem:
+        #    inv(S) * C * a = lambda * a
+        eig_vals, eig_vecs = np.linalg.eig(np.linalg.inv(S) @ C_matrix)
+        
+        # Find candidate eigenvectors that satisfy the ellipse condition: B^2 - 4*A*C < 0.
+        valid_indices = []
+        for i, vec in enumerate(eig_vecs.T):
+            A_, B_, C_, D_, E_, F_ = vec
+            if B_**2 - 4*A_*C_ < 0:
+                valid_indices.append(i)
+        
+        if not valid_indices:
+            raise RuntimeError("No valid ellipse found (B^2 - 4*A*C >= 0 for all solutions).")
+        
+        # Choose the candidate corresponding to the eigenvalue with the maximum absolute value.
+        # (You may choose a different criterion if desired.)
+        i_best = valid_indices[np.argmax(np.abs(eig_vals[valid_indices]))]
+        a = eig_vecs[:, i_best].real
+        
+        # Optionally, normalize the parameters (for example, so that F = -1)
+        if a[-1] != 0:
+            a = -a / a[-1]
+        
+        return a
+
+
+
+
+    def plot_ellipse_from_conic(self, A, B, C, D, E, F, ax=None, plot_kwds=None):
+        """
+        Plot an ellipse defined by the conic coefficients:
+        
+            A*x^2 + B*x*y + C*y^2 + D*x + E*y + F = 0
+            
+        Assumes that the conic represents an ellipse (i.e. B^2 - 4*A*C < 0).
+
+        Parameters:
+        A, B, C, D, E, F : float
+            Conic coefficients.
+        ax : matplotlib.axes.Axes, optional
+            An existing axes to plot on. If None, uses current axes.
+        plot_kwds : dict, optional
+            Additional keyword arguments to pass to the plot function.
+
+        Returns:
+        ax : matplotlib.axes.Axes
+            The axes with the ellipse plotted.
+        """
+        if ax is None:
+            ax = plt.gca()
+        if plot_kwds is None:
+            plot_kwds = {'color': 'red', 'linewidth': 2}
+        
+        # Compute the center of the ellipse
+        denom = B**2 - 4*A*C
+        if denom == 0:
+            raise ValueError("Invalid ellipse parameters (denom==0).")
+        x0 = (2*C*D - B*E) / denom
+        y0 = (2*A*E - B*D) / denom
+        
+        # Compute the rotation angle (in radians)
+        theta = 0.5 * np.arctan2(B, A - C)
+        
+        # Compute the axes lengths.
+        # Plug the center (x0, y0) back into the conic equation:
+        num = 2 * (A*x0**2 + B*x0*y0 + C*y0**2 - F)
+        term = np.sqrt((A - C)**2 + B**2)
+        
+        # Semi-axis lengths (order them so that a_e is the semi-major axis)
+        a_e = np.sqrt(num / (A + C - term))
+        b_e = np.sqrt(num / (A + C + term))
+        if b_e > a_e:
+            a_e, b_e = b_e, a_e
+
+        # Generate points along the ellipse using the parametric form:
+        #   X(t) = x0 + a_e*cos(t)*cos(theta) - b_e*sin(t)*sin(theta)
+        #   Y(t) = y0 + a_e*cos(t)*sin(theta) + b_e*sin(t)*cos(theta)
+        t = np.linspace(0, 2*np.pi, 500)
+        ellipse_x = x0 + a_e * np.cos(t) * np.cos(theta) - b_e * np.sin(t) * np.sin(theta)
+        ellipse_y = y0 + a_e * np.cos(t) * np.sin(theta) + b_e * np.sin(t) * np.cos(theta)
+        
+        ax.plot(ellipse_x, ellipse_y, **plot_kwds)
+        ax.set_aspect('equal', 'datalim')
+        ax.set_xlabel(self.param1_name)
+        ax.set_ylabel(self.param2_name)
+        ax.set_title('Fitted Ellipse')
+        
+        return ax
+
+    def compute_freq_dirac_along_ellipse(self, n_points=200, interp_method='linear', threshold=1000):
+        """
+        Compute freq_dirac along the fitted ellipse by:
+          1. Using the full dataset (param1_vals, param2_vals, freq_dirac_vals) to
+             fit an ellipse (via self.fit_ellipse).
+          2. Parameterizing the ellipse (using 0 <= t < 2π) to obtain (param1, param2)
+             points along its boundary.
+          3. Interpolating freq_dirac at these ellipse points using griddata.
+        
+        Parameters:
+            n_points : int
+                Number of points to sample along the ellipse.
+            interp_method : str, one of {'linear', 'nearest', 'cubic'}
+                Interpolation method for griddata.
+            threshold : float
+                Threshold for 1/cost to filter out points.
+        
+        Returns:
+            ellipse_param1 : np.ndarray
+                Array of param1 coordinates along the ellipse.
+            ellipse_param2 : np.ndarray
+                Array of param2 coordinates along the ellipse.
+            freq_ellipse : np.ndarray
+                Interpolated freq_dirac values at the ellipse points.
+            conic_params : np.ndarray
+                The fitted ellipse conic coefficients (A, B, C, D, E, F).
+        """
+
+        self.load_data()
+        freq_all = self.freq_dirac_vals
+        param1_all = self.param1_vals
+        param2_all = self.param2_vals
+        cost_all = self.cost_vals
+
+        df = self.get_points_above_treshold(threshold)
+        param1_above_threshold = df[self.param1_name].values
+        param2_above_threshold = df[self.param2_name].values
+        freq_above_threshold= df['freq-dirac'].values
+        weights_above_threshold = 1.0 / df['cost'].values
+        
+        if len(param1_above_threshold) < 5:
+            raise ValueError("Not enough valid data points to fit an ellipse.")
+        
+        # Fit an ellipse to (param1, param2) using your existing method.
+        conic_params = self.fit_ellipse(param1_above_threshold, param2_above_threshold, w=weights_above_threshold)
+        A, B, C, D, E, F = conic_params
+        
+        # Compute the ellipse center.
+        denom = B**2 - 4*A*C
+        if denom == 0:
+            raise ValueError("Invalid ellipse parameters (denom==0).")
+        center1 = (2 * C * D - B * E) / denom
+        center2 = (2 * A * E - B * D) / denom
+        
+        # Compute rotation angle.
+        theta = 0.5 * np.arctan2(B, A - C)
+        
+        # Compute semi-axis lengths.
+        num = 2 * (A * center1**2 + B * center1 * center2 + C * center2**2 - F)
+        term = np.sqrt((A - C)**2 + B**2)
+        a_e = np.sqrt(num / (A + C - term))
+        b_e = np.sqrt(num / (A + C + term))
+        if b_e > a_e:
+            a_e, b_e = b_e, a_e
+        
+        # Parameterize the ellipse using parameter t.
+        t = np.linspace(0, 2*np.pi, n_points)
+        ellipse_param1 = center1 + a_e * np.cos(t) * np.cos(theta) - b_e * np.sin(t) * np.sin(theta)
+        ellipse_param2 = center2 + a_e * np.cos(t) * np.sin(theta) + b_e * np.sin(t) * np.cos(theta)
+        
+        # Interpolate freq_dirac at the ellipse (param1, param2) points.
+        points = np.column_stack((param1_all, param2_all))
+        freq_ellipse = griddata(points, freq_all, (ellipse_param1, ellipse_param2), method=interp_method)
+        
+        return ellipse_param1, ellipse_param2, freq_ellipse, conic_params
+
+    def plot_freq_dirac_along_ellipse(self, n_points=200, interp_method='linear',
+                                            custom_title=None,
+                                            threshold=1000,
+                                            plt_kwds={},
+                                            ):
+        """
+        Plot freq_dirac vs. param1 along the fitted ellipse, coloring the line
+        according to the value of param2.
+
+        Parameters
+        ----------
+        n_points : int
+            Number of points in param1 at which to sample freq_dirac along the ellipse.
+        interp_method : {'linear', 'nearest', 'cubic'}
+            The interpolation method used by scipy.interpolate.griddata.
+        custom_title : str, optional
+            If given, used as the plot title.
+        """
+        # 1) Compute the freq_dirac data along the fitted ellipse
+        ellipse_param1, ellipse_param2, freq_ellipse, _ = self.compute_freq_dirac_along_ellipse(
+            n_points=n_points,
+            interp_method=interp_method,
+            threshold=threshold
+        )
+
+        colors = ellipse_param2  # Use ellipse_param2 directly as colors
+
+        # 2) Plot freq_ellipse vs. ellipse_param1, coloring by ellipse_param2
+
+        scatter = plt.scatter(ellipse_param1, freq_ellipse, c=colors, marker='o', s=10, **(plt_kwds or {}))
+
+        # Add colorbar
+
+        plt.xlabel(self.param1_name)
+        plt.ylabel("freq_dirac")
+        default_title = f"freq_dirac along fitted ellipse"
+        plt.title(custom_title if custom_title else default_title)
+        plt.tight_layout()
+        plt.grid(True)
+
+    
+
+
+
+    def calculate_param2_from_param1_on_ellipse(self, param1_value, conic_params=None, branch='upper'):
+        """
+        Given a value for param1, calculate the corresponding param2 on the fitted ellipse.
+        
+        The ellipse is defined by the conic equation:
+            A*param1^2 + B*param1*param2 + C*param2^2 + D*param1 + E*param2 + F = 0
+        which is quadratic in param2. If two solutions exist, the `branch` parameter selects the one:
+            - 'upper': returns the larger param2 value,
+            - 'lower': returns the smaller param2 value.
+        
+        Parameters:
+            param1_value : float
+                The param1 value for which to compute param2.
+            conic_params : array-like of shape (6,), optional
+                The ellipse conic coefficients (A, B, C, D, E, F). If None, the ellipse will be
+                fitted using the current (param1_vals, param2_vals) dataset.
+            branch : str, optional
+                Which branch of the quadratic solution to return ('upper' or 'lower'). Defaults to 'upper'.
+                
+        Returns:
+            param2_value : float
+                The computed param2 value corresponding to the given param1 along the ellipse.
+                
+        Raises:
+            ValueError: If no real solution exists or if the equation degenerates.
+        """
+        # If conic_params not provided, compute them from the dataset.
+        if conic_params is None:
+            self.load_data()
+            # Use all available data; you might filter further if needed.
+            valid = ~np.isnan(self.param1_vals) & ~np.isnan(self.param2_vals)
+            param1_all = self.param1_vals[valid]
+            param2_all = self.param2_vals[valid]
+            if len(param1_all) < 5:
+                raise ValueError("Not enough valid data points to fit an ellipse.")
+            conic_params = self.fit_ellipse(param1_all, param2_all)
+            
+        A, B, C, D, E, F = conic_params
+
+        # The ellipse conic is: A*x^2 + B*x*y + C*y^2 + D*x + E*y + F = 0,
+        # where x is param1 and y is param2.
+        # For a given param1_value, the quadratic in y becomes:
+        #   C*y^2 + (B*param1_value + E)*y + (A*param1_value**2 + D*param1_value + F) = 0.
+        a_coef = C
+        b_coef = B * param1_value + E
+        c_coef = A * param1_value**2 + D * param1_value + F
+
+        # Check if the equation is truly quadratic.
+        if np.abs(a_coef) > 1e-12:
+            discriminant = b_coef**2 - 4 * a_coef * c_coef
+            if discriminant < 0:
+                raise ValueError("No real solution exists for the given param1 value along the ellipse.")
+            sqrt_disc = np.sqrt(discriminant)
+            sol1 = (-b_coef + sqrt_disc) / (2 * a_coef)
+            sol2 = (-b_coef - sqrt_disc) / (2 * a_coef)
+            # Choose the branch based on the requested option.
+            param2_value = max(sol1, sol2) if branch == 'upper' else min(sol1, sol2)
+        else:
+            # Degenerate to a linear equation: b_coef * y + c_coef = 0.
+            if np.abs(b_coef) < 1e-12:
+                raise ValueError("Degenerate equation; cannot solve for param2.")
+            param2_value = -c_coef / b_coef
+
+        return param2_value

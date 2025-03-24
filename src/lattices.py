@@ -73,10 +73,7 @@ class BravaisLattice(ABC):
                f"(basis1  (vector3 {self.basis1[0]} {self.basis1[1]} {self.basis1[2]})) " + \
                f"(basis2  (vector3 {self.basis2[0]} {self.basis2[1]} {self.basis2[2]})) " + \
                 ")"
-    
-    @abstractmethod
-    def get_centers(self):
-        pass
+        
 
     @property
     def basis1(self):
@@ -91,7 +88,7 @@ class BravaisLattice(ABC):
         return self._mp_lattice.basis3
     
 
-class TetragonalLattice(BravaisLattice):
+class SquareLattice(BravaisLattice):
     def __init__(self, supercell_height: Optional[int] = None):
         super().__init__(supercell_height)
         self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
@@ -112,14 +109,8 @@ class TetragonalLattice(BravaisLattice):
                             basis2=mp.Vector3(0, 1, 0))
     
     
-    def get_centers(self):
-        centers = [
-            mp.Vector3(0, 0),
-            mp.Vector3(0.5, 0.5)
-        ]
-        return centers
     
-class TrigonalLattice(BravaisLattice):
+class HexagonalLattice(BravaisLattice):
     def __init__(self, supercell_height: Optional[int] = None):
         super().__init__(supercell_height)
         self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
@@ -133,44 +124,32 @@ class TrigonalLattice(BravaisLattice):
     def _make_lattice(self) -> mp.Lattice:
         return mp.Lattice(size=self._size,
                             basis1=mp.Vector3(1, 0, 0), 
-                            basis2=mp.Vector3(0.5, 1/np.sqrt(3), 0))   
+                            basis2=mp.Vector3(0.5, np.sqrt(3)/2, 0))   
 
-    def get_centers(self): 
-        centers = [
-            mp.Vector3(0, 0),
-            mp.Vector3(1/3, 1/3),
-            mp.Vector3(2/3, 2/3)    
-        ]
-        return centers 
+    
         
-class HexagonalLattice(TrigonalLattice):
-    def get_centers(self):
-        centers = [  
-            mp.Vector3(0, 0), 
-        ]
-        return centers
+
 
 class ObliqueLattice(BravaisLattice):
-    def __init__(self, supercell_height: Optional[int] = None):
+    def __init__(self, a1: tuple, a2: tuple, supercell_height: Optional[int] = None):
         super().__init__(supercell_height)
         self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
         self._M = mp.Vector3(0.5, 0.5, 0)
         self._K = mp.Vector3(0.5, 0, 0)
         self._path_starting_in_gamma = KPath([self._G, self._K, self._M, self._G]),
         self._path_centered_in_gamma = KPath([self._K, self._G, self._M, self._K])
+        
+        self._a1 = a1 if type(a1) == tuple else  ValueError("a1 must be a tuple")
+        self._a2 = a2 if type(a2) == tuple else  ValueError("a2 must be a tuple")
+        
         self._mp_lattice = self._make_lattice() 
 
     def _make_lattice(self) -> mp.Lattice:
         return mp.Lattice(size=self._size,
-                            basis1=mp.Vector3(1, 0, 0), 
-                            basis2=mp.Vector3(0.5, 1, 0))   
+                            basis1=mp.Vector3(self._a1[0], self._a1[0], self._a1[0]), 
+                            basis2=mp.Vector3(self._a2[0], self._a2[0], self._a2[0]))
 
-    def get_centers(self):
-        centers = [
-            mp.Vector3(0, 0),
-            mp.Vector3(0.5, 0.5)
-        ]
-        return centers
+
 
         
 

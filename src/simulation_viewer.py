@@ -286,10 +286,7 @@ class SimulationViewer:
         """
         Plot the band diagram for the given mode on the current axes. Does not call plt.show().
         """
-        if polarization not in self.simulation.bands_df:
-            df = self.simulation.load_frequency_data(polarization)
-        else:
-            df = self.simulation.bands_df[polarization]
+        df = self.simulation.load_frequency_data(polarization)
         bands = df.columns[5:]
         plot_color = "C0"
         if isinstance(color, list) and color:

@@ -1,219 +1,71 @@
+
+from abc import ABC, abstractmethod
 import meep as mp
-from meep import mpb 
+from  typing import Optional
 import numpy as np
 
 
-class Vector:
-    def __init__(self, vector: mp.Vector3, label: str): 
-        self._vector = vector   
-        self._label = label
-
-    @property   
-    def vector(self)-> mp.Vector3:
-        return self._vector
-    
-    @property
-    def label(self)-> str:  
-        return self._label  
-    
-
-   
-class ReciprocalLatticeVector(Vector):
-    def __init__(self, vector: mp.Vector3, label: str):
-        super().__init__(vector, label)
-
-
-class LatticeBaseVector(Vector):
-    def __init__(self, vector: mp.Vector3, label: str):
-        super().__init__(vector, label)
-
-
 class KPath:
-    def __init__(self, *k_points: ReciprocalLatticeVector):
-        self._k_points = k_points
-        self._values = [k_point.vector for k_point in k_points]
-        self._labels = [k_point.label for k_point in k_points]
+    def __init__(self, values: Optional[list] = None, labels: Optional[list] = None):
+        self.values = values
+        self.labels = labels
 
     def to_dict(self):
-        return {"k_points_values": self._values, "k_points_labels": self._labels}
-        
-
-class Lattice:
-
-    TRIANGULAR = "TX"
-    SQUARE = "SX"
-    DIATOMIC_SQUARE = "SXY"
-    DIATOMIC_TRIANGULAR = "TXY"
-    DIATOMIC_TRIANGULAR_WITH_CENTRAL_ATOM = "TXYY"
-
-    LATTICE_TYPES = {
-        
-        # Simple lattices
-        SQUARE: 'square lattice, atoms to be defined by user',
-        TRIANGULAR: 'triangular, atoms to be defined by user',
-
-        # Diatomic lattices
-        DIATOMIC_SQUARE: 'diatomic square lattice, atoms to be defined by user',
-        DIATOMIC_TRIANGULAR: 'diatomic triangular lattice, atoms to be defined by user',
-        DIATOMIC_TRIANGULAR_WITH_CENTRAL_ATOM: 'diatomic triangular lattice with central atom, atoms to be defined',
-
-        
-    }
+        return {"k_points_values": self.values, "k_points_labels": self.labels}
 
 
-    def is_square(self):
-        return self._type == Lattice.SQUARE
-    
-    def is_triangular(self):
-        return self._type == Lattice.TRIANGULAR
-    
-    def is_diatomic_square(self):
-        return self._type == Lattice.DIATOMIC_SQUARE
-    
-    def is_diatomic_triangular(self):
-        return self._type == Lattice.DIATOMIC_TRIANGULAR
-    
-    def is_diatomic_triangular_with_central_atom(self):
-        return self._type == Lattice.DIATOMIC_TRIANGULAR_WITH_CENTRAL_ATOM
-    
-
-    # Base vectors for square lattice
-    a1_square = LatticeBaseVector(
-        vector=mp.Vector3(1, 0, 0),
-        label="a1"
-    )
-
-    a2_square = LatticeBaseVector(
-        vector=mp.Vector3(0, 1, 0),
-        label="a2"
-    )
-
-    # Base vectors for triangular lattice
-    a1_triangular = LatticeBaseVector(
-        vector=mp.Vector3(1, 0, 0),
-        label="a1"
-    )
-
-    a2_triangular = LatticeBaseVector(
-        vector=mp.Vector3(0.5, np.sqrt(3)/2, 0),
-        label="a2"
-    )
-    
-    # Gamma
-    G = ReciprocalLatticeVector(
-        vector=mp.Vector3(0, 0, 0),
-        label="Γ"
-    )
-
-    # High symmetry k points for square lattice
-    G_square  = ReciprocalLatticeVector(
-        vector=mp.Vector3(0, 0, 0),
-        label="Γ"
-    )
-
-    X_square = ReciprocalLatticeVector(
-        vector=mp.Vector3(0.5, 0, 0),
-        label="X"
-    )
-
-    M_square = ReciprocalLatticeVector(
-        vector=mp.Vector3(0.5, 0.5, 0),
-        label="M"
-    )
-
-    # High symmetry k points for triangular lattice
-    G_triangular = ReciprocalLatticeVector(
-        vector=mp.Vector3(0, 0, 0),
-        label="Γ"
-    )
-
-    M_triangular = ReciprocalLatticeVector(
-        vector=mp.Vector3(0, 0.5, 0),
-        label="M"
-    )
-
-    K_triangular = ReciprocalLatticeVector(
-        vector=mp.Vector3(-1/3, 1/3, 0),
-        label="K"
-    )
+class BravaisLattice(ABC):
+    def __init__(self, supercell_height: Optional[int] = None):
+        self._supercell_height = supercell_height   
+        self._mp_lattice = None
+        self._size = None
+        self._G = mp.Vector3(0, 0, 0)
+        self._path_starting_in_gamma = KPath()
+        self._path_centered_in_gamma = KPath()
 
     
-    center_square = mp.Vector3(0, 0)
-    center_triangular = mp.Vector3(0,0)
-    centers_diatomic_square = (mp.Vector3(0, 0), mp.Vector3(0.5, 0.5))  
-    centers_diatomic_triangular = (mp.Vector3(1/3, 1/3), mp.Vector3(2/3, 2/3))  
-    centers_diatomic_triangular_with_central_atom = (mp.Vector3(0, 0), mp.Vector3(1/3, 1/3), mp.Vector3(2/3, 2/3))
+       
+    @abstractmethod
+    def _make_lattice(self) -> mp.Lattice:
+        pass
 
-    NO_SIZE = "no-size"
-
-    def __init__(self, type: str, size: tuple | int = (1, 1, 0)):
-        """Create a lattice object. 
-        
-        Args:
-            type (str): The type of the lattice. Must be one of the keys in Lattice.LATTICE_TYPES: 'SX', 'TX', 'SXY', 'TXY'.
-            size (tuple | int): The size of the lattice. If the lattice is 2D, the size is a tuple (x, y, z). If the lattice is 1D, the size is an int.
-        
-        Raises:
-            ValueError: If the lattice type is not valid.
-            """
-        self._type = type
-        self._size = size
-        self._make_lattice()
-
-    def _make_lattice(self):
-        if self._type in Lattice.LATTICE_TYPES:
-            if self.is_square():
-                self._make_square_lattice()
-            elif self.is_triangular():
-                self._make_triangular_lattice()
-            elif self.is_diatomic_square():
-                self._make_square_lattice()
-            elif self.is_diatomic_triangular():
-                self._make_triangular_lattice()
-            elif self.is_diatomic_triangular_with_central_atom():
-                self._make_triangular_lattice()
-        else:
-            raise ValueError(f"Invalid lattice type: {self._type}. Must be one of {Lattice.LATTICE_TYPES.keys()}")
-        
-    def _make_square_lattice(self):
-        self._mp_lattice = mp.Lattice(size=self._size, 
-                                      basis1=Lattice.a1_square.vector,
-                                      basis2=Lattice.a2_square.vector)
-        
-    def _make_triangular_lattice(self):
-        self._mp_lattice = mp.Lattice(size=self._size,
-                                      basis1=Lattice.a1_triangular.vector,
-                                      basis2=Lattice.a2_triangular.vector)
-        
     def cartesian_to_reciprocal(self, vector: mp.Vector3):
         return mp.cartesian_to_reciprocal(vector, self._mp_lattice)
     
-
-    def get_centers(self):
-        if self.is_square():
-            return Lattice.center_square
+    def reciprocal_to_cartesian(self, vector: mp.Vector3):
+        return mp.reciprocal_to_cartesian(vector, self._mp_lattice)
+    
+    def lattice_to_cartesian(self, vector: mp.Vector3):
+        return mp.lattice_to_cartesian(vector, self._mp_lattice)
+    
+    def cartesian_to_lattice(self, vector: mp.Vector3):
+        return mp.cartesian_to_lattice(vector, self._mp_lattice)
+    
+    def lattice_to_reciprocal(self, vector: mp.Vector3):
+        return mp.lattice_to_reciprocal(vector, self._mp_lattice)
+    
+    def reciprocal_to_lattice(self, vector: mp.Vector3):
+        return mp.reciprocal_to_lattice(vector, self._mp_lattice)
+    
+  
+    def get_high_symmetry_k_points(self, centered_in_gamma: bool = True)-> dict:
+        path =  self._path_centered_in_gamma if centered_in_gamma else self._path_starting_in_gamma
+        return path.to_dict()
+    
+    def get_k_points_around_gamma(self, distance: float)-> dict:
+        Kx_cartesian = mp.Vector3(distance, 0, 0)
+        Ky_cartesian = mp.Vector3(0, distance, 0)
+        Kx_reciprocal = self.cartesian_to_reciprocal(Kx_cartesian)
+        Ky_reciprocal = self.cartesian_to_reciprocal(Ky_cartesian)
+        Gamma = mp.Vector3(0, 0, 0)
+        k_path = KPath([Kx_reciprocal, Gamma, Ky_reciprocal], ["$k_x$", "$\Gamma", "$k_y$"])
+        return k_path.to_dict()
         
-        if self.is_triangular():
-            return Lattice.center_triangular
-       
-        if self.is_diatomic_square():
-            return Lattice.centers_diatomic_square
-        
-        if self.is_diatomic_triangular():
-            return Lattice.centers_diatomic_triangular
-        if self.is_diatomic_triangular_with_central_atom():
-            return Lattice.centers_diatomic_triangular_with_central_atom
-        
-    def _get_scheme_size(self) -> list:
-        """Convert size values to appropriate scheme representation.
-        
-        Returns:
-            list: A list of size values, where 0 is replaced with 'no-size'.
-        """
-        def get_size_value(val):
-            return val if val != 0 else "no-size"
-        
-        return [get_size_value(self._size[i]) for i in range(3)]
+    def _get_size_value(self,val):
+        return val if val != 0 else "no-size"
+    
+    def _get_scheme_size(self)-> list:
+        return [self._get_size_value(val) for val in self._size]
     
     def to_scheme(self) -> str:
         size = self._get_scheme_size()
@@ -221,59 +73,9 @@ class Lattice:
                f"(basis1  (vector3 {self.basis1[0]} {self.basis1[1]} {self.basis1[2]})) " + \
                f"(basis2  (vector3 {self.basis2[0]} {self.basis2[1]} {self.basis2[2]})) " + \
                 ")"
-    
-    def get_high_symmetry_k_points(self, centered_in_gamma=False):
-        if self._type in [Lattice.SQUARE, Lattice.DIATOMIC_SQUARE]: 
-            return self._get_high_symmetry_k_points_square_lattice(centered_in_gamma)
         
-        if self._type in [Lattice.TRIANGULAR, Lattice.DIATOMIC_TRIANGULAR, Lattice.DIATOMIC_TRIANGULAR_WITH_CENTRAL_ATOM]:
-            return self._get_high_symmetry_k_points_triangular_lattice(centered_in_gamma)
-        else:
-            raise ValueError(f"Invalid lattice type: {self._type}. Must be one of {Lattice.LATTICE_TYPES.keys()}")
-    
 
-    def _get_high_symmetry_k_points_square_lattice(self, centered_in_gamma=False):
-        """Get the high symmetry k points of the square lattice.
-        
-        Returns:
-            dict: A dictionary with the keys "k_points_values" and "k_points_labels".
-        """
-        if not centered_in_gamma:
-            k_path = KPath(Lattice.X_square, Lattice.G_square, Lattice.M_square, Lattice.X_square)     
-        else:
-           k_path = KPath(Lattice.G_square, Lattice.X_square, Lattice.M_square, Lattice.G_square)
-        return k_path.to_dict()
-    
-    def _get_high_symmetry_k_points_triangular_lattice(self, centered_in_gamma=False):
-        """Get the high symmetry k points of the triangular lattice.
-        
-        Returns:
-            dict: A dictionary with the keys "k_points_values" and "k_points_labels".
-        """
-        if not centered_in_gamma:
-            k_path = KPath(Lattice.G_triangular, Lattice.K_triangular, Lattice.M_triangular, Lattice.G_triangular)
-        else:
-            k_path = KPath(Lattice.G_triangular, Lattice.M_triangular, Lattice.K_triangular, Lattice.G_triangular)
-        return k_path.to_dict()        
-
-    def get_k_points_around_Gamma(self, distance: float):  
-        """Get the k points around the Gamma point of the lattice.    
-        Args:
-            distance (float): The distance from the Gamma point.
-        Returns:
-            dict: A dictionary with the keys "k_points_values" and "k_points_labels".
-        """
-        K_X_cartesian = mp.Vector3(distance, 0, 0)   
-        K_Y_cartesian = mp.Vector3(0, distance, 0)
-        K_X_reciprocal = mp.cartesian_to_reciprocal(K_X_cartesian, self._mp_lattice)
-        K_Y_reciprocal = mp.cartesian_to_reciprocal(K_Y_cartesian, self._mp_lattice)
-
-        KY = ReciprocalLatticeVector(K_Y_reciprocal, "$K_Y$")
-        KX = ReciprocalLatticeVector(K_X_reciprocal, "$K_X$")
-        k_path = KPath(KY, Lattice.G, KX)
-        return k_path.to_dict()
-
-    @property 
+    @property
     def basis1(self):
         return self._mp_lattice.basis1
     
@@ -282,9 +84,97 @@ class Lattice:
         return self._mp_lattice.basis2
     
     @property
-    def basis3(self):
+    def size(self):
         return self._mp_lattice.basis3
+    
+
+class SquareLattice(BravaisLattice):
+    def __init__(self, supercell_height: Optional[float] = None):
+        super().__init__(supercell_height)
+        self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
+        self._X = mp.Vector3(0.5, 0, 0)
+        self._M = mp.Vector3(0.5, 0.5, 0)
+        self._path_starting_in_gamma = KPath([self._G, self._X, self._M, self._G], 
+                                                     ["$\Gamma$", "X", "M", "$\Gamma$"])
         
+        self._path_centered_in_gamma = KPath([self._X, self._G, self._M, self._X],  
+                                                             ["X", "$\Gamma$", "M", "X"])
+        self._mp_lattice = self._make_lattice() 
+                
+
+
+    def _make_lattice(self) -> mp.Lattice:
+        return mp.Lattice(size=self._size,
+                            basis1=mp.Vector3(1, 0, 0), 
+                            basis2=mp.Vector3(0, 1, 0))
+    
+    
+    
+class HexagonalLattice(BravaisLattice):
+    def __init__(self, supercell_height: Optional[float] = None):
+        super().__init__(supercell_height)
+        self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
+        self._M = mp.Vector3(0, 0.5, 0)
+        self._K = mp.Vector3(-1/3, 1/3, 0)
+
+        self._path_starting_in_gamma = KPath([self._G, self._K, self._M, self._G], ["$\Gamma$", "K", "M", "$\Gamma$"])
+        self._path_centered_in_gamma = KPath([self._K, self._G, self._M, self._K], ["K", "$\Gamma$", "M", "K"])
+        self._mp_lattice = self._make_lattice() 
+
+    def _make_lattice(self) -> mp.Lattice:
+        return mp.Lattice(size=self._size,
+                            basis1=mp.Vector3(1, 0, 0), 
+                            basis2=mp.Vector3(0.5, np.sqrt(3)/2, 0))   
+
+    
+        
+
+
+class ObliqueLattice(BravaisLattice):
+    def __init__(self, a1: tuple, a2: tuple, supercell_height: Optional[float] = None):
+        super().__init__(supercell_height)
+        self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
+        self._M = mp.Vector3(0.5, 0.5, 0)
+        self._K = mp.Vector3(0.5, 0, 0)
+        self._path_starting_in_gamma = KPath([self._G, self._K, self._M, self._G], ["$\Gamma$", "K", "M", "$\Gamma$"])
+        self._path_centered_in_gamma = KPath([self._K, self._G, self._M, self._K], ["K", "$\Gamma$", "M", "K"])
+        
+        self._a1 = a1 if type(a1) == tuple else  ValueError("a1 must be a tuple")
+        self._a2 = a2 if type(a2) == tuple else  ValueError("a2 must be a tuple")
+        
+        self._mp_lattice = self._make_lattice() 
+
+    def _make_lattice(self) -> mp.Lattice:
+        return mp.Lattice(size=self._size,
+                            basis1=mp.Vector3(self._a1[0], self._a1[0], self._a1[0]), 
+                            basis2=mp.Vector3(self._a2[0], self._a2[0], self._a2[0]))
+    
+
+class RectangularLattice(BravaisLattice):
+    def __init__(self, a1: int, a2: int, supercell_height: Optional[float] = None):
+        super().__init__(supercell_height)
+        self._size = (1, 1, 0) if supercell_height is None else (1, 1, supercell_height)
+        self._X = mp.Vector3(0.5, 0, 0)
+        self._Y = mp.Vector3(0, 0.5, 0)
+        self._M = mp.Vector3(0.5, 0.5, 0)
+        self._path_starting_in_gamma = KPath([self._G, self._X, self._M, self._Y, self._G], 
+                                                     ["$\Gamma$", "X", "M", "Y", "$\Gamma$"])
+        self._path_centered_in_gamma = KPath([self._X, self._G, self._M, self._Y, self._X],  
+                                                             ["X", "$\Gamma$", "M", "Y", "X"])
+        
+        self._a1 = a1
+        self._a2 = a2
+        
+        self._mp_lattice = self._make_lattice()
+
+    def _make_lattice(self) -> mp.Lattice:
+        return mp.Lattice(size=self._size,
+                            basis1=mp.Vector3(self._a1, 0, 0), 
+                            basis2=mp.Vector3(0, self._a2, 0))
+    
+
+
+
 
 class ScriptParam:
     def __init__(self, name, default_value): 
@@ -487,18 +377,126 @@ class Material:
     def epsilon(self):
         return self._epsilon
     
+ 
+
+class BaseDielectricDistribution:
+    def __init__(self, eps_bulk = 3.1**2, eps_atoms = 1, eps_background = 1, 
+                 radius1 = 0.1, radius2 = 0.2, 
+                 height_slab = 1e20):
+        self._material_background = Material(epsilon=eps_background)
+        self._material_atoms = Material(epsilon=eps_atoms)
+        self._material_bulk = Material(epsilon=eps_bulk)
+        self._radius1 = ScriptParam(name="r1", default_value=radius1)
+        self._radius2 = ScriptParam(name="r2", default_value=radius2)
+        self._height = ScriptParam(name="h", default_value=height_slab)
+        self._bulk_size = ScriptParamVector3(1, 1, "h", 1, 1, height_slab)
+        self._bulk = Geometry(mp.Block, {"size": ScriptParamVector3(1, 1, "h", 1, 1, height_slab), 
+                                         "center": mp.Vector3(), "material": self._material_bulk})
+        
+
+    def make_C6v_monoatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height, 
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1]
+    
+    def make_C6v_diatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(1/3, 1/3, 0), 
+                                        "material": self._material_atoms})
+        hole_3 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(2/3, 2/3, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2, hole_3]
+    
+
+    def make_C3v_monoatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height, 
+                                        "center": mp.Vector3(1/3, 1/3, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2]
+    
+    def make_C3v_diatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(1/3, 1/3, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2]
+    
+
+    def make_C4v_monoatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        
+        return [self._bulk, hole_1]
+    
+    def make_C4v_diatomic(self):
+        return self.make_C4v_diatomic_A()
+    
+    def make_C4v_diatomic_A(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(0, 1/2, 0), 
+                                        "material": self._material_atoms})
+        hole_3 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(1/2, 0, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2, hole_3]
+    
+    def make_C4v_diatomic_B(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(1/2, 1/2, 0), 
+                                        "material": self._material_atoms})
+        
+        return [self._bulk, hole_1, hole_2]
+    
+    def make_C2v_monoatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(1/2,0, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2]
+    
+    def make_C2v_diatomic(self):
+        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
+                                        "center": mp.Vector3(0, 0, 0), 
+                                        "material": self._material_atoms})
+        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
+                                        "center": mp.Vector3(1/3, 1/3, 0), 
+                                        "material": self._material_atoms})
+        return [self._bulk, hole_1, hole_2]
+    
 
 class PhotonicCrystal:
     """
     This class is a wrapper for  some of mpb objects. It can be used to create photonics crystal objects and convert them to Scheme strings.
     """
-    def __init__(self, atoms: list, lattice: Lattice, background_material: Material = Material(epsilon=1)):
+    def __init__(self, atoms: list, lattice: BravaisLattice, background_material: Material = Material(epsilon=1)):
         """Create a photonic crystal object.
 
         Args:
             background_material (Material): The background material of the photonic crystal.
             atoms (list): A list of Geometry objects that represent the atoms in the photonic crystal.
-            lattice (Lattice): The lattice of the photonic crystal.
+            lattice (BravaisLattice): The lattice of the photonic crystal.
         """
         
         if all(isinstance(atom, Geometry) for atom in atoms):
@@ -508,10 +506,10 @@ class PhotonicCrystal:
         else:
             raise ValueError("All atoms must be of type Geometry")
         
-        if isinstance(lattice, Lattice):
+        if isinstance(lattice, BravaisLattice):
             self._lattice = lattice
         else:
-            raise ValueError("Lattice must be of type Lattice") 
+            raise ValueError("Lattice must be of type BravaisLattice") 
         
         if isinstance(background_material, Material):
             self._background_material = background_material
@@ -560,11 +558,6 @@ class PhotonicCrystal:
 #example usage of the classes
 if __name__ == "__main__":
 
-    atom_geometry = Geometry(mp.Cylinder, {"radius": 0.2, "height": ScriptParam(name="h", default_value=0.3), "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
-    atom_geometry2 = Geometry(mp.Block , {"size": ScriptParamVector3(2, 1, "sz", 1, 1, 0.5), "center": mp.Vector3(0.5, 0.5, 0.5), "material": Material(epsilon=12)})
-    lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
-    material = Material(epsilon=12)
-    photonic_crystal = PhotonicCrystal([atom_geometry, atom_geometry2], lattice)
-    print(photonic_crystal.to_scheme())
+    pass
 
 

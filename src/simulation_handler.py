@@ -285,13 +285,14 @@ class Simulation:
         
     # Run the simulation in a standard HPC environment.
     def run_hpc(self, mpb_command_line_params: dict = {},
-                load_epsilon: bool = True, extract_frequencies: bool = True) -> None:
+                load_epsilon: bool = True, extract_frequencies: bool = True, mpi = True) -> None:
         
         self._make_sure_scheme_script_exists()
         params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
+        mpb = "mpb-mpi" if mpi  is True else "mpb"
         cmd = (
             f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
-            f"mpb-mpi {params} {self.scheme_filename}"
+            f"{mpb} {params} {self.scheme_filename}"
         )
         self.logger.debug("Running HPC command: %s", cmd)
         self._execute_command(cmd, shell=True)
@@ -337,6 +338,10 @@ class Simulation:
             self.logger.warning("Output files not found or empty after waiting.")
         else:
             self.logger.debug("Output files are now available.")
+
+
+
+
 
     # Run the simulation in an HPC LSF environment.
     def run_hpc_lsf(self, LSFOptions: LSFJobConfiguration = LSFJobConfiguration(), 

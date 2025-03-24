@@ -57,7 +57,6 @@ class ParamSweeper():
             print(f"step {i+1}/{total_steps}: {self.param_name} = {param_value}")
             command_line_params = {self.param_name: param_value}
             row = self._process_step(param_value, command_line_params)
-            
             # Append the row to the internal DataFrame property and persist it
             self.data = pd.concat([self.data, pd.DataFrame([row])], ignore_index=True)
             self._save_df(self.data)

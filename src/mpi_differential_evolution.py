@@ -52,7 +52,6 @@ class CustomMapWrapper:
         return 0
 
 class MPIdeOptimizator:
-
     DEFAULT_MINICONDA_SOURCE = "/zhome/2f/7/202918/miniconda3/etc/profile.d/conda.sh"
     DEFAULT_CONDA_ENV_NAME = "nzi-mp"
 
@@ -65,7 +64,8 @@ class MPIdeOptimizator:
                  de_options: dict = {"strategy": "rand1bin", "popsize": 15}, 
                  param_bounds: list = None, 
                  bands: list = [2,3,4], 
-                 height_slab: float = None):
+                 height_slab: float = None, 
+                 directory: str = None):
         """
         Parameters:
           simulation_name : str
@@ -86,16 +86,21 @@ class MPIdeOptimizator:
               List of bounds for each parameter, in the form of tuples, e.g. [(lb, ub), ...].
         """
         self.simulation = Simulation(simulation_name=simulation_name,
-                                     script=scheme_script)
+                                     script=scheme_script,
+                                     directory=directory)
         self.param_names = param_names
         self.param_bounds = param_bounds
         self.polarization = polarization
         self.maxiter = maxiter
         self.de_options = de_options if de_options is not None else {}
         self.scheme_script = scheme_script
-        self.data_file = os.path.join(simulation_name, f"{simulation_name}.de.data")
+        self.data_file = os.path.join(self.simulation.directory, f"{simulation_name}.de.data")
         self.bands = bands
         self.height_slab = height_slab
+
+    def erease_data_file(self):
+        with open(self.data_file, "w") as f:
+            f.write("")
 
     @use_nested_temp_directory
     def temp_folder_operations(self, mpb_command_line_params):
@@ -200,8 +205,8 @@ class MPIdeOptimizator:
         python_script_name = os.path.abspath(__file__)
         lsf_commands = lsf_config.prepare_lsf_preamble(self.simulation.simulation_name)
         
-        output_filepath = os.path.join(self.simulation.simulation_name, f"{self.simulation.simulation_name}.out")
-        error_filepath = os.path.join(self.simulation.simulation_name, f"{self.simulation.simulation_name}.err")
+        output_filepath = os.path.join(self.simulation.directory, f"{self.simulation.simulation_name}.out")
+        error_filepath = os.path.join(self.simulation.directory, f"{self.simulation.simulation_name}.err")
         
         lsf_commands.extend([
             f"#BSUB -oo {output_filepath}",
@@ -213,7 +218,7 @@ class MPIdeOptimizator:
 
         lsf_commands.append(self._prepare_main_command(lsf_config.num_processors, python_script_name))
         lsf_script = self._merge_lsf_commands(lsf_commands)
-        job_script_path = self._write_lsf_script(lsf_script, self.simulation.simulation_name)
+        job_script_path = self._write_lsf_script(lsf_script, self.simulation.directory, self.simulation.simulation_name)
         submission_output = self._submit_job(job_script_path)
         return submission_output
         
@@ -227,12 +232,14 @@ class MPIdeOptimizator:
             "--run_opt",
             f"--param_names=\"{','.join(self.param_names)}\"",
             f"--simulation_name=\"{self.simulation.simulation_name}\"",
+            f"--directory=\"{self.simulation.directory}\"",
             f"--maxiter={self.maxiter}",
             f"--polarization=\"{self.polarization}\"",
             f"--param_bounds " + " ".join([f"{lb},{ub}" for (lb, ub) in self.param_bounds]),
             f"--popsize={self.de_options.get('popsize', 15)}",
             f"--strategy=\"{self.de_options.get('strategy', 'rand1bin')}\"",
             f"--bands {' '.join(map(str, self.bands))}",
+
         ]
         if self.height_slab is not None:
             cmd_args.append(f"--height_slab={self.height_slab}")
@@ -241,8 +248,8 @@ class MPIdeOptimizator:
     def _merge_lsf_commands(self, lsf_commands) -> str:
         return "\n".join(lsf_commands) + "\n"
     
-    def _write_lsf_script(self, lsf_script: str, simulation_name: str) -> str:
-        job_script_path = os.path.join(simulation_name, f"{simulation_name}.sh")
+    def _write_lsf_script(self, lsf_script: str, directory: str, simulation_name: str) -> str:
+        job_script_path = os.path.join(f"{directory}", f"{simulation_name}.sh")
         with open(job_script_path, 'w') as script_file:
             script_file.write(lsf_script)
         with print_lock:
@@ -282,9 +289,10 @@ if __name__ == '__main__':
     parser.add_argument("--param_bounds", type=str, nargs='+', help="Parameter bounds (e.g., 0.1,0.9 0.1,0.9)", required=True)
     parser.add_argument("--bands", type=int, nargs='+', help="Bands to optimize (e.g., 1 2 3)")
     parser.add_argument("--height_slab", type=float, required=False, help="Height of the slab")
+    parser.add_argument("--directory", type=str, help="Directory to run the simulation in")
     args = parser.parse_args()
     
-    scheme_script_path = os.path.join(args.simulation_name, args.simulation_name + ".ctl")
+    scheme_script_path = os.path.join(args.directory, args.simulation_name + ".ctl")
     with open(scheme_script_path, "r") as f:
         scheme_script = f.read()
 
@@ -301,6 +309,7 @@ if __name__ == '__main__':
         polarization = args.polarization
         bands = args.bands
         height_slab = args.height_slab if hasattr(args, 'height_slab') and args.height_slab is not None else None
+        directory = args.directory if hasattr(args, 'directory') and args.directory is not None else None
         
         param_bounds = []
         for b in args.param_bounds:
@@ -322,7 +331,8 @@ if __name__ == '__main__':
                                      param_bounds=param_bounds, 
                                      de_options=de_options,
                                      bands=bands,
-                                     height_slab=height_slab)
+                                     height_slab=height_slab, 
+                                     directory=directory)    
 
         result = optimizer.optimize_parameters()
         if result is not None:
