@@ -20,7 +20,8 @@ def use_nested_temp_directory(func):
     return wrapper
 
 class ParamSweeper():
-    def __init__(self, simulation: Simulation, param_name: str, values: list, polarization: str, bands: list):
+    def __init__(self, simulation: Simulation, param_name: str, values: list, 
+                 polarization: str, bands: list, other_command_line_params: dict = {}):
         self.param_name = param_name
         self.values = values
         self.simulation = simulation
@@ -28,7 +29,7 @@ class ParamSweeper():
         self.polarization = polarization
         self.bands = bands
         self.data = pd.DataFrame()  
-
+        self.other_command_line_params = other_command_line_params
 
     
     @use_nested_temp_directory
@@ -56,6 +57,7 @@ class ParamSweeper():
         for i, param_value in enumerate(self.values):
             print(f"step {i+1}/{total_steps}: {self.param_name} = {param_value}")
             command_line_params = {self.param_name: param_value}
+            command_line_params.update(self.other_command_line_params)
             row = self._process_step(param_value, command_line_params)
             # Append the row to the internal DataFrame property and persist it
             self.data = pd.concat([self.data, pd.DataFrame([row])], ignore_index=True)

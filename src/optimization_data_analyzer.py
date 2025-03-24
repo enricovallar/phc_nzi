@@ -166,40 +166,6 @@ class OptimizationDataAnalyzer:
             plt.title(title)
             plt.tight_layout()
 
-    def weighted_linear_regression(self):
-        """
-        Perform weighted linear regression using param1_vals as x and param2_vals as y.
-        The weights are computed from cost_vals.
-        
-        Returns:
-            tuple: (m, b) where m is the slope and b is the intercept.
-        """
-        self.load_data()
-        valid = ~np.isnan(self.cost_vals)
-        x = self.param1_vals[valid]
-        y = self.param2_vals[valid]
-
-        if self.use_inverse_cost:
-            # Avoid dividing by zero
-            nonzero = self.cost_vals[valid] != 0
-            x = x[nonzero]
-            y = y[nonzero]
-            weights = 1.0 / self.cost_vals[valid][nonzero]
-        else:
-            weights = self.cost_vals[valid]
-
-        m, b = np.polyfit(x, y, 1, w=weights)
-        self.fit_params = (m, b)
-        return m, b
-
-    def predict_second_parameter(self, first_param_value):
-        """
-        Given a value for the first parameter, predict the second parameter using the fitted model.
-        """
-        if not hasattr(self, "fit_params"):
-            self.weighted_linear_regression()
-        m, b = self.fit_params
-        return m * first_param_value + b
 
     def plot_raw_data(self, use_logscale=False, levels=100, points_only=False,
                       plot_inverse_cost=False, custom_title=None):
@@ -266,101 +232,6 @@ class OptimizationDataAnalyzer:
             points_only
         )
 
-    def plot_fitted_line(self):
-        """
-        Plot the fitted weighted linear regression line on the current plot.
-        """
-        self.weighted_linear_regression()
-        m, b = self.fit_params
-        x_vals = np.array([np.min(self.param1_vals), np.max(self.param1_vals)])
-        y_vals = m * x_vals + b
-        plt.plot(x_vals, y_vals, 'r--', label="y = {:.3f}x + {:.3f}".format(m, b))
-        plt.legend()
-
-    # --------------------------------------------------------------------
-    # NEW: TWO METHODS to handle computing vs. plotting freq_dirac
-    #      along the fitted line param2 = m * param1 + b.
-    # --------------------------------------------------------------------
-    def compute_freq_dirac_along_fit(self, n_points=200, interp_method='linear'):
-        """
-        Compute freq_dirac along the line param2 = m * param1 + b by:
-          1. Doing a weighted linear regression (to get m, b).
-          2. Interpolating freq_dirac in 2D using griddata.
-          3. Evaluating along r1_line and r2_line = m*r1_line + b.
-
-        Parameters
-        ----------
-        n_points : int
-            Number of points in param1 at which to sample freq_dirac along the line.
-        interp_method : {'linear', 'nearest', 'cubic'}
-            The interpolation method used by scipy.interpolate.griddata.
-
-        Returns
-        -------
-        r1_line : np.ndarray
-            The param1 values used for sampling.
-        freq_line : np.ndarray
-            Interpolated freq_dirac values corresponding to r1_line.
-        m, b : float
-            Slope and intercept from the weighted linear regression.
-        """
-        self.load_data()
-        # 1) Weighted linear regression => param2 = m * param1 + b
-        self.weighted_linear_regression()
-        m, b = self.fit_params
-
-        # 2) Filter out any NaNs in freq_dirac.
-        valid = ~np.isnan(self.freq_dirac_vals)
-        r1 = self.param1_vals[valid]
-        r2 = self.param2_vals[valid]
-        freq = self.freq_dirac_vals[valid]
-
-        if len(r1) < 3:
-            raise ValueError("Not enough valid data points to interpolate freq_dirac.")
-
-        # 3) param1 range for sampling
-        r1_line = np.linspace(r1.min(), r1.max(), n_points)
-        r2_line = m * r1_line + b
-
-        # 4) Interpolate freq_dirac in 2D with griddata
-        points = np.column_stack((r1, r2))  # shape (N, 2)
-        freq_line = griddata(points, freq, (r1_line, r2_line), method=interp_method)
-
-        return r1_line, freq_line, m, b
-
-    def plot_freq_dirac_vs_param1_along_fit(self, n_points=200, interp_method='linear',
-                                            custom_title=None):
-        """
-        Plot freq_dirac vs. param1 by:
-          1. Calling compute_freq_dirac_along_fit(...) to get the line data.
-          2. Plotting freq_line vs. r1_line.
-
-        Parameters
-        ----------
-        n_points : int
-            Number of points in param1 at which to sample freq_dirac along the line.
-        interp_method : {'linear', 'nearest', 'cubic'}
-            The interpolation method used by scipy.interpolate.griddata.
-        custom_title : str, optional
-            If given, used as the plot title.
-        """
-        # 1) Compute the freq_dirac data along the fitted line
-        r1_line, freq_line, m, b = self.compute_freq_dirac_along_fit(
-            n_points=n_points,
-            interp_method=interp_method
-        )
-
-        # 2) Plot freq_line vs. r1_line
-        plt.figure(figsize=(7, 5))
-        plt.plot(r1_line, freq_line, 'b-', label=f"{interp_method} interpolation")
-        plt.xlabel(self.param1_name)
-        plt.ylabel("freq_dirac")
-        fitted_line_str = f"{self.param2_name} = {m:.3f} * {self.param1_name} + {b:.3f}"
-        default_title = f"freq_dirac along fitted line: {fitted_line_str}"
-        plt.title(custom_title if custom_title else default_title)
-        plt.legend()
-        plt.tight_layout()    
-        plt.grid(True)
 
 
     def get_points_above_treshold(self, threshold):
@@ -644,67 +515,138 @@ class OptimizationDataAnalyzer:
 
 
 
-    def calculate_param2_from_param1_on_ellipse(self, param1_value, conic_params=None, branch='upper'):
+    def compute_param2_from_param1_on_ellipse(self, param1_value, conic_params=None, branch='upper', threshold=1000):
         """
-        Given a value for param1, calculate the corresponding param2 on the fitted ellipse.
+        Compute the corresponding param2 value on the fitted ellipse for a given param1_value.
         
         The ellipse is defined by the conic equation:
-            A*param1^2 + B*param1*param2 + C*param2^2 + D*param1 + E*param2 + F = 0
-        which is quadratic in param2. If two solutions exist, the `branch` parameter selects the one:
-            - 'upper': returns the larger param2 value,
-            - 'lower': returns the smaller param2 value.
+            A*param1^2 + B*param1*param2 + C*param2^2 + D*param1 + E*param2 + F = 0.
+        If conic_params is None, the ellipse is fitted using the data points for which 1/cost > threshold.
         
         Parameters:
             param1_value : float
-                The param1 value for which to compute param2.
+                The value of param1 for which to compute param2 on the ellipse.
             conic_params : array-like of shape (6,), optional
-                The ellipse conic coefficients (A, B, C, D, E, F). If None, the ellipse will be
-                fitted using the current (param1_vals, param2_vals) dataset.
+                The conic coefficients (A, B, C, D, E, F) defining the ellipse.
             branch : str, optional
-                Which branch of the quadratic solution to return ('upper' or 'lower'). Defaults to 'upper'.
-                
+                Which branch of the quadratic solution to return ('upper' for larger param2, 'lower' for smaller).
+            threshold : float, optional
+                Threshold for 1/cost to filter data points when computing the ellipse.
+        
         Returns:
             param2_value : float
-                The computed param2 value corresponding to the given param1 along the ellipse.
-                
+                The computed param2 value corresponding to the given param1_value on the ellipse.
+        
         Raises:
-            ValueError: If no real solution exists or if the equation degenerates.
+            ValueError: If there are not enough valid data points to fit an ellipse,
+                        or if no real solution exists for the given param1_value.
         """
-        # If conic_params not provided, compute them from the dataset.
+        # If conic_params is not provided, compute them using points above the threshold.
         if conic_params is None:
-            self.load_data()
-            # Use all available data; you might filter further if needed.
-            valid = ~np.isnan(self.param1_vals) & ~np.isnan(self.param2_vals)
-            param1_all = self.param1_vals[valid]
-            param2_all = self.param2_vals[valid]
-            if len(param1_all) < 5:
-                raise ValueError("Not enough valid data points to fit an ellipse.")
-            conic_params = self.fit_ellipse(param1_all, param2_all)
-            
+            df = self.get_points_above_treshold(threshold)
+            param1_data = df[self.param1_name].values
+            param2_data = df[self.param2_name].values
+            weights = 1.0 / df['cost'].values
+            if len(param1_data) < 5:
+                raise ValueError("Not enough valid data points to fit an ellipse using the threshold.")
+            conic_params = self.fit_ellipse(param1_data, param2_data, w=weights)
+        
         A, B, C, D, E, F = conic_params
-
-        # The ellipse conic is: A*x^2 + B*x*y + C*y^2 + D*x + E*y + F = 0,
-        # where x is param1 and y is param2.
-        # For a given param1_value, the quadratic in y becomes:
-        #   C*y^2 + (B*param1_value + E)*y + (A*param1_value**2 + D*param1_value + F) = 0.
+        
+        # For the given param1_value, the ellipse conic becomes a quadratic in param2:
+        #   C*param2^2 + (B*param1_value + E)*param2 + (A*param1_value**2 + D*param1_value + F) = 0.
         a_coef = C
         b_coef = B * param1_value + E
         c_coef = A * param1_value**2 + D * param1_value + F
-
-        # Check if the equation is truly quadratic.
-        if np.abs(a_coef) > 1e-12:
+        
+        tol = 1e-12
+        # Solve the quadratic equation
+        if np.abs(a_coef) > tol:
             discriminant = b_coef**2 - 4 * a_coef * c_coef
             if discriminant < 0:
-                raise ValueError("No real solution exists for the given param1 value along the ellipse.")
+                raise ValueError("No real solution exists for the given param1_value on the ellipse.")
             sqrt_disc = np.sqrt(discriminant)
             sol1 = (-b_coef + sqrt_disc) / (2 * a_coef)
             sol2 = (-b_coef - sqrt_disc) / (2 * a_coef)
-            # Choose the branch based on the requested option.
+            # Choose the branch as specified: 'upper' returns the larger solution.
             param2_value = max(sol1, sol2) if branch == 'upper' else min(sol1, sol2)
         else:
-            # Degenerate to a linear equation: b_coef * y + c_coef = 0.
-            if np.abs(b_coef) < 1e-12:
+            # Degenerate to a linear equation: b_coef * param2 + c_coef = 0.
+            if np.abs(b_coef) < tol:
                 raise ValueError("Degenerate equation; cannot solve for param2.")
             param2_value = -c_coef / b_coef
-
+        
         return param2_value
+
+
+    def compute_gradient_along_ellipse(self, n_points=200, interp_method='linear', threshold=1000):
+        """
+        Compute the gradient of freq_dirac along the fitted ellipse by calculating the derivative 
+        with respect to the arc length of the ellipse.
+
+        Parameters:
+            n_points : int
+                Number of points to sample along the ellipse.
+            interp_method : str, one of {'linear', 'nearest', 'cubic'}
+                Interpolation method for griddata.
+            threshold : float
+                Threshold for 1/cost to filter out points.
+
+        Returns:
+            ellipse_param1 : np.ndarray
+                Array of param1 coordinates along the ellipse.
+            ellipse_param2 : np.ndarray
+                Array of param2 coordinates along the ellipse.
+            gradient : np.ndarray
+                The gradient of freq_dirac along the ellipse (d(freq_dirac)/ds), computed as the derivative 
+                of freq_dirac with respect to the arc length.
+            conic_params : np.ndarray
+                The fitted ellipse conic coefficients (A, B, C, D, E, F).
+        """
+        # Get ellipse points and freq_dirac values along the ellipse.
+        ellipse_param1, ellipse_param2, freq_ellipse, conic_params = self.compute_freq_dirac_along_ellipse(
+            n_points=n_points, interp_method=interp_method, threshold=threshold
+        )
+        # Compute finite differences of the ellipse coordinates (i.e. dx/dt and dy/dt).
+        d_param1 = np.gradient(ellipse_param1)
+        d_param2 = np.gradient(ellipse_param2)
+        # Compute the differential arc length along the curve.
+        ds = np.sqrt(d_param1**2 + d_param2**2)
+        # Compute the derivative of freq_dirac with respect to the parameter.
+        d_freq = np.gradient(freq_ellipse)
+        # Calculate the gradient (change in frequency per unit arc length).
+        gradient = d_freq / ds
+        return ellipse_param1, ellipse_param2, gradient, conic_params
+
+    def plot_gradient_along_ellipse(self, n_points=200, interp_method='linear', custom_title=None, threshold=1000, abs = False,  cmap="inferno_r",plt_kwds=None):
+        """
+        Plot the gradient of freq_dirac along the fitted ellipse in the (param1, param2) space.
+
+        Parameters:
+            n_points : int
+                Number of points to sample along the ellipse.
+            interp_method : str, one of {'linear', 'nearest', 'cubic'}
+                Interpolation method for griddata.
+            custom_title : str, optional
+                Custom title for the plot.
+            threshold : float
+                Threshold for 1/cost to filter out points.
+            plt_kwds : dict, optional
+                Additional keyword arguments to pass to the scatter plot.
+
+        This method computes the gradient using compute_gradient_along_ellipse and then produces a scatter 
+        plot of the ellipse points colored by the computed gradient.
+        """
+        ellipse_param1, ellipse_param2, gradient, _ = self.compute_gradient_along_ellipse(
+            n_points=n_points, interp_method=interp_method, threshold=threshold
+        )
+        if plt_kwds is None:
+            plt_kwds = {}
+        scatter = plt.scatter(ellipse_param1, ellipse_param2, c=gradient if not abs else np.abs(gradient),
+                              cmap=cmap, marker='o', s=10, **plt_kwds)
+        plt.colorbar(scatter, label="Gradient of freq_dirac (d(freq_dirac)/ds)")
+        plt.xlabel(self.param1_name)
+        plt.ylabel(self.param2_name)
+        title = custom_title if custom_title is not None else "Gradient of freq_dirac along fitted ellipse"
+        plt.title(title)
+        plt.tight_layout()
