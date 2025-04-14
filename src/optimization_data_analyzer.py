@@ -644,9 +644,10 @@ class OptimizationDataAnalyzer:
             plt_kwds = {}
         scatter = plt.scatter(ellipse_param1, ellipse_param2, c=gradient if not abs else np.abs(gradient),
                               cmap=cmap, marker='o', s=10, **plt_kwds)
-        plt.colorbar(scatter, label="Gradient of freq_dirac (d(freq_dirac)/ds)")
+        c = plt.colorbar(scatter, label="Gradient of freq_dirac (d(freq_dirac)/ds)")
         plt.xlabel(self.param1_name)
         plt.ylabel(self.param2_name)
         title = custom_title if custom_title is not None else "Gradient of freq_dirac along fitted ellipse"
         plt.title(title)
         plt.tight_layout()
+        return c
