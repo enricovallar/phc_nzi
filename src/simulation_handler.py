@@ -389,7 +389,7 @@ class Simulation:
 
     # Extract frequency data from the simulation output.
     def extract_frequencies(self, remove_line_prefixes: bool = True) -> None:
-        prefixes = ["tmfreqs:", "tefreqs:", "zevenfreqs:", "zoddfreqs:", "gaps:"]
+        prefixes = ["tmfreqs:", "tefreqs:", "zevenfreqs:", "zoddfreqs:", "gaps:", "freqs:"]
         output_path = os.path.join(self.directory, self.output_filename)
         if not os.path.exists(output_path):
             raise FileNotFoundError(f"Output file {output_path} does not exist.")
@@ -414,7 +414,8 @@ class Simulation:
             "te": [],
             "zeven": [],
             "zodd": [],
-            "gaps": []
+            "gaps": [],
+            "": [],
         }
         for line in lines:
             for mode in modes.keys():
@@ -463,7 +464,8 @@ class Simulation:
                         nonbloch: bool = False) -> str:
         field_label = f"{field_type}.v" if nonbloch is True else field_type
         comp_str = f".{file_comp}" if file_comp is not None else ""
-        filename = f"{self.simulation_name}-{field_label}.k{k_idx:02d}.b{b_idx:02d}{comp_str}.{polarization}.h5"
+        polarization_str = f".{polarization}" if polarization is not "" else ""
+        filename = f"{self.simulation_name}-{field_label}.k{k_idx:02d}.b{b_idx:02d}{comp_str}{polarization_str}.h5"
         
         filepath = os.path.join(self.directory, filename)
         if not os.path.exists(filepath):
@@ -561,6 +563,7 @@ class Simulation:
     
     def _get_band_frequency(self, df: pd.DataFrame, k_point_index: int, polarization: str, b_idx: int) -> float:
         col_name = f"{polarization} band {b_idx}"
+        col_name = col_name.strip()
         if col_name not in df.columns:
             self.logger.warning("Band %s not found in the DataFrame.", b_idx)
             return np.nan
@@ -621,7 +624,7 @@ class Simulation:
     
     def _get_freq_from_df_row(self, row, b_idx, polarization):
         col_name = f"{polarization} band {b_idx}"
-        return row[col_name].values[0]
+        return row[col_name.strip()].values[0]
     
 
     def get_kmag(self, df, k_idx):

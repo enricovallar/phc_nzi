@@ -115,7 +115,7 @@ class SimulationViewer:
         self._apply_title(ax, main_title=title, subtitle=subtitle)
         
 
-    @default_fontsize
+ 
     def plot_epsilon_2d(self,
                         title: Optional[str] = "Dielectric Distribution",
                         subtitle: Optional[str] = None,
@@ -138,7 +138,7 @@ class SimulationViewer:
         
    
         
-    @default_fontsize
+
     def plot_epsilon_3d(self,
                         title: Optional[str] = "Dielectric Distribution",
                         subtitle: Optional[str] = None,
@@ -205,7 +205,7 @@ class SimulationViewer:
 
 
 
-    @default_fontsize       
+      
     def plot_epsilon_contour_2d(self,
                                 title: Optional[str] = None,
                                 cmap: str = 'cividis',
@@ -238,7 +238,7 @@ class SimulationViewer:
         ax.view_init(elev=elev, azim=azim)
 
 
-    @default_fontsize
+    
     def plot_field_2d(self,
                     k_idx: int,
                     b_idx: int,
@@ -276,7 +276,7 @@ class SimulationViewer:
         return c
     
 
-    @default_fontsize
+    
     def plot_band_diagram(self,
                           polarization: str = "te",
                           title: Optional[str] = "Band Diagram",
@@ -322,7 +322,7 @@ class SimulationViewer:
         plt.legend()
         plt.grid(grid)
     
-    @default_fontsize
+    
     def plot_light_cone(self, df: pd.DataFrame, opts: str |None = None) -> None:
         """
         Plot the light cone for the simulation on the current axes. Does not call plt.show().

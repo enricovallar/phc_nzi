@@ -58,7 +58,7 @@ class BravaisLattice(ABC):
         Kx_reciprocal = self.cartesian_to_reciprocal(Kx_cartesian)
         Ky_reciprocal = self.cartesian_to_reciprocal(Ky_cartesian)
         Gamma = mp.Vector3(0, 0, 0)
-        k_path = KPath([Kx_reciprocal, Gamma, Ky_reciprocal], ["$k_x$", "$\Gamma", "$k_y$"])
+        k_path = KPath([Kx_reciprocal, Gamma, Ky_reciprocal], ["$k_x$", "$\Gamma$", "$k_y$"])
         return k_path.to_dict()
         
     def _get_size_value(self,val):
@@ -364,11 +364,18 @@ class GeometryGroup:
 
 class Material: 
     """ This class is a wrapper for meep material objects. It can be used to create meep material objects and convert them to Scheme strings. """
-    def __init__(self, epsilon: float):
+    def __init__(self, epsilon: float | int| tuple ):
         self._epsilon = epsilon
+        
 
     def to_scheme(self):
-        return f"(make dielectric (epsilon {self._epsilon}))"
+        if isinstance(self._epsilon, float) or isinstance(self._epsilon, int):
+            str = f"(make dielectric (epsilon {self._epsilon}))"
+        elif isinstance(self._epsilon, tuple):
+            str = f"(make dielectric-anisotropic (epsilon-diag (vector3 {self._epsilon[0]} {self._epsilon[1]} {self._epsilon[2]})))"
+        else :
+            raise ValueError(f"Invalid epsilon value: {self._epsilon}, must be float or tuple")
+        return str
     
     def to_python(self):
         return mp.Medium(epsilon=self._epsilon) 
@@ -382,13 +389,18 @@ class Material:
 class BaseDielectricDistribution:
     def __init__(self, eps_bulk = 3.1**2, eps_atoms = 1, eps_background = 1, 
                  radius1 = 0.1, radius2 = 0.2, 
-                 height_slab = 1e20):
+                 height_slab = 1e20,
+                 cz_sphere = 0, 
+              ):
         self._material_background = Material(epsilon=eps_background)
         self._material_atoms = Material(epsilon=eps_atoms)
         self._material_bulk = Material(epsilon=eps_bulk)
         self._radius1 = ScriptParam(name="r1", default_value=radius1)
         self._radius2 = ScriptParam(name="r2", default_value=radius2)
         self._height = ScriptParam(name="h", default_value=height_slab)
+        self._sphere_center_1 = ScriptParamVector3(0, 0, "cz_sphere", 0, 0, cz_sphere)
+        self._sphere_center_2 = ScriptParamVector3(1/2, 0, "cz_sphere", 1/2, 0, cz_sphere)
+        self._sphere_center_3 = ScriptParamVector3(0, 1/2, "cz_sphere", 0, 1/2, cz_sphere)
         self._bulk_size = ScriptParamVector3(1, 1, "h", 1, 1, height_slab)
         self._bulk = Geometry(mp.Block, {"size": ScriptParamVector3(1, 1, "h", 1, 1, height_slab), 
                                          "center": mp.Vector3(), "material": self._material_bulk})
@@ -484,6 +496,81 @@ class BaseDielectricDistribution:
                                         "center": mp.Vector3(1/3, 1/3, 0), 
                                         "material": self._material_atoms})
         return [self._bulk, hole_1, hole_2]
+
+
+    def make_C4v_diatomic_B_square(self):
+        hole_1 = Geometry(mp.Block, {"size": mp.Vector3(self._radius1, self._radius1, self._height),
+                                    "center": mp.Vector3(0, 0, 0), 
+                                    "material": self._material_atoms})
+        
+        hole_2 = Geometry(mp.Block, {
+                                        "size": mp.Vector3(self._radius2, self._radius2, self._height),
+                                        "center": mp.Vector3(1/2, 1/2, 0), 
+                                        "material": self._material_atoms})
+        
+        return [self._bulk, hole_1, hole_2]
+    
+
+    def make_C4v_diatomic_A_square(self):
+        hole_1 = Geometry(mp.Block, {"size": mp.Vector3(self._radius1, self._radius1, self._height),
+                                    "center": mp.Vector3(0, 0, 0), 
+                                    "material": self._material_atoms})
+        hole_2 = Geometry(mp.Block, {"size": mp.Vector3(self._radius2, self._radius2, self._height),
+                                    "center": mp.Vector3(1/2, 0, 0), 
+                                    "material": self._material_atoms})
+        hole_3 = Geometry(mp.Block, {"size": mp.Vector3(self._radius2, self._radius2, self._height),    
+                                    "center": mp.Vector3(0, 1/2, 0), 
+                                    "material": self._material_atoms})
+        
+        return [self._bulk, hole_1, hole_2, hole_3]
+    
+    def make_C4v_diatomic_A_sphere(self):
+        hole_1 = Geometry(mp.Sphere, {"radius": self._radius1, "center": self._sphere_center_1,
+                                      "material": self._material_atoms})
+        hole_2 = Geometry(mp.Sphere, {"radius": self._radius2, "center": self._sphere_center_2, 
+                                      "material": self._material_atoms})
+        hole_3 = Geometry(mp.Sphere, {"radius": self._radius2, "center": self._sphere_center_3, 
+                                      "material": self._material_atoms})
+        
+        return [self._bulk, hole_1, hole_2, hole_3]
+    
+
+    @property
+    def material_background(self):
+        return self._material_background
+    
+    @property
+    def material_atoms(self):
+        return self._material_atoms
+    
+    @property
+    def material_bulk(self):
+        return self._material_bulk
+    
+
+    @material_background.setter
+    def material_background(self, value):
+        if isinstance(value, Material):
+            self._material_background = value
+        else:
+            raise ValueError("Material must be of type Material")
+        
+    @material_atoms.setter
+    def material_atoms(self, value):
+        if isinstance(value, Material):
+            self._material_atoms = value
+        else:
+            raise ValueError("Material must be of type Material")
+    
+    @material_bulk.setter
+    def material_bulk(self, value):
+        if isinstance(value, Material):
+            self._material_bulk = value
+        else:
+            raise ValueError("Material must be of type Material")
+        
+
+
     
 
 class PhotonicCrystal:

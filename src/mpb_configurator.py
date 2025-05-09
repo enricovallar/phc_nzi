@@ -342,12 +342,3 @@ class MPBSchemeConfigurator():
         return commands
     
         
-
-# Example usage
-if __name__ == "__main__":
-    atom = Geometry(mp.Cylinder, {"radius": 0.2, "height": 0.5, "center": mp.Vector3(0, 0, 0), "material": Material(epsilon=12)})
-    lattice = Lattice("SX", (1, 1, Lattice.NO_SIZE))
-
-    phc = PhotonicCrystal([atom], lattice)
-    mpb_config = MPBSchemeConfigurator(phc, simulation_types=["te", "tm"], resolution=32, num_bands=8, k_point_interpolation_factor=4, mesh_size=16, target_freq=0.5, tolerance=1e-6, k_points=[mp.Vector3(0, 0, 0)])
-    mpb_config.print_scheme_config()
