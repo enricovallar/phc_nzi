@@ -192,7 +192,7 @@ class Simulation:
     def __init__(self, simulation_name: str, script: str, 
                  directory: Optional[str] = None, 
                  description: Optional[str] = "Photonic Crystal Simulation", 
-                 log_level: int = logging.INFO) -> None:
+                 log_level: int = logging.INFO, write_script = True) -> None:
         self.simulation_name = simulation_name
         self.directory = directory or simulation_name
         os.makedirs(self.directory, exist_ok=True)
@@ -205,7 +205,8 @@ class Simulation:
         self.lattice = None
         self.bands_df: Dict[str, pd.DataFrame] = {}
          
-        self._write_scheme_script()
+        if write_script is True:
+            self._write_scheme_script()
         self._write_description()
 
         self.logger = logging.getLogger(f"{__name__}.{self.simulation_name}")

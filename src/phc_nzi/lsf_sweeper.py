@@ -3,6 +3,8 @@ import argparse
 import os
 from schwimmbad import MPIPool
 import pandas as pd
+from simulation_handler import Simulation, logging
+import time
 
 
 class LSFSweeper(LSFJob):
@@ -38,8 +40,27 @@ class LSFSweeper(LSFJob):
             with open(self.data_file, "w") as f:
                 pass
 
+            # Create a temporary directory for each worker.
+            tempdirs = []
+            scripts = []
+            names = []
+            for param_value in self.param_values:
+                random_unique_id = os.urandom(4).hex()
+                tempdir = os.path.join(self.directory, f"temp_{random_unique_id}")
+                os.makedirs(tempdir, exist_ok=True)
+                tempdirs.append(tempdir)
+                scripts.append(self.scheme_script)
+                with open(os.path.join(tempdir, f"{random_unique_id}.ctl"), "w") as f:
+                    f.write(self.scheme_script)
+                    time.sleep(0.1)  # Optional: sleep to
+                names.append(random_unique_id)
+                time.sleep(0.1)  # Optional: sleep to avoid
+
+
+            
+
             # Map the work to the pool: each worker returns a row.
-            rows = pool.map(self._process_step, self.param_values)
+            rows = pool.map(self._process_step, zip(self.param_values, tempdirs, names, scripts))
 
             # Now that all workers have finished, the master writes the rows to CSV.
             self._write_rows_to_csv(rows)
@@ -47,12 +68,31 @@ class LSFSweeper(LSFJob):
             with self.print_lock:
                 print("Sweep completed")
 
-    def _process_step(self, param_value):
+    def _process_step(self, task):
         """Execute a single parameter sweep step and return a row (as a dict)."""
         # Create the command-line parameter set for this sweep.
+        param_value, tempdir, name, script = task
         command_line_params = {self.param_name: param_value}
         command_line_params.update(self.others_command_line_params)
-        freqs = self.temp_folder_operations(command_line_params)
+        simulation = Simulation(
+            name, 
+            script, 
+            tempdir,
+            write_script=False,
+            log_level=logging.DEBUG,
+        )
+
+        print(f"Setup simulation in {tempdir} with parameters: {command_line_params}")
+        
+
+        freqs = self.workers_operations(
+            simulation,
+            command_line_params,
+            self.polarization,
+            self.bands
+            
+        )
+
         row = self._prepare_row(command_line_params, freqs)
         return row
 
@@ -81,6 +121,14 @@ class LSFSweeper(LSFJob):
         self.simulation.run_hpc(mpb_command_line_params)
         df = self.simulation.load_frequency_data(self.polarization)
         freqs = self.simulation.get_frequencies_by_band(df, self.polarization, bands=self.bands)
+        return freqs
+    
+    def workers_operations(self, simulation: Simulation, mpb_command_line_params, polarization: str, bands: list):
+        # These methods are assumed to be implemented in the base class or within your simulation.
+        simulation.logger.info(f"Running simulation with parameters: {mpb_command_line_params} in {simulation.directory}")
+        simulation.run_hpc(mpb_command_line_params)
+        df = simulation.load_frequency_data(polarization)
+        freqs = simulation.get_frequencies_by_band(df, polarization, bands=bands)
         return freqs
     
     def _get_script_abs_path(self):
@@ -123,15 +171,23 @@ if __name__ == '__main__':
     with open(scheme_script_path, "r") as f:
         scheme_script = f.read()
 
+    # Create the LSFSweeper instance.
+    sweeper = LSFSweeper(
+        simulation_name=args.simulation_name,
+        scheme_script=scheme_script,
+        directory=args.directory,
+        polarization=args.polarization,
+        bands=bands,
+        param_name=args.param_to_sweep,
+        param_values=sweep_values,
+        others_command_line_params=others_command_line_params
+    )
+
+    # Run the sweep if specified.
     if run_sweep:
-        sweeper = LSFSweeper(
-            args.simulation_name,
-            scheme_script,
-            args.directory,
-            args.polarization,
-            bands,
-            args.param_to_sweep,
-            sweep_values,
-            others_command_line_params
-        )
         sweeper.run()
+    else:
+        print("Sweep not executed. Set --run_sweep to 'true' to run the sweep.")
+
+
+
