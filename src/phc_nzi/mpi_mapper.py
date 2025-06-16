@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from schwimmbad import MPIPool
 from tqdm import tqdm
 import functools
-from src.simulation_handler import LSFJobConfiguration
+from phc_nzi.simulation_handler import LSFJobConfiguration
 
 # Import your pre-implemented Simulation class from simulation_handler.
 from simulation_handler import Simulation

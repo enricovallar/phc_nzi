@@ -2,7 +2,7 @@ from typing import Optional, Union
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from simulation_handler import Simulation, MPBDataConverter, MPBDataOptions
+from phc_nzi.simulation_handler import Simulation, MPBDataConverter, MPBDataOptions
 from matplotlib.colorbar import Colorbar
 import functools
 from skimage import measure
@@ -283,7 +283,8 @@ class SimulationViewer:
                           subtitle: Optional[str] = None,
                           color: Optional[Union[list[str], str]] = None,
                           grid: bool = True,
-                          k_points_path: Optional[dict] = None
+                          k_points_path: Optional[dict] = None,
+                          custom_label: str | None = None
                          ) -> None:
         """
         Plot the band diagram for the given mode on the current axes. Does not call plt.show().
@@ -297,7 +298,11 @@ class SimulationViewer:
             plot_color = color
         for i, col in enumerate(bands):
             if i == 0:
-                plt.plot(df["k index"], df[col], label=f"{polarization.upper()} bands", color=plot_color)
+                if custom_label is not None:
+                    label = custom_label
+                else:
+                    label = f"{polarization.upper()} bands"
+                plt.plot(df["k index"], df[col], label=label, color=plot_color)
             else:
                 plt.plot(df["k index"], df[col], color=plot_color)
         if k_points_path and "k_points_values" in k_points_path and "k_points_labels" in k_points_path:

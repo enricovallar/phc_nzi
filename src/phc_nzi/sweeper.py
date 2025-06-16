@@ -1,6 +1,6 @@
 import functools
 import tempfile
-from simulation_handler import Simulation
+from phc_nzi.simulation_handler import Simulation
 import pandas as pd
 
 

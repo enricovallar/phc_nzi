@@ -7,7 +7,7 @@ import sqlite3
 import logging
 import time
 from typing import Optional, Union, List, Dict, Any, Tuple
-from lsf_job_configurator import LSFJobConfiguration
+from phc_nzi.lsf_job_configurator import LSFJobConfiguration
 import h5py
 import numpy as np
 import pandas as pd

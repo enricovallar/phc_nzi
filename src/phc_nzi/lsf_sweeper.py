@@ -1,9 +1,9 @@
-from lsf_job_submitter import LSFJob, use_nested_temp_directory
+from phc_nzi.lsf_job_submitter import LSFJob, use_nested_temp_directory
 import argparse
 import os
 from schwimmbad import MPIPool
 import pandas as pd
-from simulation_handler import Simulation, logging
+from phc_nzi.simulation_handler import Simulation, logging
 import time
 
 

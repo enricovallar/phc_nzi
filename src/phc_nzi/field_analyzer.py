@@ -1,9 +1,9 @@
-from simulation_handler import Simulation
-from simulation_viewer import SimulationViewer
+from phc_nzi.simulation_handler import Simulation
+from phc_nzi.simulation_viewer import SimulationViewer
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-from src.simulation_handler import MPBDataOptions, MPBDataConverter
+from phc_nzi.simulation_handler import MPBDataOptions, MPBDataConverter
 
 
 
@@ -147,7 +147,7 @@ class FieldAnalyzer:
         return  eps, mu
     
     def get_impedance(self, eps, mu):        
-        return np.emath.sqrt(eps/mu)
+        return np.emath.sqrt(mu/eps)
     
     def get_refractive_index(self, eps, mu):
         return np.emath.sqrt(eps)*np.emath.sqrt(mu)

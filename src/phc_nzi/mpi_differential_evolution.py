@@ -18,8 +18,8 @@ from scipy.optimize import differential_evolution
 from schwimmbad import MPIPool
 
 # Import your pre-implemented Simulation class from simulation_handler.
-from simulation_handler import Simulation
-from lsf_job_configurator import LSFJobConfiguration
+from phc_nzi.simulation_handler import Simulation
+from phc_nzi.lsf_job_configurator import LSFJobConfiguration
 
 # Global lock to synchronize printing among threads.
 print_lock = threading.Lock()

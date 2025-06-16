@@ -1,7 +1,4 @@
-try: 
-    from photonic_crystal_maker import *
-except ImportError: 
-    from sources.photonic_crystal_maker import *
+from phc_nzi.photonic_crystal_maker import *
 import meep as mp
 from meep import mpb   
 
