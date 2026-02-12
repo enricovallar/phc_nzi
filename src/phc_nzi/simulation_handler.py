@@ -227,10 +227,12 @@ class Simulation:
         return os.path.exists(filepath) and os.path.getsize(filepath) > 0
 
     # Write a given scheme script.
-    def _write_scheme_script(self) -> str:
+    def _write_scheme_script(self) -> None:
         if not self.script or not isinstance(self.script, str):
-            pass
-        self._write_to_file(os.path.join(self.directory, self.scheme_filename), self.script)
+            return  # Do nothing if script is invalid
+        filepath = os.path.join(self.directory, self.scheme_filename)
+        os.makedirs(self.directory, exist_ok=True)
+        self._write_to_file(filepath, self.script)
     
     def write_scheme_script(self) -> None: 
         self._write_scheme_script()
@@ -246,7 +248,7 @@ class Simulation:
     # Write a description to a text file.
     def _write_description(self) -> None:
         if not self.description or not isinstance(self.description, str):
-            raise ValueError("A valid description must be provided as a string.")
+            return  # Do nothing if description is invalid
         self._write_to_file(os.path.join(self.directory, f"{self.simulation_name}.txt"), self.description)
     
     # Read the description from a text file.
@@ -275,14 +277,29 @@ class Simulation:
         return result
     
     def _make_sure_scheme_script_exists(self) -> None:
-        i = 0
-        while not self.check_scheme_script() and i < 5:
-            self.logger.warning("Scheme script not found. Trying to write it again...")
+        filepath = os.path.join(self.directory, self.scheme_filename)
+        if self.check_scheme_script():
+            return
+        # First attempt: write the script
+        self._write_scheme_script()
+        if self.check_scheme_script():
+            return
+        # Retry with increasing delays for filesystem sync
+        for i in range(10):
+            self.logger.warning(
+                "Scheme script not found at '%s' (dir exists: %s, script valid: %s, attempt %d/10). Retrying...",
+                filepath, os.path.exists(self.directory), 
+                bool(self.script and isinstance(self.script, str)), i + 1
+            )
             self._write_scheme_script()
-            i += 1
-            time.sleep(0.5)
-        if i >= 5:
-            raise FileNotFoundError("Could not write the scheme script.")
+            time.sleep(0.5 * (i + 1))
+            if self.check_scheme_script():
+                return
+        raise FileNotFoundError(
+            f"Could not write the scheme script to '{filepath}'. "
+            f"Directory exists: {os.path.exists(self.directory)}, "
+            f"Script length: {len(self.script) if self.script else 0}"
+        )
         
     # Run the simulation in a standard HPC environment.
     def run_hpc(self, mpb_command_line_params: dict = {},

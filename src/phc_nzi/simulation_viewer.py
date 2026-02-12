@@ -249,7 +249,7 @@ class SimulationViewer:
                     operation: callable = np.real, 
                     cmap: str = "jet",
                     overlay_epsilon_contour: bool = False,
-                    epsilon_conversion_options: MPBDataOptions = MPBDataOptions(),
+                    conversion_options: MPBDataOptions = MPBDataOptions(),
                     axis: int = 2,
                     index: Optional[int] = None,
                     filecomp = None, 
@@ -262,7 +262,7 @@ class SimulationViewer:
         field_complex = self.simulation.load_and_convert_field_data(k_idx, b_idx, 
                                                                     comp, polarization,
                                                                     field_type, 
-                                                                    MPBDataOptions(), filecomp, 
+                                                                    conversion_options, filecomp, 
                                                                     nonbloch)
         field_complex = self._make_2d_slice(field_complex, axis, index)
         title = f"{self.simulation.simulation_name} \n {field_type}-field: k{k_idx:02d}, b{b_idx:02d}, comp={comp}, {polarization}"
@@ -270,9 +270,9 @@ class SimulationViewer:
         field_after_operation = operation(field_complex)
         self._plot_data_2d(field_after_operation, title=title, subtitle=subtitle, cmap=cmap, axis=axis, index=index)
         c = plt.colorbar()
-        c.set_label(f"{operation.__name__.capitalize()}({field_type.upper()}{comp})")
+        c.set_label(f"{operation.__name__.capitalize()}(${field_type.upper()}_{comp}$)")
         if overlay_epsilon_contour:
-            self.plot_epsilon_contour_2d(title=None, cmap='gray', conversion_options=epsilon_conversion_options, axis=axis, index=index)
+            self.plot_epsilon_contour_2d(title=None, cmap='gray', conversion_options=conversion_options, axis=axis, index=index)
         return c
     
 

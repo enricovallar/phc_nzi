@@ -87,7 +87,8 @@ class MPIdeOptimizator:
         """
         self.simulation = Simulation(simulation_name=simulation_name,
                                      script=scheme_script,
-                                     directory=directory)
+                                     directory=directory,
+                                     write_script=False)
         self.param_names = param_names
         self.param_bounds = param_bounds
         self.polarization = polarization
