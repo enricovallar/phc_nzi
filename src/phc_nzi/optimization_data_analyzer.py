@@ -113,7 +113,7 @@ class OptimizationDataAnalyzer:
             self.extract_all_data(debug=debug)
 
     def _plot_data(self, x_vals, y_vals, values, value_label, custom_title,
-                   use_logscale, levels, points_only, show_description=False):
+                   use_logscale, levels, points_only, show_description=False, plot_options=None):
         """
         Generic plotting routine that creates either a scatter plot or a heatmap.
         """
@@ -128,8 +128,7 @@ class OptimizationDataAnalyzer:
         title = custom_title if custom_title is not None else f"Parameter Space {value_label}{title_suffix}"
 
         if points_only:
-            plt.figure(figsize=(7, 6))
-            scatter = plt.scatter(x_vals, y_vals, c=values, cmap="viridis", norm=norm)
+            scatter = plt.scatter(x_vals, y_vals, c=values, norm=norm, **(plot_options or {}))
             plt.colorbar(scatter, label=value_label)
             plt.xlabel(self.param1_name)
             plt.ylabel(self.param2_name)
@@ -140,13 +139,12 @@ class OptimizationDataAnalyzer:
         try:
             import matplotlib.tri as mtri
             triang = mtri.Triangulation(x_vals, y_vals)
-            plt.figure(figsize=(7, 6))
             if levels is None:
-                pc = plt.tripcolor(triang, values, shading="gouraud", cmap="viridis", norm=norm)
+                pc = plt.tripcolor(triang, values, shading="gouraud", norm=norm, **(plot_options or {}))
                 plt.colorbar(pc, label=value_label)
                 plot_desc = "Tripcolor (Gouraud Shading)"
             else:
-                cntr = plt.tricontourf(triang, values, levels=levels, cmap="viridis", norm=norm)
+                cntr = plt.tricontourf(triang, values, levels=levels, norm=norm, **(plot_options or {}))
                 plt.colorbar(cntr, label=value_label)
                 plot_desc = f"Tricontourf (levels={levels})"
             plt.xlabel(self.param1_name)
@@ -158,8 +156,7 @@ class OptimizationDataAnalyzer:
             plt.tight_layout()
         except Exception as e:
             print("Falling back to scatter plot due to:", e)
-            plt.figure(figsize=(7, 6))
-            scatter = plt.scatter(x_vals, y_vals, c=values, cmap="viridis", norm=norm)
+            scatter = plt.scatter(x_vals, y_vals, c=values, norm=norm, **(plot_options or {}))
             plt.colorbar(scatter, label=value_label)
             plt.xlabel(self.param1_name)
             plt.ylabel(self.param2_name)
@@ -168,7 +165,7 @@ class OptimizationDataAnalyzer:
 
 
     def plot_raw_data(self, use_logscale=False, levels=100, points_only=False,
-                      plot_inverse_cost=False, custom_title=None):
+                      plot_inverse_cost=False, custom_title=None, plot_options=None):
         """
         Plot raw data using cost (or 1/cost if plot_inverse_cost is True) as the color.
         """
@@ -189,7 +186,8 @@ class OptimizationDataAnalyzer:
             custom_title,
             use_logscale,
             levels,
-            points_only
+            points_only,
+            plot_options=plot_options
         )
 
     def plot_optimization_points_bandgap(self, use_logscale=False, levels=50,

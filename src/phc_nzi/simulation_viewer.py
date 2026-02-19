@@ -284,7 +284,8 @@ class SimulationViewer:
                           color: Optional[Union[list[str], str]] = None,
                           grid: bool = True,
                           k_points_path: Optional[dict] = None,
-                          custom_label: str | None = None
+                          custom_label: str | None = None, 
+                          plot_options: Optional[dict] = None
                          ) -> None:
         """
         Plot the band diagram for the given mode on the current axes. Does not call plt.show().
@@ -302,9 +303,9 @@ class SimulationViewer:
                     label = custom_label
                 else:
                     label = f"{polarization.upper()} bands"
-                plt.plot(df["k index"], df[col], label=label, color=plot_color)
             else:
-                plt.plot(df["k index"], df[col], color=plot_color)
+                label = None
+            plt.plot(df["k index"], df[col], color=plot_color, label=label, **(plot_options or {}))
         if k_points_path and "k_points_values" in k_points_path and "k_points_labels" in k_points_path:
             k_points_values = k_points_path["k_points_values"]
             k_points_labels = k_points_path["k_points_labels"]
@@ -324,7 +325,13 @@ class SimulationViewer:
         plt.ylabel("Frequency")
         ax = plt.gca()
         self._apply_title(ax, main_title=title, subtitle=subtitle)
-        plt.legend()
+        plt.legend(
+            loc='best',
+            frameon=True,              # ← Show frame
+            facecolor='white',         # ← White background
+            edgecolor='black',         # ← Black border
+            framealpha=0.90            # ← Nearly opaque
+        )
         plt.grid(grid)
     
     

@@ -212,6 +212,18 @@ class Simulation:
         self.logger = logging.getLogger(f"{__name__}.{self.simulation_name}")
         self.logger.setLevel(log_level)
 
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        if 'logger' in state:
+            del state['logger']
+        return state
+
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+        self.logger = logging.getLogger(f"{__name__}.{self.simulation_name}")
+        # Default level info if not found, though usually it wouldn't persist level in state unless stored separately
+        self.logger.setLevel(logging.INFO)
+
     # Helper method for writing content to a file.
     def _write_to_file(self, filepath: str, content: str) -> None:
         with open(filepath, "w") as f:
@@ -497,9 +509,9 @@ class Simulation:
                            b_idx: int,
                            polarization: str,
                            field_type: str,
-                           options: Optional[MPBDataOptions] = None, 
                            file_comp: Optional[str] = None, 
-                           nonbloch: bool = False) -> str:
+                           nonbloch: bool = False,
+                           overwrite: bool = False) -> str:
         # Find the input field file
         input_filepath = self.find_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch)
         input_filename = os.path.basename(input_filepath)
@@ -508,10 +520,12 @@ class Simulation:
         output_filename = f"{os.path.splitext(input_filename)[0]}.converted.h5"
         output_filepath = os.path.join(self.directory, output_filename)
         
-        # Run the conversion with provided or default options
-        self._run_mpb_data_conversion(input_filepath, output_filepath, options or MPBDataOptions())
-        
-        self.logger.debug(f"Converted field data from {input_filename} to {output_filename}")
+        # Run the conversion with provided or default options if file doesn't exist
+        if overwrite or not os.path.exists(output_filepath):
+            self._run_mpb_data_conversion(input_filepath, output_filepath, options or MPBDataOptions())
+            self.logger.debug(f"Converted field data from {input_filename} to {output_filename}")
+        else:
+            self.logger.debug(f"Using cached field data: {output_filepath}")
         return output_filepath
     
     def convert_epsilon_data(self, options: Optional[MPBDataOptions] = None) -> str:
@@ -562,8 +576,9 @@ class Simulation:
                                      field_type: str,
                                      conversion_options: Optional[MPBDataOptions] = None,
                                      file_comp: Optional[str] = None,
-                                     nonbloch: bool = False) -> np.ndarray:
-        converted_data_path = self.convert_field_data(k_idx, b_idx, polarization, field_type, conversion_options, file_comp, nonbloch)
+                                     nonbloch: bool = False,
+                                     overwrite: bool = False) -> np.ndarray:
+        converted_data_path = self.convert_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch, overwrite=overwrite)
         converted_data = self.load_h5_data(converted_data_path)
         if f"{component}.r" not in converted_data or f"{component}.i" not in converted_data:
             raise KeyError(f"Field file must contain '{component}.r' and '{component}.i'.")
