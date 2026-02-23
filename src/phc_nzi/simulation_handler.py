@@ -511,6 +511,7 @@ class Simulation:
                            field_type: str,
                            file_comp: Optional[str] = None, 
                            nonbloch: bool = False,
+                           options: Optional[MPBDataOptions] = None,
                            overwrite: bool = False) -> str:
         # Find the input field file
         input_filepath = self.find_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch)
@@ -578,7 +579,7 @@ class Simulation:
                                      file_comp: Optional[str] = None,
                                      nonbloch: bool = False,
                                      overwrite: bool = False) -> np.ndarray:
-        converted_data_path = self.convert_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch, overwrite=overwrite)
+        converted_data_path = self.convert_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch, options=conversion_options, overwrite=overwrite)
         converted_data = self.load_h5_data(converted_data_path)
         if f"{component}.r" not in converted_data or f"{component}.i" not in converted_data:
             raise KeyError(f"Field file must contain '{component}.r' and '{component}.i'.")
@@ -658,6 +659,37 @@ class Simulation:
     def _get_freq_from_df_row(self, row, b_idx, polarization):
         col_name = f"{polarization} band {b_idx}"
         return row[col_name.strip()].values[0]
+
+    def get_group_velocity(self, k_idx: int, b_idx: int, polarization: str, direction: str = "x") -> float:
+        """
+        Extracts the group velocity for a given k-index and band from the MPB output log.
+        """
+        output_path = os.path.join(self.directory, self.output_filename)
+        if not os.path.exists(output_path):
+            self.logger.warning(f"Output file {output_path} does not exist.")
+            return 0.0
+        
+        prefix = f"{polarization}velocity:"
+        with open(output_path, "r") as f:
+            for line in f:
+                if line.startswith(prefix):
+                    parts = [p.strip() for p in line.split(",")]
+                    # parts[1] is the band index integer string
+                    if len(parts) > 1 and parts[1] == str(b_idx):
+                        # The velocities for each k-point start from parts[2]
+                        # So k_idx = 1 maps to parts[2], k_idx = 2 maps to parts[3], etc.
+                        part_index = k_idx + 1
+                        if part_index < len(parts):
+                            vec_str = parts[part_index].strip(" #()")
+                            vec_parts = vec_str.split()
+                            if direction == "x" and len(vec_parts) > 0:
+                                return float(vec_parts[0])
+                            elif direction == "y" and len(vec_parts) > 1:
+                                return float(vec_parts[1])
+                            elif direction == "z" and len(vec_parts) > 2:
+                                return float(vec_parts[2])
+        self.logger.warning(f"Group velocity not found for k_idx={k_idx}, b_idx={b_idx}. Ensure `display-group-velocities` is in run commands.")
+        return 0.0
     
 
     def get_kmag(self, df, k_idx):
