@@ -46,13 +46,13 @@ photonic_crystal_2D = PhotonicCrystal(lattice=lattice_2D, atoms=geom_2D)
 # Parameters to test
 param_dictionary = {
     # "Left 50%": (0.2922, 0.3721),
-    # "Peak Linearity": (0.2537, 0.3616),
+    "Peak Linearity": (0.2537, 0.3616),
     "Right 50%": (0.2312, 0.3438),
     # "Baseline Tail": (0.2179, 0.3153),
-    # "Thesis": (0.24, 0.23444),
+    "Thesis": (0.24, 0.23444),
 }
 
-k_factor = 50
+k_factor = 20
 data_root = "/work3/enrva/phc_nzi_data/MPB_data/"
 base_name = "eff_params_compare_points"
 
@@ -83,7 +83,7 @@ for point_name, (r1, r2) in param_dictionary.items():
     )
     
     # Run simulation
-    #simulation_2D.run_hpc(mpb_command_line_params=dict(r1=r1, r2=r2), mpi = True)
+    # simulation_2D.run_hpc(mpb_command_line_params=dict(r1=r1, r2=r2), mpi = True)
 
     # Visualize the plot of the bands
     viewer = SimulationViewer(simulation_2D)  
@@ -112,7 +112,7 @@ for point_name, (r1, r2) in param_dictionary.items():
     # Find the Dirac frequency
     fdirac = df[df["kmag/2pi"]==0.0]["te band 5"].values[0]
     # Analyze fields
-    analyzer = FieldAnalyzer(simulation_2D, [4, 5, 6], "te", "x")
+    analyzer = FieldAnalyzer(simulation_2D, [4,  6], "te", "x")
     data = analyzer.get_eps_mu_impedance_neff("y", "z", plot=False, enforce_continuity=False, overwrite=True)
     
     results[point_name] = (analyzer, data, fdirac)
@@ -121,26 +121,27 @@ for point_name, (r1, r2) in param_dictionary.items():
 print("Plotting results...")
 plt.figure(figsize=(20, 16))
 
-bands_to_plot = [4, 5, 6]
-colors_bands = {4: "blue", 5: "green", 6: "red"}
-styles_pt = ["o", "s", "^", "D", "v"]
+bands_to_plot = [4, 6]
+colors = ["blue", "green", "red", "orange"]
 point_names = list(param_dictionary.keys())
 markersize = 2
 
 plt.subplot(2, 2, 1)
-for band in bands_to_plot:
-    for i, point_name in enumerate(point_names):
-        analyzer, data, fdirac = results[point_name]
-        band_data = data[data["band"] == band]
-        if not band_data.empty:
-            plt.plot(band_data["frequency"]- fdirac, band_data["eps"].values.real, 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color=colors_bands[band], linestyle='-', alpha=0.7, 
-                     markersize = markersize)
-            plt.plot(band_data["frequency"]- fdirac, [x if abs(x) > 1e-8 else None for x in band_data["eps"].values.imag], 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color="orange", linestyle='--', alpha=0.7, 
-                     markersize = markersize)
+for i, point_name in enumerate(point_names):
+    analyzer, data, fdirac = results[point_name]
+    valid_data = data.dropna(subset=['eps', 'frequency'])
+    if not valid_data.empty:
+        plt.scatter(valid_data["frequency"] - fdirac, valid_data["eps"].values.real, 
+                 s = markersize,
+                 label=f'{point_name}', 
+                 c=colors[i%len(colors)],
+                 marker = "o"
+                 )
+        plt.scatter(valid_data["frequency"] - fdirac, [x if abs(x) > 1e-8 else None for x in valid_data["eps"].values.imag],
+                 s = markersize,
+                 marker = "+",
+                 c=colors[i%len(colors)]
+                )
 plt.title("Effective Permittivity (Real)")
 plt.xlabel("$\omega - \omega_{dirac}$")
 plt.ylabel("Epsilon")
@@ -150,19 +151,21 @@ ylims = plt.ylim()
 plt.ylim(max(ylims[0], -1), min(ylims[1], 1))
 
 plt.subplot(2, 2, 2)
-for band in bands_to_plot:
-    for i, point_name in enumerate(point_names):
-        analyzer, data, fdirac = results[point_name]
-        band_data = data[data["band"] == band]
-        if not band_data.empty:
-            plt.plot(band_data["frequency"] - fdirac, band_data["mu"].values.real, 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color=colors_bands[band], linestyle='-', alpha=0.7 , 
-                     markersize = markersize)
-            plt.plot(band_data["frequency"]- fdirac, [x if abs(x) > 1e-8 else None for x in band_data["mu"].values.imag], 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color="orange", linestyle='--', alpha=0.7, 
-                     markersize = markersize)
+for i, point_name in enumerate(point_names):
+    analyzer, data, fdirac = results[point_name]
+    valid_data = data.dropna(subset=['mu', 'frequency'])
+    if not valid_data.empty:
+        plt.scatter(valid_data["frequency"] - fdirac, valid_data["mu"].values.real, 
+                 s = markersize,
+                 label=f'{point_name}', 
+                 c=colors[i%len(colors)],
+                 marker = "o"
+                 )
+        plt.scatter(valid_data["frequency"] - fdirac, [x if abs(x) > 1e-8 else None for x in valid_data["mu"].values.imag],
+                 s = markersize,
+                 marker = "+",
+                 c=colors[i%len(colors)]
+                )
 plt.title("Effective Permeability (Real)")
 plt.xlabel("$\omega - \omega_{dirac}$")
 plt.ylabel("Mu")
@@ -172,15 +175,21 @@ ylims = plt.ylim()
 plt.ylim(max(ylims[0], -1), min(ylims[1], 1))
 
 plt.subplot(2, 2, 3)
-for band in bands_to_plot:
-    for i, point_name in enumerate(point_names):
-        analyzer, data, fdirac = results[point_name]
-        band_data = data[data["band"] == band]
-        if not band_data.empty:
-            plt.plot(band_data["frequency"] - fdirac, band_data["n_eff"].values.real, 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color=colors_bands[band], linestyle='-', alpha=0.7, 
-                     markersize = markersize )
+for i, point_name in enumerate(point_names):
+    analyzer, data, fdirac = results[point_name]
+    valid_data = data.dropna(subset=['n_eff', 'frequency'])
+    if not valid_data.empty:
+        plt.scatter(valid_data["frequency"] - fdirac, valid_data["n_eff"].values.real, 
+                 s = markersize,
+                 label=f'{point_name}', 
+                 c=colors[i%len(colors)],
+                 marker = "o"
+                 )
+        plt.scatter(valid_data["frequency"] - fdirac, [x if abs(x) > 1e-8 else None for x in valid_data["n_eff"].values.imag],
+                 s = markersize,
+                 marker = "+",
+                 c=colors[i%len(colors)]
+                )
 plt.title("Refractive Index (Real)")
 plt.xlabel("$\omega - \omega_{dirac}$")
 plt.ylabel("n_eff")
@@ -189,17 +198,22 @@ plt.grid(True)
 ymin, ymax = plt.ylim()
 plt.ylim(max(ymin, -1), min(ymax, 1))
 
-
 plt.subplot(2, 2, 4)
-for band in bands_to_plot:
-    for i, point_name in enumerate(point_names):
-        analyzer, data, fdirac = results[point_name]
-        band_data = data[data["band"] == band]
-        if not band_data.empty:
-            plt.plot(band_data["frequency"] - fdirac, band_data["impedance"].values.real, 
-                     label=f'{point_name} (Band {band})', 
-                     marker=styles_pt[i%len(styles_pt)], color=colors_bands[band], linestyle='-', alpha=0.7, 
-                     markersize = markersize)
+for i, point_name in enumerate(point_names):
+    analyzer, data, fdirac = results[point_name]
+    valid_data = data.dropna(subset=['impedance', 'frequency'])
+    if not valid_data.empty:
+        plt.scatter(valid_data["frequency"] - fdirac, valid_data["impedance"].values.real, 
+                 s = markersize,
+                 label=f'{point_name}', 
+                 c=colors[i%len(colors)],
+                 marker = "o" 
+                 )
+        plt.scatter(valid_data["frequency"] - fdirac, [x if abs(x) > 1e-8 else None for x in valid_data["impedance"].values.imag],
+                 s = markersize,
+                 marker = "+",
+                 c=colors[i%len(colors)]
+                )
 plt.title("Impedance (Real)")
 plt.xlabel("$\omega - \omega_{dirac}$")
 plt.ylabel("Z")
@@ -208,5 +222,5 @@ plt.grid(True)
 plt.ylim(0, min(plt.ylim()[1], 20))
 
 plt.tight_layout()  
-plt.savefig(f"{base_name}.png")
+plt.savefig(f"{base_name}.png", dpi=600)
 print(f"Saved {base_name}.png")

@@ -1,0 +1,63 @@
+[mpiexec@n-62-13-11] Sending Ctrl-C to processes as requested
+[mpiexec@n-62-13-11] Press Ctrl-C again to force abort
+Ctrl-C caught... cleaning up processes
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 27901958: <meep_metasurface> in cluster <dcc> Exited
+
+Job <meep_metasurface> was submitted from host <hpclogin2> by user <enrva> in cluster <dcc> at Wed Feb 25 02:43:36 2026
+Job was executed on host(s) <32*n-62-13-11>, in queue <fotonano>, as user <enrva> in cluster <dcc> at Wed Feb 25 02:43:38 2026
+</zhome/2f/7/202918> was used as the home directory.
+</zhome/2f/7/202918/phc_nzi> was used as the working directory.
+Started at Wed Feb 25 02:43:38 2026
+Terminated at Wed Feb 25 02:48:02 2026
+Results reported at Wed Feb 25 02:48:02 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/sh
+### General options
+#BSUB -J meep_metasurface
+#BSUB -R "span[hosts=1]"      # Ensure all cores are on the exact same node
+#BSUB -R "rusage[mem=1GB]"    # Request 1GB of memory PER CORE
+#BSUB -W 04:00                # Set walltime limit (hours:minutes)
+#BSUB -o output_%J.out        # Standard output log
+#BSUB -e error_%J.err         # Standard error log
+
+### 1. Initialize conda for this non-interactive shell
+source /zhome/2f/7/202918/miniconda3/etc/profile.d/conda.sh
+
+### 2. Activate the environment
+conda activate mpb-nzi-env
+
+### 3. Run the script with MPI to actually use the 8 cores!
+/zhome/2f/7/202918/miniconda3/envs/mpb-nzi-env/bin/mpirun -np $LSB_DJOB_NUMPROC python meep_effective.py
+------------------------------------------------------------
+
+TERM_OWNER: job killed by owner.
+Exited with exit code 255.
+
+Resource usage summary:
+
+    CPU time :                                   3234.00 sec.
+    Max Memory :                                 8076 MB
+    Average Memory :                             7507.25 MB
+    Total Requested Memory :                     32768.00 MB
+    Delta Memory :                               24692.00 MB
+    Max Swap :                                   -
+    Max Processes :                              37
+    Max Threads :                                70
+    Run time :                                   279 sec.
+    Turnaround time :                            266 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <error_27901958.err> for stderr output of this job.
+
