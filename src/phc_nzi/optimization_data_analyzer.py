@@ -32,6 +32,7 @@ class OptimizationDataAnalyzer:
         self.param2_vals = None
         self.cost_vals = None
         self.freq_dirac_vals = None
+        self.gen_vals = None
 
     def _parse_line(self, line):
         """
@@ -49,11 +50,7 @@ class OptimizationDataAnalyzer:
     def extract_all_data(self, debug=False):
         """
         Parse the log file once and extract all data.
-        Expects each valid line to contain exactly two parameter keys (aside from 'cost' and 'freq_dirac').
-        Sets the following properties:
-          - self.param1_name, self.param2_name
-          - self.param1_vals, self.param2_vals
-          - self.cost_vals, self.freq_dirac_vals
+        Expects each valid line to contain exactly two parameter keys (aside from 'Gen', 'cost' and 'freq_dirac').
         """
         if not os.path.isfile(self.data_file_path):
             raise ValueError(f"Log file not found: {self.data_file_path}")
@@ -62,6 +59,7 @@ class OptimizationDataAnalyzer:
         p2_list = []
         cost_list = []
         freq_list = []
+        gen_list = [] # <-- Added
         param1_name = None
         param2_name = None
 
@@ -72,9 +70,12 @@ class OptimizationDataAnalyzer:
                     continue
 
                 data = self._parse_line(original_line)
-                # Remove 'cost' and 'freq_dirac' from the dictionary; if missing, use NaN.
+                
+                # Remove known non-parameter keys; if missing, use NaN.
                 cost = data.pop("cost", np.nan)
                 freq = data.pop("freq_dirac", np.nan)
+                # Pop 'Gen' (or lowercase 'gen' as a fallback)
+                gen = data.pop("Gen", data.pop("gen", np.nan)) # <-- Added
 
                 # Expect exactly two remaining parameters.
                 if len(data) != 2:
@@ -94,6 +95,7 @@ class OptimizationDataAnalyzer:
                 p2_list.append(data[param2_name])
                 cost_list.append(cost)
                 freq_list.append(freq)
+                gen_list.append(gen) # <-- Added
 
         if not p1_list:
             raise ValueError("No valid data points were found in the log file.")
@@ -104,6 +106,7 @@ class OptimizationDataAnalyzer:
         self.param2_vals = np.array(p2_list)
         self.cost_vals = np.array(cost_list)
         self.freq_dirac_vals = np.array(freq_list)
+        self.gen_vals = np.array(gen_list) # <-- Added
 
     def load_data(self, debug=False):
         """
@@ -235,13 +238,6 @@ class OptimizationDataAnalyzer:
     def get_points_above_treshold(self, threshold):
         """
         Get the points where 1/cost is above a certain threshold.
-        
-        Parameters:
-            threshold : float
-                The threshold value for 1/cost.
-        
-        Returns:
-            pd.DataFrame: DataFrame containing param1_vals, param2_vals, and cost_vals for points where 1/cost > threshold.
         """
         self.load_data()
         valid = ~np.isnan(self.cost_vals)
@@ -252,14 +248,38 @@ class OptimizationDataAnalyzer:
         param2_vals = self.param2_vals[valid]
         cost_vals = self.cost_vals[valid]
         freq_dirac_vals = self.freq_dirac_vals[valid]
+        gen_vals = self.gen_vals[valid] # <-- Added
         
         df = pd.DataFrame({
+            'Gen': gen_vals, # <-- Added
             self.param1_name: param1_vals,
             self.param2_name: param2_vals,
             'cost': cost_vals, 
             'freq-dirac': freq_dirac_vals, 
         })
         
+        return df
+    
+    def get_generation(self, gen_number):
+        """
+        Get the points corresponding to a specific generation number.
+        """
+        self.load_data()
+        valid = ~np.isnan(self.gen_vals)
+        valid &= (self.gen_vals == gen_number)
+        
+        param1_vals = self.param1_vals[valid]
+        param2_vals = self.param2_vals[valid]
+        cost_vals = self.cost_vals[valid]
+        freq_dirac_vals = self.freq_dirac_vals[valid]
+        gen_vals = self.gen_vals[valid]
+        df = pd.DataFrame({
+            'Gen': gen_vals,
+            self.param1_name: param1_vals,
+            self.param2_name: param2_vals,
+            'cost': cost_vals, 
+            'freq-dirac': freq_dirac_vals, 
+        })
         return df
 
     def fit_ellipse(self, x, y, w=None):

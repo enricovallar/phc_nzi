@@ -8,6 +8,7 @@ src/phc_nzi/lsf_job_configurator.py
 src/phc_nzi/lsf_job_submitter.py
 src/phc_nzi/lsf_sweeper.py
 src/phc_nzi/mpb_configurator.py
+src/phc_nzi/mpi_bayesian_optimization.py
 src/phc_nzi/mpi_differential_evolution.py
 src/phc_nzi/mpi_mapper.py
 src/phc_nzi/optimization_data_analyzer.py
@@ -22,6 +23,7 @@ src/phc_nzi.egg-info/entry_points.txt
 src/phc_nzi.egg-info/requires.txt
 src/phc_nzi.egg-info/top_level.txt
 tests/test_mpb_configurator.py
+tests/test_phase_consistency.py
 tests/test_photonic_crystal_maker.py
 tests/test_simulation_handler.py
 tests/test_simulation_viewer.py

@@ -41,11 +41,19 @@ def use_nested_temp_directory(func):
 
 # --- Custom Map Wrapper to satisfy SciPy's workers argument ---
 class CustomMapWrapper:
-    def __init__(self, pool):
+    def __init__(self, pool, tracking_file):
         self.pool = pool
+        self.tracking_file = tracking_file
+        self.generation = 0
 
     def __call__(self, func, iterable):
-        return self.pool.map(func, iterable)
+        # Master process writes the current generation to the tracking file
+        with open(self.tracking_file, "w") as f:
+            f.write(str(self.generation))
+            
+        result = self.pool.map(func, iterable)
+        self.generation += 1
+        return result
 
     def __int__(self):
         # Return 0 so that int(worker)==-1 check in differential_evolution passes.
@@ -96,8 +104,10 @@ class MPIdeOptimizator:
         self.de_options = de_options if de_options is not None else {}
         self.scheme_script = scheme_script
         self.data_file = os.path.join(self.simulation.directory, f"{simulation_name}.de.data")
+        self.tracking_file = os.path.join(self.simulation.directory, f"{simulation_name}.gen.txt")
         self.bands = bands
         self.height_slab = height_slab
+
 
     def erease_data_file(self):
         with open(self.data_file, "w") as f:
@@ -111,6 +121,7 @@ class MPIdeOptimizator:
         freqs = self.simulation.get_frequencies_by_band(df, self.polarization, bands=self.bands)
         cost = self._calculate_cost(freqs)
         freq_central_band = self._get_central_band_freq(freqs)
+        cost = cost/freq_central_band
         return cost, freq_central_band
 
     def _calculate_cost(self, freqs):
@@ -129,8 +140,17 @@ class MPIdeOptimizator:
         if self.height_slab is not None:
             command_line_params["h"] = self.height_slab
         cost, freq_central_band = self.temp_folder_operations(command_line_params)
+        
+        # Read current generation from the tracking file
+        try:
+            with open(self.tracking_file, "r") as f:
+                current_gen = f.read().strip()
+        except Exception:
+            current_gen = "unknown"
+
         with open(self.data_file, "a") as f:
-            line = f"{self.param_names[0]}: {params[0]}, {self.param_names[1]}: {params[1]}"
+            # Prepend the generation to your output string
+            line = f"Gen: {current_gen}, {self.param_names[0]}: {params[0]}, {self.param_names[1]}: {params[1]}"
             line += f", cost: {cost}"
             line += f", freq_dirac: {freq_central_band}\n"
             f.write(line)
@@ -151,7 +171,7 @@ class MPIdeOptimizator:
                 mpi_pool.wait()
                 return None
             bounds = self.param_bounds
-            custom_map = CustomMapWrapper(mpi_pool)
+            custom_map = CustomMapWrapper(mpi_pool, self.tracking_file)
             result = differential_evolution(self.objective, bounds,
                                             workers=custom_map,
                                             maxiter=self.maxiter,
