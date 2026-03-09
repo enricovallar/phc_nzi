@@ -109,7 +109,7 @@ class SimulationViewer:
                      cmap: str = 'viridis', axis: int = 2, index: Optional[int] = None)-> None:
         
         slice_data = self._make_2d_slice(data, axis, index)
-        plt.imshow(slice_data, interpolation='spline36', cmap=cmap)
+        plt.imshow(slice_data, interpolation='spline36', cmap=cmap, origin='lower')
         plt.gca().set_aspect(self.SQUARE_ASPECT_RATIO[0]/self.SQUARE_ASPECT_RATIO[1])
         ax = plt.gca()
         self._apply_title(ax, main_title=title, subtitle=subtitle)
@@ -263,7 +263,7 @@ class SimulationViewer:
                                                                     comp, polarization,
                                                                     field_type, 
                                                                     conversion_options, filecomp, 
-                                                                    nonbloch)
+                                                                    nonbloch, overwrite=True)
         field_complex = self._make_2d_slice(field_complex, axis, index)
         title = f"{self.simulation.simulation_name} \n {field_type}-field: k{k_idx:02d}, b{b_idx:02d}, comp={comp}, {polarization}"
         subtitle = f"{operation.__name__.capitalize()}"

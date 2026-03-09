@@ -578,7 +578,7 @@ class Simulation:
                                      conversion_options: Optional[MPBDataOptions] = None,
                                      file_comp: Optional[str] = None,
                                      nonbloch: bool = False,
-                                     overwrite: bool = False) -> np.ndarray:
+                                     overwrite: bool = True) -> np.ndarray:
         converted_data_path = self.convert_field_data(k_idx, b_idx, polarization, field_type, file_comp, nonbloch, options=conversion_options, overwrite=overwrite)
         converted_data = self.load_h5_data(converted_data_path)
         if f"{component}.r" not in converted_data or f"{component}.i" not in converted_data:
