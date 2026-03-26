@@ -6,6 +6,7 @@ src/phc_nzi/field_analyzer.py
 src/phc_nzi/lattices.py
 src/phc_nzi/lsf_job_configurator.py
 src/phc_nzi/lsf_job_submitter.py
+src/phc_nzi/lsf_scalar_optimization.py
 src/phc_nzi/lsf_sweeper.py
 src/phc_nzi/mpb_configurator.py
 src/phc_nzi/mpi_bayesian_optimization.py

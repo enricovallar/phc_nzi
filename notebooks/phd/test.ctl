@@ -1,11 +1,11 @@
-(set! num-bands 8)
-(set! resolution 64)
+(set! num-bands 10)
+(set! resolution 32)
 (set! k-points (list (vector3 0.0 0.0 0.0)))
 (set! k-points (interpolate 4 k-points))
-(define-param h 1e+20)
+(define-param h 0.5)
 (define-param r1 0.1)
 (define-param r2 0.2)
-(set! geometry-lattice (make lattice (size 1 1 no-size) (basis1  (vector3 1.0 0.0 0.0)) (basis2  (vector3 0.0 1.0 0.0)) ))
+(set! geometry-lattice (make lattice (size 1 1 4) (basis1  (vector3 1.0 0.0 0.0)) (basis2  (vector3 0.0 1.0 0.0)) ))
 (set! geometry (list 
  (make block (size (vector3 1 1 h))
   (center (vector3 0.0 0.0 0.0))
@@ -75,4 +75,4 @@
     (output-field-to-file 2 (string-append (get-filename-prefix)"h."))
 )
 
-(run-te )_456
+(run-zeven )
