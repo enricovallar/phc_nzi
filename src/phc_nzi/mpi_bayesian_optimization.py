@@ -1,4 +1,3 @@
-
 """
 MPIOptimization for NZI Optimization (Bayesian Optimization Version)
 """
@@ -57,14 +56,11 @@ class MPIBayesianOptimizator:
                  polarization: str = "te", 
                  maxiter: int = 5,
                  batch_size: int = 15,
-                 bo_options: dict = {
-                    "random_state": 42,
-                    "base_estimator": "GP",
-                    "initial_point_generator": "lhs"
-                 },  
+                 bo_options: dict = None,  
                  bands: list = [2,3,4], 
                  height_slab: float = None, 
-                 directory: str = None):
+                 directory: str = None,
+                 fixed_params: dict = None): # <-- ADDED fixed_params
         """
         Parameters:
           simulation_name : str
@@ -84,10 +80,11 @@ class MPIBayesianOptimizator:
           bands : list, optional,
                 List of band indices to consider for the cost function.
           height_slab : float, optional
-                Height of the slab, if applicable. If None, it will not be included in the command line parameters.
+                Height of the slab, if applicable.
           directory : str, optional
               Directory to run the simulation in. If None, it will use the current working directory.
-
+          fixed_params : dict, optional
+              Parameters to keep constant during the optimization (e.g., {"R1": 0.25}).
         """
         self.simulation = Simulation(simulation_name=simulation_name,
                                      script=scheme_script,
@@ -98,11 +95,22 @@ class MPIBayesianOptimizator:
         self.maxiter = maxiter
         self.batch_size = batch_size
         self.scheme_script = scheme_script
-        self.bo_options = bo_options 
+        
+        self.bo_options = bo_options if bo_options is not None else {
+            "random_state": 42,
+            "base_estimator": "GP",
+            "initial_point_generator": "lhs"
+        }
+        
         self.data_file = os.path.join(self.simulation.directory, f"{simulation_name}.bo.data")
         self.model_file = os.path.join(self.simulation.directory, f"{simulation_name}_bo_model.pkl")
         self.bands = bands
+        
+        # --- NEW: Handle fixed parameters and maintain backward compatibility ---
+        self.fixed_params = fixed_params if fixed_params is not None else {}
         self.height_slab = height_slab
+        if self.height_slab is not None:
+            self.fixed_params["h"] = self.height_slab
 
     def erease_data_file(self):
         with open(self.data_file, "w") as f:
@@ -137,9 +145,16 @@ class MPIBayesianOptimizator:
         return freqs[idx_central]
 
     def objective(self, params, current_gen):
+        # Handle 1D optimization safely (skopt sometimes passes scalars if 1D)
+        if not isinstance(params, (list, tuple, np.ndarray)):
+            params = [params]
+            
+        # Map dynamic parameters
         command_line_params = dict(zip(self.param_names, params))
-        if self.height_slab is not None:
-            command_line_params["h"] = self.height_slab
+        
+        # Merge in the fixed parameters (including height_slab if it was set)
+        command_line_params.update(self.fixed_params)
+
         cost, freq_central_band = self.temp_folder_operations(command_line_params)
 
         # Write directly to data log
@@ -161,7 +176,9 @@ class MPIBayesianOptimizator:
         Run Bayesian optimization with MPI parallelism using the ask/tell interface.
         """
         with print_lock:
-            print("Optimizing parameters with MPI parallelism using Bayesian Optimization...")
+            print(f"Optimizing parameters {self.param_names} with MPI parallelism using Bayesian Optimization...")
+            if self.fixed_params:
+                print(f"Fixed parameters: {self.fixed_params}")
             
         pool = MPIPool()
         with pool as mpi_pool:
@@ -194,7 +211,7 @@ class MPIBayesianOptimizator:
                 joblib.dump(optimizer, self.model_file)
                 best_idx = np.argmin(optimizer.yi)
                 best_params = optimizer.Xi[best_idx]
-                print("Optimal parameters found:", best_params)
+                print("Optimal dynamic parameters found:", best_params)
             
             # Return a simple mock OptimizeResult object to match your previous interface
             class OptimizeResult:
@@ -268,7 +285,7 @@ class MPIBayesianOptimizator:
         return cmd
 
     def _prepare_command_line_args(self) -> str:
-        import json # Ensure json is available
+        import json
         
         cmd_args = [
             "--run_opt",
@@ -283,10 +300,14 @@ class MPIBayesianOptimizator:
         if self.height_slab is not None:
             cmd_args.append(f"--height_slab={self.height_slab}")
             
-        # Serialize the entire bo_options dict to a JSON string and pass it safely
         if self.bo_options:
             bo_options_json = json.dumps(self.bo_options)
             cmd_args.append(f"--bo_options='{bo_options_json}'")
+            
+        # --- NEW: Append fixed params to CLI args ---
+        if self.fixed_params:
+            fixed_params_json = json.dumps(self.fixed_params)
+            cmd_args.append(f"--fixed_params='{fixed_params_json}'")
             
         return " ".join(cmd_args)
     
@@ -312,7 +333,7 @@ class MPIBayesianOptimizator:
                 print("Job submitted successfully. Submission output:")
                 print(submission_output)
             # Wait for the job to finish.
-            self.wait_for_job(submission_output, poll_interval=10)
+            self.wait_for_job(submission_output, poll_interval=60)
         except subprocess.CalledProcessError as e:
             with print_lock:
                 print("Job submission failed:")
@@ -322,24 +343,24 @@ class MPIBayesianOptimizator:
 
 
 # Main block:
-# Main block:
 if __name__ == '__main__':
-    import json # Ensure json is available
+    import json
     
     parser = argparse.ArgumentParser(description="MPIOptimization with Bayesian Optimization")
     parser.add_argument("--run_opt", action="store_true", help="Run the optimization")
-    parser.add_argument("--param_names", type=str, nargs='+', help="Parameter names (e.g., R1 R2)")
+    parser.add_argument("--param_names", type=str, nargs='+', help="Parameter names to optimize (e.g., R1 R2)")
     parser.add_argument("--simulation_name", type=str, help="Simulation name", required=True)
     parser.add_argument("--maxiter", type=int, default=100, help="Maximum number of BO iterations (generations)")
-    
-    # Updated arguments:
     parser.add_argument("--batch_size", type=int, default=15, help="Batch size per BO iteration")
     parser.add_argument("--bo_options", type=str, default="{}", help="JSON string of skopt Optimizer options")
-    
     parser.add_argument("--polarization", type=str, default="te", help="Polarization mode (e.g., te or tm)")
     parser.add_argument("--bands", type=int, nargs='+', help="Bands to optimize (e.g., 1 2 3)")
-    parser.add_argument("--height_slab", type=float, required=False, help="Height of the slab")
+    parser.add_argument("--height_slab", type=float, required=False, help="Height of the slab (legacy fixed param)")
     parser.add_argument("--directory", type=str, help="Directory to run the simulation in")
+    
+    # --- NEW: Argparse for fixed parameters ---
+    parser.add_argument("--fixed_params", type=str, default="{}", help="JSON string of fixed parameters (e.g., '{\"R1\": 0.25}')")
+    
     args = parser.parse_args()
     
     scheme_script_path = os.path.join(args.directory, args.simulation_name + ".ctl")
@@ -359,10 +380,16 @@ if __name__ == '__main__':
         
         try:
             parsed_bo_options = json.loads(args.bo_options)
-            print("Parsed bo_options:", parsed_bo_options)  
         except json.JSONDecodeError:
             print("Warning: Could not parse bo_options JSON. Using empty dict.")
             parsed_bo_options = {}
+
+        # --- NEW: Parse the JSON string into a python dictionary ---
+        try:
+            parsed_fixed_params = json.loads(args.fixed_params)
+        except json.JSONDecodeError:
+            print("Warning: Could not parse fixed_params JSON. Using empty dict.")
+            parsed_fixed_params = {}
 
         optimizer = MPIBayesianOptimizator(simulation_name=args.simulation_name,
                                            scheme_script=scheme_script,
@@ -373,12 +400,13 @@ if __name__ == '__main__':
                                            bo_options=parsed_bo_options, 
                                            bands=args.bands,
                                            height_slab=height_slab, 
-                                           directory=directory)
+                                           directory=directory,
+                                           fixed_params=parsed_fixed_params) # Pass parsed variables
 
         result = optimizer.optimize_parameters()
         if result is not None:
             with print_lock:
-                print("Optimal parameters found:", result.x)
+                print("Optimal dynamic parameters found:", result.x)
                 print("Minimum frequency difference:", result.fun)
     else:
         with print_lock:
