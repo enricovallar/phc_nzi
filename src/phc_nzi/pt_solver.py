@@ -110,3 +110,59 @@ def calculate_perturbed_bands(p_matrix, q_matrix, omega_0s, k1_arr, k2_arr, kmag
         bands_calc[idx, :] = np.sqrt(np.sort(np.real(np.linalg.eigvals(M)))) / (2 * np.pi)
         
     return bands_calc
+
+
+def calculate_reduced_bands(p_matrix, omega_0s, k1_arr, k2_arr, kmag_arr, lattice_type, target_indices):
+    """
+    Computes the band dispersion using only the reduced NxN subspace.
+    Uses Cartesian k-components to ensure the dot product is physically correct.
+    """
+    # Map fractional k to Cartesian (kx, ky)
+    kx_cart, ky_cart = get_cartesian_k(k1_arr, k2_arr, lattice_type)
+    
+    bands_calc = np.zeros((len(k1_arr), len(target_indices)))
+    
+    # Isolate the NxN subspace and unperturbed frequencies
+    omega_0_red = np.array([omega_0s[i] for i in target_indices])
+    Omega_0_sq_red = np.diag((2 * np.pi * omega_0_red)**2)
+    p_red = p_matrix[np.ix_(target_indices, target_indices)]
+    
+    for idx in range(len(k1_arr)):
+        # Physical wavevectors (scaling by 2pi)
+        kx_phys = kx_cart[idx] * 2 * np.pi
+        ky_phys = ky_cart[idx] * 2 * np.pi
+        
+        # M_red = W_0^2 - (kx*Px + ky*Py)
+        M_red = Omega_0_sq_red - (kx_phys * p_red[:, :, 0] + ky_phys * p_red[:, :, 1])
+        
+        # Eigenvalues of the matrix are (omega * 2pi)^2
+        eigs = np.linalg.eigvals(M_red)
+        bands_calc[idx, :] = np.sqrt(np.sort(np.real(eigs))) / (2 * np.pi)
+        
+    return bands_calc
+
+def calculate_group_velocity_tensor(p_matrix, omega_0s, target_indices):
+    """
+    Calculates the Cartesian group velocity matrix elements at Gamma.
+    
+    Returns:
+    - vg_x: NxN matrix of velocities along the Cartesian x-axis.
+    - vg_y: NxN matrix of velocities along the Cartesian y-axis.
+    
+    Units: Returns dimensionless velocity (v/c).
+    """
+    # Isolate the subspace
+    p_red = p_matrix[np.ix_(target_indices, target_indices)]
+    
+    # Use the average frequency of the degenerate triplet for the denominator
+    # (In a true degeneracy, these are all identical)
+    w0_phys = omega_0s[target_indices[0]] * 2 * np.pi
+    
+    # vg = P / (2 * w0)
+    # The 2*pi factors from P and w0 cancel out, but we need 
+    # to account for the k-scaling. P was defined as d(w^2)/dk.
+    # Therefore vg = P / (2 * w0 * 2pi)
+    vg_x = p_red[:, :, 0] / (2 * w0_phys * 2 * np.pi)
+    vg_y = p_red[:, :, 1] / (2 * w0_phys * 2 * np.pi)
+    
+    return vg_x, vg_y
