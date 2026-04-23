@@ -9,6 +9,168 @@ from skimage import measure
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 
+import os
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrow
+from matplotlib.legend_handler import HandlerPatch
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
+
+# --- Arrow colors ---
+COLOR_RE =  "#83817E"  
+COLOR_IM = "#FFD000"        
+EDGE_RE  =  "#000000"  
+EDGE_IM  = "#000000"  
+
+class ArrowHandler(HandlerPatch):
+    """Custom legend handler that draws an arrow instead of a rectangle."""
+    def create_artists(self, legend, orig_handle, xdescent, ydescent,
+                       width, height, fontsize, trans):
+        arrow = FancyArrow(
+            xdescent, ydescent + height / 2,
+            width * 0.9, 0,
+            width=height * 0.35,
+            head_width=height * 0.9,
+            head_length=width * 0.25,
+            fc=orig_handle.get_facecolor(),
+            ec=orig_handle.get_edgecolor(),
+            linewidth=0.8,
+            transform=trans
+        )
+        return [arrow]
+
+
+def add_arrow_legend(fig_or_ax,  field, is_figure=False, **kwargs):
+    """Add arrow-style legend for Re/Im E_parallel."""
+    # Instantiating default arrows inside the function to avoid Signature SyntaxErrors
+    arrow_re = FancyArrow(0, 0.5, 0.5, 0, width=0.08, head_width=0.25, head_length=0.12, fc=COLOR_RE, ec=EDGE_RE)
+    arrow_im = FancyArrow(0, 0.5, 0.5, 0, width=0.08, head_width=0.25, head_length=0.12, fc=COLOR_IM, ec=EDGE_IM)
+    
+    target = fig_or_ax.legend if is_figure else fig_or_ax.legend
+    return target(
+        [arrow_re, arrow_im],
+        [rf'$\mathrm{{Re}}({field}_{{\parallel}})$', rf'$\mathrm{{Im}}({field}_{{\parallel}})$'],
+        handler_map={FancyArrow: ArrowHandler()},
+        ncol=2, 
+        framealpha=0.95, facecolor='white', edgecolor='black',
+        **kwargs
+    )
+
+
+def _get_hexagonal_ws_patch(nx, ny):
+    """Helper function to calculate the Wigner-Seitz cell for a hexagonal lattice."""
+    cx, cy = nx / 2.0, ny / 2.0
+    a_pix = min(nx, ny) / 3.0 
+    R = a_pix / np.sqrt(3)
+    
+    # 30-degree phase shift to align vertices correctly
+    angles = np.deg2rad([30, 90, 150, 210, 270, 330, 390])
+    hex_x = cx + R * np.cos(angles)
+    hex_y = cy + R * np.sin(angles)
+    
+    ws_path = Path(np.column_stack([hex_x, hex_y]))
+    ws_patch = PathPatch(ws_path, facecolor='none', edgecolor='black', lw=3, zorder=10)
+    
+    pad = R * 0.02 
+    xlims = (np.min(hex_x) - pad, np.max(hex_x) + pad)
+    ylims = (np.min(hex_y) - pad, np.max(hex_y) + pad)
+    
+    return ws_patch, xlims, ylims
+
+
+def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None, 
+                            lattice_type="square", ax=None, step=2, global_vmax=None):
+    """
+    Plot field_z background with field_xy quiver arrows from pre-loaded numpy arrays.
+    Supports both 'square' and 'hexagonal' lattice types.
+    """
+    if ax is None: 
+        ax = plt.gca()
+    
+    # MPB arrays are (nx, ny). Extract dimensions.
+    nx, ny = field_z.shape
+    field_z_real = np.real(field_z)
+    
+    # Enforce global colorscale if provided
+    vmax_h = global_vmax if global_vmax is not None else np.max(np.abs(field_z_real))
+    
+    # --- [ 1. Handle Lattice Types & Clipping ] ---
+    clip_patch = None
+    if lattice_type.lower() == "hexagonal":
+        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny)
+        ax.add_patch(clip_patch)
+        ax.set_xlim(*xlims)
+        ax.set_ylim(*ylims)
+    else:
+        # Standard Square Bounds
+        ax.set_xlim(0, nx)
+        ax.set_ylim(0, ny)
+
+    # --- [ 2. Plot Background Field ] ---
+    # Transpose (.T) required to map (nx, ny) arrays to standard X/Y plots
+    im = ax.imshow(field_z_real.T, interpolation='spline36', cmap="RdBu_r",
+                   vmin=-vmax_h, vmax=vmax_h, origin='lower')
+    if clip_patch:
+        im.set_clip_path(clip_patch)
+
+    # --- [ 3. Plot Quivers ] ---
+    x = np.arange(nx)
+    y = np.arange(ny)
+    
+    # Use 'ij' indexing to ensure grid shapes match field shapes exactly
+    X, Y = np.meshgrid(x, y, indexing='ij')
+    X_sub = X[::step, ::step]
+    Y_sub = Y[::step, ::step]
+
+    field_x_r = np.real(field_x)[::step, ::step]
+    field_y_r = np.real(field_y)[::step, ::step]
+    field_x_i = np.imag(field_x)[::step, ::step]
+    field_y_i = np.imag(field_y)[::step, ::step]
+
+    mag_real = np.sqrt(field_x_r**2 + field_y_r**2)
+    mag_imag = np.sqrt(field_x_i**2 + field_y_i**2)
+    max_mag = max(mag_real.max(), mag_imag.max())
+    
+    # Avoid zero division scale errors
+    arrow_scale = max_mag * 15 if max_mag > 0 else 1 
+
+    q_real = ax.quiver(X_sub, Y_sub, field_x_r, field_y_r,
+                       color=COLOR_RE, edgecolor=EDGE_RE, linewidth=0.15,
+                       scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
+    if clip_patch: q_real.set_clip_path(clip_patch)
+
+    offset = 0.3
+    q_imag = ax.quiver(X_sub + offset, Y_sub + offset, field_x_i, field_y_i,
+                       color=COLOR_IM, edgecolor=EDGE_IM, linewidth=0.15,
+                       scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
+    if clip_patch: q_imag.set_clip_path(clip_patch)
+
+    # --- [ 4. Plot Epsilon Contours ] ---
+    if eps_data is not None:
+        try:
+            # Must use .T to map over the transposed imshow
+            cont = ax.contour(eps_data.T, levels=[eps_data.max() * 0.5],
+                              colors='gray', linewidths=1.5, linestyles='--',
+                              alpha=0.7, origin='lower')
+            
+            # Apply clipping dynamically depending on Matplotlib version
+            if clip_patch:
+                if hasattr(cont, 'collections') and cont.collections:
+                    for coll in cont.collections:
+                        coll.set_clip_path(clip_patch)
+                else:
+                    cont.set_clip_path(clip_patch)
+        except Exception as e:
+            print(f"Warning: Failed to plot epsilon contours: {e}")
+
+    # --- [ 5. Formatting ] ---
+    ax.set_xlabel("x (grid pts)")
+    ax.set_ylabel("y (grid pts)")
+    ax.set_aspect('equal')
+    
+    return im
+
 
 class SimulationViewer:
 
@@ -109,7 +271,7 @@ class SimulationViewer:
                      cmap: str = 'viridis', axis: int = 2, index: Optional[int] = None)-> None:
         
         slice_data = self._make_2d_slice(data, axis, index)
-        plt.imshow(slice_data, interpolation='spline36', cmap=cmap, origin='lower')
+        plt.imshow(slice_data.T, interpolation='spline36', cmap=cmap, origin='lower')
         plt.gca().set_aspect(self.SQUARE_ASPECT_RATIO[0]/self.SQUARE_ASPECT_RATIO[1])
         ax = plt.gca()
         self._apply_title(ax, main_title=title, subtitle=subtitle)

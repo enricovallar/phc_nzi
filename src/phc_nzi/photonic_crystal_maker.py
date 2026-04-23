@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import meep as mp
 from  typing import Optional
 import numpy as np
+import warnings
 
 
 class KPath:
@@ -533,6 +534,145 @@ class BaseDielectricDistribution:
                                       "material": self._material_atoms})
         
         return [self._bulk, hole_1, hole_2, hole_3]
+
+    # ==============================================================================
+    # Standard C6v (Hexagonal / p6mm) Wyckoff Positions
+    # ==============================================================================
+
+    def make_C6v_1a(self, radius=None):
+        """1a Wyckoff position for C6v (Origin). 1 atom."""
+        r = radius if radius is not None else self._radius1
+        hole = Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                      "center": mp.Vector3(0, 0, 0), 
+                                      "material": self._material_atoms})
+        return [hole]
+
+    def make_C6v_2b(self, radius=None):
+        """2b Wyckoff position for C6v (Honeycomb). 2 atoms."""
+        r = radius if radius is not None else self._radius2
+        coords = [(1/3, 1/3), (2/3, 2/3)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    def make_C6v_3c(self, radius=None):
+        """3c Wyckoff position for C6v (Kagome). 3 atoms."""
+        r = radius if radius is not None else self._radius1
+        coords = [(1/2, 0), (0, 1/2), (1/2, 1/2)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    def make_C6v_6d(self, radius=None, x_dist=0.25):
+        """6d Wyckoff position for C6v (Primary Hexamer). 6 atoms on mirror axes."""
+        r = radius if radius is not None else self._radius1
+        x = x_dist
+        coords = [(x, 0), (0, x), (-x, x), (-x, 0), (0, -x), (x, -x)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    def make_C6v_6e(self, radius=None, x_dist=0.15):
+        """6e Wyckoff position for C6v (Secondary Hexamer). 6 atoms off mirror axes."""
+        r = radius if radius is not None else self._radius1
+        x = x_dist
+        coords = [(x, x), (-x, 2*x), (-2*x, x), (-x, -x), (x, -2*x), (2*x, -x)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    # ==============================================================================
+    # Standard C4v (Square / p4mm) Wyckoff Positions
+    # ==============================================================================
+
+    def make_C4v_1a(self, radius=None):
+        """1a Wyckoff position for C4v (Origin). 1 atom."""
+        r = radius if radius is not None else self._radius1
+        hole = Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                      "center": mp.Vector3(0, 0, 0), 
+                                      "material": self._material_atoms})
+        return [hole]
+
+    def make_C4v_1b(self, radius=None):
+        """1b Wyckoff position for C4v (Center). 1 atom."""
+        r = radius if radius is not None else self._radius2
+        hole = Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                      "center": mp.Vector3(1/2, 1/2, 0), 
+                                      "material": self._material_atoms})
+        return [hole]
+
+    def make_C4v_2c(self, radius=None):
+        """2c Wyckoff position for C4v (Edges). 2 atoms."""
+        r = radius if radius is not None else self._radius2
+        coords = [(1/2, 0), (0, 1/2)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    def make_C4v_4d(self, radius=None, x_dist=0.25):
+        """4d Wyckoff position for C4v (Diagonals). 4 atoms."""
+        r = radius if radius is not None else self._radius2
+        x = x_dist
+        coords = [(x, x), (-x, x), (-x, -x), (x, -x)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+
+    def make_C4v_4e(self, radius=None, x_dist=0.25):
+        """4e Wyckoff position for C4v (Axes). 4 atoms."""
+        r = radius if radius is not None else self._radius2
+        x = x_dist
+        coords = [(x, 0), (0, x), (-x, 0), (0, -x)]
+        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
+                                       "center": mp.Vector3(u, v, 0), 
+                                       "material": self._material_atoms}) for u, v in coords]
+    # ==============================================================================
+    # Backward Compatibility Aliases (Deprecated)
+    # ==============================================================================
+
+    def make_wyckoff_1a(self, *args, **kwargs):
+        warnings.warn("`make_wyckoff_1a()` is deprecated. Use `make_C6v_1a()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_1a(*args, **kwargs)
+
+    def make_wyckoff_2b(self, *args, **kwargs):
+        warnings.warn("`make_wyckoff_2b()` is deprecated. Use `make_C6v_2b()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_2b(*args, **kwargs)
+
+    def make_wyckoff_3c(self, *args, **kwargs):
+        warnings.warn("`make_wyckoff_3c()` is deprecated. Use `make_C6v_3c()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_3c(*args, **kwargs)
+
+    def make_wyckoff_6d(self, *args, **kwargs):
+        warnings.warn("`make_wyckoff_6d()` is deprecated. Use `make_C6v_6d()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_6d(*args, **kwargs)
+
+    def make_wyckoff_6e(self, *args, **kwargs):
+        warnings.warn("`make_wyckoff_6e()` is deprecated. Use `make_C6v_6e()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_6e(*args, **kwargs)
+        
+    def make_diatomic(self, *args, **kwargs):
+        warnings.warn("`make_diatomic()` is deprecated. Use `make_C6v_diatomic()` instead.", DeprecationWarning, stacklevel=2)
+        return self.make_C6v_diatomic(*args, **kwargs)
+
+    # ----------------------------------------------------------------------
+    # Linear Superposition Method
+    # ----------------------------------------------------------------------
+
+    def make_superposition(self, wyckoff_lists, include_bulk=True):
+        """
+        Combines multiple lists of Wyckoff geometries into a single list.
+        
+        Args:
+            wyckoff_lists (list of lists): E.g. [make_wyckoff_1a(), make_wyckoff_6d(x_dist=0.3)]
+            include_bulk (bool): If True, prepends self._bulk to the returned list.
+        
+        Returns:
+            list: A flat list of Geometry objects ready for PhotonicCrystal.
+        """
+        geometries = [self._bulk] if include_bulk else []
+        for w_list in wyckoff_lists:
+            geometries.extend(w_list)
+        return geometries
     
 
     @property

@@ -52,10 +52,8 @@ class ParamSweeper():
         return row
 
     def run(self):
-        total_steps = len(self.values)
         
-        for i, param_value in enumerate(self.values):
-            print(f"step {i+1}/{total_steps}: {self.param_name} = {param_value}")
+        for  param_value in self.values:
             command_line_params = {self.param_name: param_value}
             command_line_params.update(self.other_command_line_params)
             row = self._process_step(param_value, command_line_params)

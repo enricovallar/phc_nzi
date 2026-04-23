@@ -11,6 +11,7 @@ from phc_nzi.lsf_job_configurator import LSFJobConfiguration
 import h5py
 import numpy as np
 import pandas as pd
+import re
 
 # Module-level logger configuration.
 logger = logging.getLogger(__name__)
@@ -315,13 +316,13 @@ class Simulation:
         
     # Run the simulation in a standard HPC environment.
     def run_hpc(self, mpb_command_line_params: dict = {},
-                load_epsilon: bool = True, extract_frequencies: bool = True, mpi = True) -> None:
+                load_epsilon: bool = True, extract_frequencies: bool = True, mpi = True, version = "mpb/1.11.1") -> None:
         
         self._make_sure_scheme_script_exists()
         params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
         mpb = "mpb-mpi" if mpi  is True else "mpb"
         cmd = (
-            f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+            f"source /dtu/sw/dcc/dcc-sw.bash && module load {version} && "
             f"{mpb} {params} {self.scheme_filename}"
         )
         self.logger.debug("Running HPC command: %s", cmd)
@@ -379,6 +380,7 @@ class Simulation:
                     output_timeout: int = 300,
                     load_epsilon: bool = True, extract_frequencies: bool = True,
                     mpb_command_line_params: dict = {},
+                    version: str = "mpb/1.11.1"
                     ) -> None:
         self._make_sure_scheme_script_exists()
 
@@ -390,7 +392,7 @@ class Simulation:
         ])
         job_script = "\n".join(preamble) + "\n\n"
         job_script += (
-            f"source /dtu/sw/dcc/dcc-sw.bash && module load mpb/1.11.1 && "
+            f"source /dtu/sw/dcc/dcc-sw.bash && module load {version} && "
             f"mpirun -np $LSB_DJOB_NUMPROC mpb-mpi {params} {self.scheme_filename}"
         )
         job_script_filename = f"{self.simulation_name}.sh"
@@ -713,5 +715,129 @@ class Simulation:
     
     def get_kpoints_idices(self, df):
         return df["k index"]
-        
+    
 
+    def get_symmetry_by_parity(self, target_parity):
+        """
+        Uses re.search to find a specific parity block (e.g., 'te' or 'tm').
+        """
+        pattern = rf"SYM_DATA_START_{target_parity}\n(.*?)\nSYM_DATA_END_{target_parity}"
+        file_path = os.path.join(self.directory, self.output_filename)
+        with open(file_path, "r") as f:
+            output_text = f.read()
+        try:
+            match = re.search(pattern, output_text, re.DOTALL)
+        except re.error as e:
+            print(f"Error: Invalid regex pattern for parity '{target_parity}': {e}")
+            return None
+        if not match:
+            print(f"Error: Block for parity '{target_parity}' not found.")
+            return None
+
+        data_lines = match.group(1).strip().split("\n")
+        results = {}
+        
+        for line in data_lines:
+            parts = [p.strip() for p in line.split(",")]
+            if len(parts) < 3: continue
+            
+            band_num = int(parts[1])
+            chars = {}
+            for op_val in parts[2:]:
+                op, val = op_val.split("=")
+                val_clean = val.replace(" + ", "+").replace(" - ", "-").replace("i", "j")
+                chars[op] = complex(val_clean)
+                
+            results[band_num] = chars
+            
+        return results
+
+
+    def compute_projections(self, chars, group="C6v"):
+        """
+        Computes the projection of a mode onto each irreducible representation.
+        Returns 1.0 if the mode purely belongs to that irrep.
+        """
+        tables = {
+            "C6v": {
+                "g": 12,
+                "weights": {"E": 1, "C6": 2, "C3": 2, "C2": 1, "sv": 3, "sd": 3},
+                "irreps": {
+                    "A_1": {"E": 1, "C6": 1,  "C3": 1,  "C2": 1,  "sv": 1,  "sd": 1},
+                    "A_2": {"E": 1, "C6": 1,  "C3": 1,  "C2": 1,  "sv": -1, "sd": -1},
+                    "B_1": {"E": 1, "C6": -1, "C3": 1,  "C2": -1, "sv": 1,  "sd": -1},
+                    "B_2": {"E": 1, "C6": -1, "C3": 1,  "C2": -1, "sv": -1, "sd": 1},
+                    "E_1": {"E": 2, "C6": 1,  "C3": -1, "C2": -2, "sv": 0,  "sd": 0},
+                    "E_2": {"E": 2, "C6": -1, "C3": -1, "C2": 2,  "sv": 0,  "sd": 0},
+                }
+            },
+            "C4v": {
+                "g": 8,
+                "weights": {"E": 1, "C4": 2, "C2": 1, "sv": 2, "sd": 2},
+                "irreps": {
+                    "A_1": {"E": 1, "C4": 1,  "C2": 1,  "sv": 1,  "sd": 1},
+                    "A_2": {"E": 1, "C4": 1,  "C2": 1,  "sv": -1, "sd": -1},
+                    "B_1": {"E": 1, "C4": -1, "C2": 1,  "sv": 1,  "sd": -1},
+                    "B_2": {"E": 1, "C4": -1, "C2": 1,  "sv": -1, "sd": 1},
+                    "E":  {"E": 2, "C4": 0,  "C2": -2, "sv": 0,  "sd": 0},
+                }
+            }
+        }
+
+        if group not in tables:
+            return {}
+
+        group_data = tables[group]
+        weights = group_data["weights"]
+        g = group_data["g"]
+
+        # Observed Identity E is always 1.0 for a single band
+        full_obs = chars.copy()
+        full_obs["E"] = 1.0 + 0j
+
+        projections = {}
+        for irrep, irrep_chars in group_data["irreps"].items():
+            d_i = irrep_chars["E"]
+            scalar_product = 0
+            for op, w in weights.items():
+                if op in full_obs:
+                    scalar_product += w * np.conj(irrep_chars[op]) * full_obs[op]
+            
+            projections[irrep] = (d_i * scalar_product / g).real
+
+        return projections
+
+    def identify_irrep(self, projections):
+        """
+        Identifies the irrep strictly by finding the max projection value.
+        Returns only the string label.
+        """
+        if not projections:
+            return "Unknown"
+        return max(projections, key=projections.get)
+
+    def identify_irrep_by_band_indices(self, which_bands: list, which_parity: str, group: str) -> list:
+        """
+        Identifies the irrep by checking which bands have a projection of 1.0 for the specified parity.
+         - which_bands: List of band indices to check (e.g., [2, 3, 4])
+         - which_parity: Parity to check (e.g., 'te' or 'tm')
+         - group: The point group to use for projection calculations (e.g., "C6v" or "C4v")
+            Returns a list of identified irreps for the specified bands and parity.
+        """
+
+        symmetry_data = self.get_symmetry_by_parity(which_parity)
+        if not symmetry_data:
+            return [None] * len(which_bands)
+        # Get group from symmetry data keys (e.g., "C6v" or "C4v") and compute projections for each band
+
+        identified_irreps = []
+        for band in which_bands:
+            chars = symmetry_data.get(band)
+            if chars is None:
+                identified_irreps.append(None)
+                continue
+            projections = self.compute_projections(chars, group=group)
+            irrep = self.identify_irrep(projections)
+            identified_irreps.append(irrep)
+        return identified_irreps
+        

@@ -14,6 +14,7 @@ src/phc_nzi/mpi_differential_evolution.py
 src/phc_nzi/mpi_mapper.py
 src/phc_nzi/optimization_data_analyzer.py
 src/phc_nzi/photonic_crystal_maker.py
+src/phc_nzi/pt_solver.py
 src/phc_nzi/simulation_handler.py
 src/phc_nzi/simulation_viewer.py
 src/phc_nzi/sweeper.py
