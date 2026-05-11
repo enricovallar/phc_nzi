@@ -1,4 +1,4 @@
-(set! num-bands 5)
+(set! num-bands 8)
 (set! resolution 65)
 (set! k-points (list (vector3 0.0 0.0 0.0)))
 (set! k-points (interpolate 4 k-points))
@@ -16,11 +16,15 @@
   (material (make dielectric (epsilon 12.11))))
  (make cylinder (radius r2)
   (height h)
-  (center (vector3 0.3333333333333333 0.3333333333333333 0.0))
+  (center (vector3 0.5 0.0 0.0))
   (material (make dielectric (epsilon 12.11))))
  (make cylinder (radius r2)
   (height h)
-  (center (vector3 0.6666666666666666 0.6666666666666666 0.0))
+  (center (vector3 0.0 0.5 0.0))
+  (material (make dielectric (epsilon 12.11))))
+ (make cylinder (radius r2)
+  (height h)
+  (center (vector3 0.5 0.5 0.0))
   (material (make dielectric (epsilon 12.11))))
 ))
 
@@ -127,4 +131,4 @@
         (print "SYM_DATA_END_" parity "
 ")))) ; Unique end tag
 
-(run-tm )_345
+(run-tm fix-efield-phase display-symmetries-c6v)

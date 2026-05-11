@@ -1,4 +1,5 @@
 from typing import Optional, Union
+from matplotlib import patches
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -58,7 +59,7 @@ def add_arrow_legend(fig_or_ax,  field, is_figure=False, **kwargs):
     )
 
 
-def _get_hexagonal_ws_patch(nx, ny):
+def _get_hexagonal_ws_patch(nx, ny, lw = 3):
     """Helper function to calculate the Wigner-Seitz cell for a hexagonal lattice."""
     cx, cy = nx / 2.0, ny / 2.0
     a_pix = min(nx, ny) / 3.0 
@@ -70,7 +71,7 @@ def _get_hexagonal_ws_patch(nx, ny):
     hex_y = cy + R * np.sin(angles)
     
     ws_path = Path(np.column_stack([hex_x, hex_y]))
-    ws_patch = PathPatch(ws_path, facecolor='none', edgecolor='black', lw=3, zorder=10)
+    ws_patch = PathPatch(ws_path, facecolor='none', edgecolor='black', lw=lw, zorder=10)
     
     pad = R * 0.02 
     xlims = (np.min(hex_x) - pad, np.max(hex_x) + pad)
@@ -80,7 +81,7 @@ def _get_hexagonal_ws_patch(nx, ny):
 
 
 def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None, 
-                            lattice_type="square", ax=None, step=2, global_vmax=None):
+                            lattice_type="square", ax=None, step=2, global_vmax=None, ws_lw=3):
     """
     Plot field_z background with field_xy quiver arrows from pre-loaded numpy arrays.
     Supports both 'square' and 'hexagonal' lattice types.
@@ -98,7 +99,7 @@ def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None,
     # --- [ 1. Handle Lattice Types & Clipping ] ---
     clip_patch = None
     if lattice_type.lower() == "hexagonal":
-        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny)
+        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw)
         ax.add_patch(clip_patch)
         ax.set_xlim(*xlims)
         ax.set_ylim(*ylims)
@@ -113,38 +114,39 @@ def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None,
                    vmin=-vmax_h, vmax=vmax_h, origin='lower')
     if clip_patch:
         im.set_clip_path(clip_patch)
-
-    # --- [ 3. Plot Quivers ] ---
-    x = np.arange(nx)
-    y = np.arange(ny)
     
-    # Use 'ij' indexing to ensure grid shapes match field shapes exactly
-    X, Y = np.meshgrid(x, y, indexing='ij')
-    X_sub = X[::step, ::step]
-    Y_sub = Y[::step, ::step]
+    if field_x is not None and field_y is not None:
+        # --- [ 3. Plot Quivers ] ---
+        x = np.arange(nx)
+        y = np.arange(ny)
+        
+        # Use 'ij' indexing to ensure grid shapes match field shapes exactly
+        X, Y = np.meshgrid(x, y, indexing='ij')
+        X_sub = X[::step, ::step]
+        Y_sub = Y[::step, ::step]
 
-    field_x_r = np.real(field_x)[::step, ::step]
-    field_y_r = np.real(field_y)[::step, ::step]
-    field_x_i = np.imag(field_x)[::step, ::step]
-    field_y_i = np.imag(field_y)[::step, ::step]
+        field_x_r = np.real(field_x)[::step, ::step]
+        field_y_r = np.real(field_y)[::step, ::step]
+        field_x_i = np.imag(field_x)[::step, ::step]
+        field_y_i = np.imag(field_y)[::step, ::step]
 
-    mag_real = np.sqrt(field_x_r**2 + field_y_r**2)
-    mag_imag = np.sqrt(field_x_i**2 + field_y_i**2)
-    max_mag = max(mag_real.max(), mag_imag.max())
-    
-    # Avoid zero division scale errors
-    arrow_scale = max_mag * 15 if max_mag > 0 else 1 
+        mag_real = np.sqrt(field_x_r**2 + field_y_r**2)
+        mag_imag = np.sqrt(field_x_i**2 + field_y_i**2)
+        max_mag = max(mag_real.max(), mag_imag.max())
+        
+        # Avoid zero division scale errors
+        arrow_scale = max_mag * 15 if max_mag > 0 else 1 
 
-    q_real = ax.quiver(X_sub, Y_sub, field_x_r, field_y_r,
-                       color=COLOR_RE, edgecolor=EDGE_RE, linewidth=0.15,
-                       scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
-    if clip_patch: q_real.set_clip_path(clip_patch)
+        q_real = ax.quiver(X_sub, Y_sub, field_x_r, field_y_r,
+                        color=COLOR_RE, edgecolor=EDGE_RE, linewidth=0.15,
+                        scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
+        if clip_patch: q_real.set_clip_path(clip_patch)
 
-    offset = 0.3
-    q_imag = ax.quiver(X_sub + offset, Y_sub + offset, field_x_i, field_y_i,
-                       color=COLOR_IM, edgecolor=EDGE_IM, linewidth=0.15,
-                       scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
-    if clip_patch: q_imag.set_clip_path(clip_patch)
+        offset = 0.3
+        q_imag = ax.quiver(X_sub + offset, Y_sub + offset, field_x_i, field_y_i,
+                        color=COLOR_IM, edgecolor=EDGE_IM, linewidth=0.15,
+                        scale=arrow_scale, width=0.004, headwidth=4, headlength=4)
+        if clip_patch: q_imag.set_clip_path(clip_patch)
 
     # --- [ 4. Plot Epsilon Contours ] ---
     if eps_data is not None:
@@ -171,6 +173,47 @@ def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None,
     
     return im
 
+def plot_epsilon_on_ax(eps_data, lattice_type="square", ax=None, ws_lw = 3,  cmap = "managua_r", **kwargs):
+    """
+    Plot the epsilon distribution background from pre-loaded numpy arrays.
+    Supports both 'square' and 'hexagonal' lattice types using Wigner-Seitz clipping.
+    """
+    if ax is None: 
+        ax = plt.gca()
+    
+    # Extract dimensions from the epsilon array
+    nx, ny = eps_data.shape
+    
+    # --- [ 1. Handle Lattice Types & Clipping ] ---
+    clip_patch = None
+    if lattice_type.lower() == "hexagonal":
+        # Uses your exact helper function logic for Wigner-Seitz cells
+        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw)
+        ax.add_patch(clip_patch)
+        ax.set_xlim(*xlims)
+        ax.set_ylim(*ylims)
+    else:
+        clip_patch = patches.Rectangle((0, 0), nx, ny, 
+                                       fill=False, 
+                                       edgecolor='black', 
+                                       linewidth=ws_lw,
+                                       joinstyle='miter')
+        ax.add_patch(clip_patch)
+        ax.set_xlim(0, nx)
+        ax.set_ylim(0, ny)
+
+    # --- [ 2. Plot Background Epsilon ] ---
+    im = ax.imshow(eps_data.T, cmap=cmap, origin='lower', **kwargs)
+    
+    if clip_patch:
+        im.set_clip_path(clip_patch)
+
+    # --- [ 3. Formatting ] ---
+    ax.set_xlabel("x (grid pts)")
+    ax.set_ylabel("y (grid pts)")
+    ax.set_aspect('equal')
+    
+    return im
 
 class SimulationViewer:
 
