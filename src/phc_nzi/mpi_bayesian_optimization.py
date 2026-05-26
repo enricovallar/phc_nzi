@@ -15,7 +15,7 @@ import joblib
 import json
 
 import numpy as np
-from schwimmbad import MPIPool
+from schwimmbad import MPIPool, MultiPool, SerialPool
 
 # Ensure scikit-optimize is installed
 try:
@@ -29,6 +29,145 @@ from phc_nzi.lsf_job_configurator import LSFJobConfiguration
 
 # Global lock to synchronize printing among threads. 
 print_lock = threading.Lock()
+
+
+def failsafe_irrep_mapping(target_irreps, degeneracy_tol, full_irrep_map, bands_to_check, log_file=None):
+    """
+    FAILSAFE FOR MIXED MODES: 
+    # Look for a triplet of modes with the same frequency within a certain tolerance
+    # If this triplet:
+    # 1) exists
+    # 2) contains modes from the target irreps (in any number)
+    # 3) Before the triplet occurrence, an even number of E modes exist
+    # Then we assume that this is a triple degeneracy where the solver mixed the states, 
+    # and we change the irreps of the three modes to match exactly the target irreps
+    # Example: if A_2, E_1, A_2 are very close in frequency, and we are looking for A_2, E_1, E_1, 
+    # we assume the second A_2 is actually an E_1 that got mixed up, and we relabel it as such.
+
+    Parameters:
+    - target_irreps: list of irreps we are targeting (e.g. ['A_2', 'E_1', 'E_1'])
+    - degeneracy_tol: frequency tolerance to consider modes as degenerate (e.g. 1e-3)
+    - full_irrep_map: dict mapping band indices to (irrep, frequency) tuples
+    - bands_to_check: list of band indices that were checked for irreps
+    - log_file: optional file path to log any corrections made for transparency
+    """
+    if degeneracy_tol is not None and target_irreps is not None:
+        freqs = np.array([freq for _, _, freq in full_irrep_map.values()])
+        for i in range(len(freqs)-2):
+            if abs(freqs[i] - freqs[i+1]) < degeneracy_tol and abs(freqs[i+1] - freqs[i+2]) < degeneracy_tol:
+                triplet_irreps = [full_irrep_map[bands_to_check[i]][0], 
+                                    full_irrep_map[bands_to_check[i+1]][0], 
+                                    full_irrep_map[bands_to_check[i+2]][0]]
+                # Applay correction if not all of them are already correct independetly of order
+                # if at least one of the triplet irreps has a low confidence. 
+                condition_1 = sorted(triplet_irreps) != sorted(target_irreps)
+                condition_2 = all(full_irrep_map[bands_to_check[j]][1] < 0.85 for j in range(i, i+3))
+                if condition_1 and condition_2:
+
+                    # If a there is a mode that is not in the target irreps
+                    # And one of the modes has a high confidence, 
+                    # we skip the correction because it is likely that the solver got it right and the degeneracy is just a coincidence.
+                    condition_3 = any(full_irrep_map[bands_to_check[j]][0] not in target_irreps for j in range(i, i+3))
+                    condition_4 = any(full_irrep_map[bands_to_check[j]][1] >= 0.85 for j in range(i, i+3))
+                    if condition_3 and condition_4:
+                        continue
+
+
+                    # Check E mode count before this triplet
+                    e_count_before = sum(1 for j in range(i) if full_irrep_map[bands_to_check[j]][0] is not None and full_irrep_map[bands_to_check[j]][0].startswith('E'))
+                    if e_count_before % 2 == 0:
+                        # Log this correction in the log file for transparency
+                        msg = f"Degeneracy correction applied at bands {bands_to_check[i:i+3]} with freqs {freqs[i:i+3]} and irreps {triplet_irreps} relabeled to {target_irreps}\n"
+                        if log_file is not None:
+                            with open(log_file, "a") as f:
+                                f.write(msg)
+                        else:
+                            print(msg)
+                        # Relabel the triplet to match target irreps
+                        for j, target_irrep in enumerate(target_irreps):
+                            full_irrep_map[bands_to_check[i+j]] = (target_irrep, full_irrep_map[bands_to_check[i+j]][1], full_irrep_map[bands_to_check[i+j]][2])
+                        break
+
+def find_bands_from_irreps(simulation: Simulation, parity, symmetry_group, target_irreps, irrep_occurrences, degeneracy_tol, irrep_log_file):
+        """Dynamically maps requested irreps to actual band indices based on current simulation output.
+
+        Parameters:
+        - simulation: Simulation object to extract frequency and irrep data
+        - parity: polarization parity to consider (e.g. "te" or "tm")
+        - symmetry_group: symmetry group of the system (e.g. "C6v")
+        - target_irreps: list of irreps we want to track (e.g. ['A_2', 'E_1', 'E_1'])
+        - irrep_occurrences: list of which occurrence of each irrep to track (e.g. [1, 1, 1] for first occurrence)
+        - degeneracy_tol: frequency tolerance to consider modes as degenerate for the failsafe correction
+        - irrep_log_file: file path to log the irrep mapping and any corrections for transparency
+        """
+        # Search far enough up the bands to find the required modes
+        
+        df = simulation.load_frequency_data(parity)
+        # find the number of columns starting with the polarization prefix to determine how many bands are available
+        search_max = len([col for col in df.columns if col.startswith(parity)])
+
+        bands_to_check = list(range(2, search_max+1))
+        
+        identified_irreps = simulation.identify_irrep_by_band_indices_with_confidence(
+            which_bands=bands_to_check, 
+            which_parity=parity, 
+            group=symmetry_group
+        ) 
+        corresponding_freqs = simulation.get_frequencies_by_band(df, parity, bands=bands_to_check)
+        full_irrep_map = {
+            b: (irrep, confidence, corresponding_freqs[b]) 
+            for b, (irrep, confidence) in zip(bands_to_check, identified_irreps)
+        }
+        
+        
+        failsafe_irrep_mapping(target_irreps, degeneracy_tol, full_irrep_map, bands_to_check, log_file=irrep_log_file)
+
+        # Handle band crossings and degeneracies by grouping bands into their irreps first.
+        global_bands_by_irrep = {}
+        for band, (irrep, confidence, freq) in full_irrep_map.items():
+            if irrep is None:
+                continue
+            if irrep not in global_bands_by_irrep:
+                global_bands_by_irrep[irrep] = []
+            
+            global_bands_by_irrep[irrep].append(band) 
+        
+        # Chunk global bands into distinct occurrence containers based on symmetry rules
+        modes_by_irrep = {}
+        
+        for irrep, bands in global_bands_by_irrep.items(): 
+            sorted_bands = sorted(bands)
+            # 'E' representations are always 2D (degenerate pairs), 'A'/'B' are 1D
+            dim = 2 if irrep.startswith('E') else 1
+            
+            # Slice sorted bands into chunks matching the representation dimension
+            modes_by_irrep[irrep] = [sorted_bands[i:i + dim] for i in range(0, len(sorted_bands), dim)]
+            
+        occurrences = irrep_occurrences or [1] * len(target_irreps)
+        dynamic_bands = []
+        used_bands = set()
+        
+        for irrep, occ in zip(target_irreps, occurrences):
+            if irrep not in modes_by_irrep or len(modes_by_irrep[irrep]) < occ:
+                error_msg = f"Missing occurrence {occ} for {irrep}. Found: {modes_by_irrep}"
+                return None, full_irrep_map, error_msg
+            
+            cluster = modes_by_irrep[irrep][occ - 1]
+            
+            assigned_band = None
+            for b in cluster:
+                if b not in used_bands:
+                    assigned_band = b
+                    break
+            
+            if assigned_band is None:
+                error_msg = f"Not enough bands in occurrence {occ} of {irrep}. Cluster: {cluster}"
+                return None, full_irrep_map, error_msg
+                
+            dynamic_bands.append(assigned_band)
+            used_bands.add(assigned_band)
+            
+        return dynamic_bands, full_irrep_map, None
 
 def use_nested_temp_directory(func):
     @functools.wraps(func)
@@ -63,19 +202,31 @@ class MPIBayesianOptimizator:
                  symmetry_group: str = "C6v",      
                  height_slab: float = None, 
                  directory: str = None,
-                 fixed_params: dict = None):
+                 fixed_params: dict = None,
+                 objective_mode: str = "linear",
+                 target_cost: float = None,
+                 strategy: str = "cl_min",
+                 degeneracy_tol: float = None,
+                 use_mpi: bool = True,
+                 local_workers: int = 1): 
         """
         Initializes the MPI Bayesian Optimizer with dynamic irrep tracking capabilities. 
         """
         self.simulation = Simulation(simulation_name=simulation_name,
                                      script=scheme_script,
                                      directory=directory,
-                                     write_script=False) 
+                                     write_script=True) 
         self.param_names = param_names
         self.polarization = polarization
         self.maxiter = maxiter
         self.batch_size = batch_size
         self.scheme_script = scheme_script
+        self.objective_mode = objective_mode  
+        self.target_cost = target_cost
+        self.strategy = strategy
+        self.use_mpi = use_mpi
+        self.local_workers = local_workers
+        self.degeneracy_tol = degeneracy_tol
         
         self.bo_options = bo_options if bo_options is not None else {
             "random_state": 42,
@@ -97,7 +248,7 @@ class MPIBayesianOptimizator:
         self.irrep_occurrences = irrep_occurrences
         self.symmetry_group = symmetry_group
         
-        # Handle fixed parameters and maintain backward compatibility 
+       
         self.fixed_params = fixed_params if fixed_params is not None else {}
         self.height_slab = height_slab
         if self.height_slab is not None:
@@ -112,69 +263,7 @@ class MPIBayesianOptimizator:
         with open(self.irrep_log_file, "w") as f:
             f.write("")
 
-    def _find_bands_from_irreps(self):
-        """Dynamically maps requested irreps to actual band indices based on current simulation output. [cite: 1, 2]"""
-        # Search far enough up the bands to find the required modes
-        search_max = max(15, len(self.target_irreps) * 3) 
-        bands_to_check = list(range(2, search_max + 1))
-        
-        identified_irreps = self.simulation.identify_irrep_by_band_indices(
-            which_bands=bands_to_check, 
-            which_parity=self.polarization, 
-            group=self.symmetry_group
-        ) 
-        
-        # Create a full mapping for the log file: {band: "Irrep"}
-        full_irrep_map = {b: i for b, i in zip(bands_to_check, identified_irreps)}
-        
-        # Group bands into mode clusters
-        modes_by_irrep = {} 
-        current_irrep = None
-        current_cluster = []
-        
-        for band, irrep in zip(bands_to_check, identified_irreps):
-            if irrep is None:
-                continue
-            if irrep == current_irrep:
-                current_cluster.append(band)
-            else:
-                if current_irrep is not None:
-                    if current_irrep not in modes_by_irrep:
-                        modes_by_irrep[current_irrep] = []
-                    modes_by_irrep[current_irrep].append(current_cluster)
-                current_irrep = irrep
-                current_cluster = [band]
-                
-        if current_irrep is not None:
-            if current_irrep not in modes_by_irrep:
-                modes_by_irrep[current_irrep] = []
-            modes_by_irrep[current_irrep].append(current_cluster)
-            
-        occurrences = self.irrep_occurrences or [1] * len(self.target_irreps)
-        dynamic_bands = []
-        used_bands = set()
-        
-        for irrep, occ in zip(self.target_irreps, occurrences):
-            if irrep not in modes_by_irrep or len(modes_by_irrep[irrep]) < occ:
-                error_msg = f"Missing occurrence {occ} for {irrep}. Found: {modes_by_irrep}"
-                return None, full_irrep_map, error_msg
-            
-            cluster = modes_by_irrep[irrep][occ - 1]
-            
-            assigned_band = None
-            for b in cluster:
-                if b not in used_bands:
-                    assigned_band = b
-                    break
-            
-            if assigned_band is None:
-                error_msg = f"Not enough bands in occurrence {occ} of {irrep}. Cluster: {cluster}"
-                return None, full_irrep_map, error_msg
-                
-            dynamic_bands.append(assigned_band)
-            used_bands.add(assigned_band)
-            
-        return dynamic_bands, full_irrep_map, None
+    
 
     @use_nested_temp_directory
     def temp_folder_operations(self, mpb_command_line_params, current_gen=None):
@@ -188,7 +277,15 @@ class MPIBayesianOptimizator:
         
         # Determine current band indices dynamically and create a log label
         if self.target_irreps is not None:
-            current_bands, full_irrep_map, error_msg = self._find_bands_from_irreps()
+            current_bands, full_irrep_map, error_msg = find_bands_from_irreps(
+                self.simulation,
+                self.polarization,
+                self.symmetry_group,
+                self.target_irreps,
+                self.irrep_occurrences,
+                self.degeneracy_tol,
+                self.irrep_log_file
+            )
             
             if error_msg:
                 # Continuous penalty (1.0) regardless of the generation to avoid GP tearing. 
@@ -239,6 +336,7 @@ class MPIBayesianOptimizator:
             current_gen=current_gen
         )
 
+        # Keep logging the RAW un-transformed cost here so your plots don't break
         with open(self.data_file, "a") as f:
             line = f"Gen: {current_gen}, " + ", ".join(f"{name}: {value}" for name, value in command_line_params.items())
             line += f", cost: {cost:.6f}"
@@ -251,7 +349,15 @@ class MPIBayesianOptimizator:
             irrep_str = str(full_irrep_map) if full_irrep_map else "None"
             f.write(f"Gen: {current_gen} | Params: [{params_str}] | Map: {irrep_str} | Status: {tracking_label}\n")
             
-        return cost
+        # Apply optional flat floor active learning metric
+        effective_cost = self.target_cost if (self.target_cost is not None and cost < self.target_cost) else cost
+
+        # --- THE FIX: Transform what the GP model actually receives ---
+        if self.objective_mode == "log":
+            # Safety clip at 1e-12 to prevent math errors if cost hits absolute 0
+            return float(np.log10(max(effective_cost, 1e-12)))
+            
+        return effective_cost
     
     def _objective_wrapper(self, args):
         current_gen, params = args
@@ -261,6 +367,9 @@ class MPIBayesianOptimizator:
         """Runs the Bayesian optimization loop using MPI parallelism. """
         with print_lock:
             print(f"Optimizing parameters {self.param_names} with MPI parallelism using Bayesian Optimization...")
+            print(f"Objective Mode: {self.objective_mode}") 
+            if self.target_cost is not None:
+                print(f"Target Cost Floor: {self.target_cost}")
             if self.fixed_params:
                 print(f"Fixed parameters: {self.fixed_params}")
             if self.target_irreps:
@@ -268,25 +377,32 @@ class MPIBayesianOptimizator:
             else:
                 print(f"Tracking static bands: {self.bands}")
             
-        pool = MPIPool()
-        with pool as mpi_pool:
-            if not mpi_pool.is_master():
-                mpi_pool.wait()
+        if self.use_mpi:
+            pool = MPIPool()
+        else:
+            if self.local_workers > 1:
+                pool = MultiPool(processes=self.local_workers)
+            else:
+                pool = SerialPool()
+                
+        with pool as compute_pool:
+            if self.use_mpi and not compute_pool.is_master():
+                compute_pool.wait()
                 return None
             
             optimizer = Optimizer(**self.bo_options) 
             
             for gen in range(self.maxiter):
-                x_batch = optimizer.ask(n_points=self.batch_size)
+                x_batch = optimizer.ask(n_points=self.batch_size, strategy=self.strategy)
                 x_batch_with_gen = [(gen, x) for x in x_batch]
                 
-                y_batch = list(mpi_pool.map(self._objective_wrapper, x_batch_with_gen))
+                y_batch = list(compute_pool.map(self._objective_wrapper, x_batch_with_gen))
                 
                 optimizer.tell(x_batch, y_batch)
                 
                 with print_lock:
                     best_cost = min(optimizer.yi)
-                    print(f"Generation {gen} complete. Best cost so far: {best_cost:.6f}")
+                    print(f"Generation {gen} complete. Best surrogate score so far: {best_cost:.6f}")
 
             with print_lock:
                 print("Optimization complete.")
@@ -378,8 +494,13 @@ class MPIBayesianOptimizator:
             f"--maxiter={self.maxiter}",
             f"--polarization=\"{self.polarization}\"",
             f"--batch_size={self.batch_size}", 
+            f"--objective_mode=\"{self.objective_mode}\"",  # <-- ADDED FOR MPI ROUTING
+            f"--strategy=\"{self.strategy}\"",
         ]
         
+        if self.target_cost is not None:
+            cmd_args.append(f"--target_cost={self.target_cost}")
+
         if self.bands:
             cmd_args.append(f"--bands {' '.join(map(str, self.bands))}")
         if self.target_irreps:
@@ -443,6 +564,18 @@ if __name__ == '__main__':
     parser.add_argument("--bo_options", type=str, default="{}", help="JSON string of skopt Optimizer options")
     parser.add_argument("--polarization", type=str, default="te", help="Polarization mode (e.g., te or tm)")
     
+    # --- ADDED NEW ARGUMENT ---
+    parser.add_argument("--objective_mode", type=str, choices=["linear", "log"], default="linear",
+                        help="Scale mapping of target optimization. Linear (default) or log space.")
+    parser.add_argument("--target_cost", type=float, default=None,
+                        help="Optional target cost to create a flat floor below this value.")
+    parser.add_argument("--strategy", type=str, default="cl_min",
+                        help="Strategy to use for ask() in Bayesian Optimization.")
+    parser.add_argument("--degeneracy_tol", type=float, default=None,
+                        help="Tolerance for frequency-proximity degeneracy failsafe (e.g. 1e-3).")
+    parser.add_argument("--local", action="store_true", help="Run locally using multiprocessing instead of MPI")
+    parser.add_argument("--local_workers", type=int, default=1, help="Number of local workers if running locally")
+    
     parser.add_argument("--bands", type=int, nargs='+', help="Bands to optimize (e.g., 1 2 3)")
     parser.add_argument("--target_irreps", type=str, nargs='+', help="Target irreps (e.g., A_1 E_2 E_2)")
     parser.add_argument("--irrep_occurrences", type=int, nargs='+', help="Which occurrence to use (e.g., 1 1 1)")
@@ -493,14 +626,22 @@ if __name__ == '__main__':
                                            symmetry_group=args.symmetry_group,
                                            height_slab=height_slab, 
                                            directory=directory,
-                                           fixed_params=parsed_fixed_params) 
+                                           fixed_params=parsed_fixed_params,
+                                           objective_mode=args.objective_mode,
+                                           target_cost=args.target_cost,
+                                           strategy=args.strategy,
+                                           degeneracy_tol=args.degeneracy_tol,
+                                           use_mpi=not args.local,
+                                           local_workers=args.local_workers) 
 
         result = optimizer.optimize_parameters()
         if result is not None:
             with print_lock:
                 print("Optimal dynamic parameters found:", result.x)
-                print("Minimum frequency difference:", result.fun)
+                print("Minimum objective function score:", result.fun)
     else:
         with print_lock:
             print("Interactive mode.")
     os.chdir("..")
+
+

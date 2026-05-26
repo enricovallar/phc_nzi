@@ -59,29 +59,34 @@ def add_arrow_legend(fig_or_ax,  field, is_figure=False, **kwargs):
     )
 
 
-def _get_hexagonal_ws_patch(nx, ny, lw = 3):
-    """Helper function to calculate the Wigner-Seitz cell for a hexagonal lattice."""
+def _get_hexagonal_ws_patch(nx, ny, lw=3, padding=1.2):
+    """
+    nx, ny: array dimensions
+    padding: 1.0 is the strict WS cell. 1.2-1.5 allows holes to breathe.
+    """
     cx, cy = nx / 2.0, ny / 2.0
     a_pix = min(nx, ny) / 3.0 
-    R = a_pix / np.sqrt(3)
+    R = (a_pix / np.sqrt(3)) * padding 
     
-    # 30-degree phase shift to align vertices correctly
+    # Still use the 30-degree shift for proper orientation
     angles = np.deg2rad([30, 90, 150, 210, 270, 330, 390])
     hex_x = cx + R * np.cos(angles)
     hex_y = cy + R * np.sin(angles)
     
     ws_path = Path(np.column_stack([hex_x, hex_y]))
-    ws_patch = PathPatch(ws_path, facecolor='none', edgecolor='black', lw=lw, zorder=10)
+    ws_patch = PathPatch(ws_path, facecolor='none', edgecolor='black', 
+                         lw=lw, zorder=10, capstyle='round')
     
-    pad = R * 0.02 
-    xlims = (np.min(hex_x) - pad, np.max(hex_x) + pad)
-    ylims = (np.min(hex_y) - pad, np.max(hex_y) + pad)
+    # Set limits to see the padded area
+    margin = R * 0.05
+    xlims = (np.min(hex_x) - margin, np.max(hex_x) + margin)
+    ylims = (np.min(hex_y) - margin, np.max(hex_y) + margin)
     
     return ws_patch, xlims, ylims
 
 
 def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None, 
-                            lattice_type="square", ax=None, step=2, global_vmax=None, ws_lw=3):
+                            lattice_type="square", ax=None, step=2, global_vmax=None, ws_lw=3, padding=1):
     """
     Plot field_z background with field_xy quiver arrows from pre-loaded numpy arrays.
     Supports both 'square' and 'hexagonal' lattice types.
@@ -99,7 +104,7 @@ def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None,
     # --- [ 1. Handle Lattice Types & Clipping ] ---
     clip_patch = None
     if lattice_type.lower() == "hexagonal":
-        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw)
+        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw, padding = padding)
         ax.add_patch(clip_patch)
         ax.set_xlim(*xlims)
         ax.set_ylim(*ylims)
@@ -173,7 +178,7 @@ def plot_field_quiver_on_ax(field_z, field_x, field_y, eps_data=None,
     
     return im
 
-def plot_epsilon_on_ax(eps_data, lattice_type="square", ax=None, ws_lw = 3,  cmap = "managua_r", **kwargs):
+def plot_epsilon_on_ax(eps_data, lattice_type="square", ax=None, ws_lw = 3,  cmap = "managua_r", padding = 1, **kwargs):
     """
     Plot the epsilon distribution background from pre-loaded numpy arrays.
     Supports both 'square' and 'hexagonal' lattice types using Wigner-Seitz clipping.
@@ -188,7 +193,7 @@ def plot_epsilon_on_ax(eps_data, lattice_type="square", ax=None, ws_lw = 3,  cma
     clip_patch = None
     if lattice_type.lower() == "hexagonal":
         # Uses your exact helper function logic for Wigner-Seitz cells
-        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw)
+        clip_patch, xlims, ylims = _get_hexagonal_ws_patch(nx, ny, ws_lw, padding)
         ax.add_patch(clip_patch)
         ax.set_xlim(*xlims)
         ax.set_ylim(*ylims)

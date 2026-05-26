@@ -200,35 +200,38 @@ class ScriptParam:
     
     def __str__(self):
         return self._scheme_string
-
 class ScriptParamVector3(ScriptParam):
-    def __init__(self, x= 1, y=1, z=1, x_def=1, y_def=1, z_def=1):
-        self._validate(x, y, z, x_def, y_def, z_def)
-        # Build the scheme string using the provided component values directly.
-        self._scheme_string = f"(vector3 {x} {y} {z})"
+    def __init__(self, x=1, y=1, z=1, x_def=1, y_def=1, z_def=1):
         self._names = []
         self._default_values = []
-        # Only add to the names list if the component is given as a string.
-        if isinstance(x, str):
-            self._names.append(x)
-            self._default_values.append(x_def)
-        if isinstance(y, str):
-            self._names.append(y)
-            self._default_values.append(y_def)
-        if isinstance(z, str):
-            self._names.append(z)
-            self._default_values.append(z_def)
-
-    def _validate(self, x, y, z, x_def, y_def, z_def):
-        # For each component, if it's a string, its default must be int or float.
-        # Otherwise, the component must be int or float.
-        for comp, comp_def, label in ((x, x_def, "x"), (y, y_def, "y"), (z, z_def, "z")):
-            if isinstance(comp, str):
-                if not isinstance(comp_def, (int, float)):
+        
+        # Helper to parse and validate each component
+        def parse_comp(comp, default_val, label):
+            if isinstance(comp, ScriptParam):
+                # Inherit the definitions of the nested ScriptParam
+                self._names.extend(comp._names)
+                self._default_values.extend(comp._default_values)
+                return str(comp)  # Returns the math expression (e.g., "(* -1 x_val)")
+            elif isinstance(comp, str):
+                # Treat pure strings as new Scheme parameter names
+                if not isinstance(default_val, (int, float)):
                     raise ValueError(f"Default value for {label} must be an int or float")
-            elif not isinstance(comp, (int, float)):
-                raise ValueError(f"{label} must be either a string or an int/float")
-                
+                self._names.append(comp)
+                self._default_values.append(default_val)
+                return comp
+            elif isinstance(comp, (int, float)):
+                return str(comp)
+            else:
+                raise ValueError(f"{label} must be a ScriptParam, string, or int/float")
+
+        # Parse all three coordinates
+        x_str = parse_comp(x, x_def, "x")
+        y_str = parse_comp(y, y_def, "y")
+        z_str = parse_comp(z, z_def, "z")
+
+        # Build the final Scheme vector string
+        self._scheme_string = f"(vector3 {x_str} {y_str} {z_str})"
+
 
 class ScriptParams:
     def __init__(self, *script_params: ScriptParam):
@@ -405,136 +408,27 @@ class BaseDielectricDistribution:
         self._bulk_size = ScriptParamVector3(1, 1, "h", 1, 1, height_slab)
         self._bulk = Geometry(mp.Block, {"size": ScriptParamVector3(1, 1, "h", 1, 1, height_slab), 
                                          "center": mp.Vector3(), "material": self._material_bulk})
-        
-
-    def make_C6v_monoatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height, 
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1]
-    
-    def make_C6v_diatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(1/3, 1/3, 0), 
-                                        "material": self._material_atoms})
-        hole_3 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(2/3, 2/3, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2, hole_3]
-    
-
-    def make_C3v_monoatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height, 
-                                        "center": mp.Vector3(1/3, 1/3, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2]
-    
-    def make_C3v_diatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(1/3, 1/3, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2]
-    
-
-    def make_C4v_monoatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        
-        return [self._bulk, hole_1]
-    
-    def make_C4v_diatomic(self):
-        return self.make_C4v_diatomic_A()
-    
-    def make_C4v_diatomic_A(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(0, 1/2, 0), 
-                                        "material": self._material_atoms})
-        hole_3 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(1/2, 0, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2, hole_3]
-    
-    def make_C4v_diatomic_B(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(1/2, 1/2, 0), 
-                                        "material": self._material_atoms})
-        
-        return [self._bulk, hole_1, hole_2]
-    
-    def make_C2v_monoatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(1/2,0, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2]
-    
-    def make_C2v_diatomic(self):
-        hole_1 = Geometry(mp.Cylinder, {"radius": self._radius1, "height": self._height,
-                                        "center": mp.Vector3(0, 0, 0), 
-                                        "material": self._material_atoms})
-        hole_2 = Geometry(mp.Cylinder, {"radius": self._radius2, "height": self._height,
-                                        "center": mp.Vector3(1/3, 1/3, 0), 
-                                        "material": self._material_atoms})
-        return [self._bulk, hole_1, hole_2]
 
 
-    def make_C4v_diatomic_B_square(self):
-        hole_1 = Geometry(mp.Block, {"size": mp.Vector3(self._radius1, self._radius1, self._height),
-                                    "center": mp.Vector3(0, 0, 0), 
-                                    "material": self._material_atoms})
-        
-        hole_2 = Geometry(mp.Block, {
-                                        "size": mp.Vector3(self._radius2, self._radius2, self._height),
-                                        "center": mp.Vector3(1/2, 1/2, 0), 
-                                        "material": self._material_atoms})
-        
-        return [self._bulk, hole_1, hole_2]
-    
+    def _scale_coord(self, coord, factor):
+        """Safely scales a coordinate for both numeric types and ScriptParams."""
+        if factor == 1:
+            return coord
+            
+        if isinstance(coord, ScriptParam):
+            # Create proxy param inheriting names/defaults from the original
+            scaled = ScriptParam(coord._names[0], coord._default_values[0])
+            scaled._scheme_string = f"(* {factor} {str(coord)})"
+            return scaled
+            
+        return coord * factor
 
-    def make_C4v_diatomic_A_square(self):
-        hole_1 = Geometry(mp.Block, {"size": mp.Vector3(self._radius1, self._radius1, self._height),
-                                    "center": mp.Vector3(0, 0, 0), 
-                                    "material": self._material_atoms})
-        hole_2 = Geometry(mp.Block, {"size": mp.Vector3(self._radius2, self._radius2, self._height),
-                                    "center": mp.Vector3(1/2, 0, 0), 
-                                    "material": self._material_atoms})
-        hole_3 = Geometry(mp.Block, {"size": mp.Vector3(self._radius2, self._radius2, self._height),    
-                                    "center": mp.Vector3(0, 1/2, 0), 
-                                    "material": self._material_atoms})
+    def _get_center_vector(self, u, v, w=0):
+        """Returns the appropriate Vector3 object based on the inputs."""
+        if any(isinstance(val, ScriptParam) for val in (u, v, w)):
+            return ScriptParamVector3(u, v, w)
+        return mp.Vector3(u, v, w)
         
-        return [self._bulk, hole_1, hole_2, hole_3]
-    
-    def make_C4v_diatomic_A_sphere(self):
-        hole_1 = Geometry(mp.Sphere, {"radius": self._radius1, "center": self._sphere_center_1,
-                                      "material": self._material_atoms})
-        hole_2 = Geometry(mp.Sphere, {"radius": self._radius2, "center": self._sphere_center_2, 
-                                      "material": self._material_atoms})
-        hole_3 = Geometry(mp.Sphere, {"radius": self._radius2, "center": self._sphere_center_3, 
-                                      "material": self._material_atoms})
-        
-        return [self._bulk, hole_1, hole_2, hole_3]
-
     # ==============================================================================
     # Standard C6v (Hexagonal / p6mm) Wyckoff Positions
     # ==============================================================================
@@ -566,20 +460,56 @@ class BaseDielectricDistribution:
     def make_C6v_6d(self, radius=None, x_dist=0.25):
         """6d Wyckoff position for C6v (Primary Hexamer). 6 atoms on mirror axes."""
         r = radius if radius is not None else self._radius1
+        
+        # Define scaled variables modularly
         x = x_dist
-        coords = [(x, 0), (0, x), (-x, x), (-x, 0), (0, -x), (x, -x)]
-        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
-                                       "center": mp.Vector3(u, v, 0), 
-                                       "material": self._material_atoms}) for u, v in coords]
+        neg_x = self._scale_coord(x, -1)
+        
+        coords = [
+            (x, 0), 
+            (0, x), 
+            (neg_x, x), 
+            (neg_x, 0), 
+            (0, neg_x), 
+            (x, neg_x)
+        ]
+        
+        return [
+            Geometry(mp.Cylinder, {
+                "radius": r, 
+                "height": self._height, 
+                "center": self._get_center_vector(u, v, 0), 
+                "material": self._material_atoms
+            }) for u, v in coords
+        ]
 
     def make_C6v_6e(self, radius=None, x_dist=0.15):
         """6e Wyckoff position for C6v (Secondary Hexamer). 6 atoms off mirror axes."""
         r = radius if radius is not None else self._radius1
+        
+        # Define scaled variables modularly
         x = x_dist
-        coords = [(x, x), (-x, 2*x), (-2*x, x), (-x, -x), (x, -2*x), (2*x, -x)]
-        return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
-                                       "center": mp.Vector3(u, v, 0), 
-                                       "material": self._material_atoms}) for u, v in coords]
+        neg_x = self._scale_coord(x, -1)
+        two_x = self._scale_coord(x, 2)
+        neg_two_x = self._scale_coord(x, -2)
+        
+        coords = [
+            (x, x), 
+            (neg_x, two_x), 
+            (neg_two_x, x), 
+            (neg_x, neg_x), 
+            (x, neg_two_x), 
+            (two_x, neg_x)
+        ]
+        
+        return [
+            Geometry(mp.Cylinder, {
+                "radius": r, 
+                "height": self._height, 
+                "center": self._get_center_vector(u, v, 0), 
+                "material": self._material_atoms
+            }) for u, v in coords
+        ]
 
     # ==============================================================================
     # Standard C4v (Square / p4mm) Wyckoff Positions
@@ -613,7 +543,8 @@ class BaseDielectricDistribution:
         """4d Wyckoff position for C4v (Diagonals). 4 atoms."""
         r = radius if radius is not None else self._radius2
         x = x_dist
-        coords = [(x, x), (-x, x), (-x, -x), (x, -x)]
+        neg_x = self._scale_coord(x, -1)
+        coords = [(x, x), (neg_x, x), (neg_x, neg_x), (x, neg_x)]
         return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
                                        "center": mp.Vector3(u, v, 0), 
                                        "material": self._material_atoms}) for u, v in coords]
@@ -622,37 +553,11 @@ class BaseDielectricDistribution:
         """4e Wyckoff position for C4v (Axes). 4 atoms."""
         r = radius if radius is not None else self._radius2
         x = x_dist
-        coords = [(x, 0), (0, x), (-x, 0), (0, -x)]
+        neg_x = self._scale_coord(x, -1)
+        coords = [(x, 0), (0, x), (neg_x, 0), (0, neg_x)]
         return [Geometry(mp.Cylinder, {"radius": r, "height": self._height, 
                                        "center": mp.Vector3(u, v, 0), 
                                        "material": self._material_atoms}) for u, v in coords]
-    # ==============================================================================
-    # Backward Compatibility Aliases (Deprecated)
-    # ==============================================================================
-
-    def make_wyckoff_1a(self, *args, **kwargs):
-        warnings.warn("`make_wyckoff_1a()` is deprecated. Use `make_C6v_1a()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_1a(*args, **kwargs)
-
-    def make_wyckoff_2b(self, *args, **kwargs):
-        warnings.warn("`make_wyckoff_2b()` is deprecated. Use `make_C6v_2b()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_2b(*args, **kwargs)
-
-    def make_wyckoff_3c(self, *args, **kwargs):
-        warnings.warn("`make_wyckoff_3c()` is deprecated. Use `make_C6v_3c()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_3c(*args, **kwargs)
-
-    def make_wyckoff_6d(self, *args, **kwargs):
-        warnings.warn("`make_wyckoff_6d()` is deprecated. Use `make_C6v_6d()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_6d(*args, **kwargs)
-
-    def make_wyckoff_6e(self, *args, **kwargs):
-        warnings.warn("`make_wyckoff_6e()` is deprecated. Use `make_C6v_6e()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_6e(*args, **kwargs)
-        
-    def make_diatomic(self, *args, **kwargs):
-        warnings.warn("`make_diatomic()` is deprecated. Use `make_C6v_diatomic()` instead.", DeprecationWarning, stacklevel=2)
-        return self.make_C6v_diatomic(*args, **kwargs)
 
     # ----------------------------------------------------------------------
     # Linear Superposition Method
@@ -663,7 +568,7 @@ class BaseDielectricDistribution:
         Combines multiple lists of Wyckoff geometries into a single list.
         
         Args:
-            wyckoff_lists (list of lists): E.g. [make_wyckoff_1a(), make_wyckoff_6d(x_dist=0.3)]
+            wyckoff_lists (list of lists): E.g. [make_C6v_1a(), make_C6v_6d(x_dist=0.3)]
             include_bulk (bool): If True, prepends self._bulk to the returned list.
         
         Returns:

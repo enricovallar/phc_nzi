@@ -314,20 +314,26 @@ class Simulation:
             f"Script length: {len(self.script) if self.script else 0}"
         )
         
-    # Run the simulation in a standard HPC environment.
     def run_hpc(self, mpb_command_line_params: dict = {},
-                load_epsilon: bool = True, extract_frequencies: bool = True, mpi = True, version = "mpb/1.11.1") -> None:
+                load_epsilon: bool = True, extract_frequencies: bool = True, 
+                mpi: bool = True, cores: int = 4, version: str = "mpb/1.11.1") -> None:
         
         self._make_sure_scheme_script_exists()
         params = " ".join(f"{k}={v}" for k, v in mpb_command_line_params.items())
-        mpb = "mpb-mpi" if mpi  is True else "mpb"
+        if mpi:
+            mpb_cmd = f"mpirun -np {cores} mpb-mpi"
+        else:
+            mpb_cmd = "mpb"
+            
         cmd = (
             f"source /dtu/sw/dcc/dcc-sw.bash && module load {version} && "
-            f"{mpb} {params} {self.scheme_filename}"
+            f"{mpb_cmd} {params} {self.scheme_filename}"
         )
+        
         self.logger.debug("Running HPC command: %s", cmd)
         self._execute_command(cmd, shell=True)
         self.logger.debug("Simulation completed")
+        
         if load_epsilon:
             self.load_epsilon_data()
         if extract_frequencies:
@@ -841,3 +847,42 @@ class Simulation:
             identified_irreps.append(irrep)
         return identified_irreps
         
+
+    def identify_irrep_with_confidence(self, projections):
+        """
+        Identifies the irrep by finding the max projection value.
+        Returns a tuple of (string label, confidence value).
+        """
+        if not projections:
+            return "Unknown", 0.0
+        
+        best_irrep = max(projections, key=projections.get)
+        confidence = projections[best_irrep]
+        return best_irrep, confidence
+
+    def identify_irrep_by_band_indices_with_confidence(self, which_bands: list, which_parity: str, group: str) -> list:
+        """
+        Identifies the irrep by checking which bands have the highest projection for the specified parity.
+         - which_bands: List of band indices to check (e.g., [2, 3, 4])
+         - which_parity: Parity to check (e.g., 'te' or 'tm')
+         - group: The point group to use for projection calculations (e.g., "C6v" or "C4v")
+         
+        Returns a list of tuples containing (irrep_label, confidence) for the specified bands and parity.
+        """
+        symmetry_data = self.get_symmetry_by_parity(which_parity)
+        if not symmetry_data:
+            # Return a list of (None, 0.0) if symmetry data is entirely missing
+            return [(None, 0.0)] * len(which_bands)
+
+        identified_irreps_with_conf = []
+        for band in which_bands:
+            chars = symmetry_data.get(band)
+            if chars is None:
+                identified_irreps_with_conf.append((None, 0.0))
+                continue
+                
+            projections = self.compute_projections(chars, group=group)
+            irrep, confidence = self.identify_irrep_with_confidence(projections)
+            identified_irreps_with_conf.append((irrep, confidence))
+            
+        return identified_irreps_with_conf
