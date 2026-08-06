@@ -10,7 +10,7 @@ class MPBSchemeConfigurator():
 
     def __init__(self, phc: PhotonicCrystal,  simulation_types: list = ["te"], resolution: int | mp.Vector3 = 32, num_bands: int = 8, 
                  k_points_interpolation_factor: int = 4, mesh_size: int | None = None, target_freq: float = None, tolerance: float = None, 
-                 k_points: list = [mp.Vector3(0, 0, 0)], extra_runner_command: str = ""):
+                 k_points: list = [mp.Vector3(0, 0, 0)], extra_runner_command: str = "", deterministic: bool = True):
         # PhotonicCrystal object is used to generate the geometry and lattice
         if type(phc) == PhotonicCrystal:    
             self._phc = phc
@@ -38,6 +38,7 @@ class MPBSchemeConfigurator():
         self.k_points = k_points
 
         self.extra_runner_command = extra_runner_command    
+        self.deterministic = deterministic
 
     def validate_simulation_type(self, simulation_type):
         if simulation_type in self.VALID_SIMULATION_TYPES:
@@ -147,13 +148,38 @@ class MPBSchemeConfigurator():
             self._k_points = value
         else:
             raise ValueError("All k-points must be of type meep Vector3")  
+    
+    @property
+    def deterministic(self):
+        return self._deterministic
 
+    @deterministic.setter
+    def deterministic(self, value):
+        if isinstance(value, bool):
+            self._deterministic = value
+        else:
+            raise ValueError("Deterministic flag must be a boolean (True or False)")
 
      
+    def generate_helpers(self):
+        return [
+"""
+(define (get-daisy-vertices num-pts m-val r0-val rd-val)
+  (map (lambda (i)
+         (let* ((phi (* 2.0 3.141592653589793 (/ i num-pts)))
+                (r (+ r0-val (* rd-val (cos (* m-val phi)))))
+                (x (* r (cos phi)))
+                (y (* r (sin phi))))
+           (cartesian->lattice (vector3 x y 0))))
+       (iota num-pts)))     
+"""
+        ]
         
     
     def build_commands(self):
         commands = []
+
+        commands += self.generate_helpers()
 
         # Set the number of bands
         commands += self.generate_number_of_bands_command()
@@ -169,6 +195,9 @@ class MPBSchemeConfigurator():
         
         # Set the lattice and geometry
         commands += self.generate_lattice_and_geometry_commands()
+        
+        # Set deterministic flag
+        commands += self.generate_deterministic_command()
 
         # Extra run functions   
         commands += self.generate_extra_run_functions()
@@ -237,6 +266,12 @@ class MPBSchemeConfigurator():
             return [f"(set! k-points (interpolate {self._k_points_interpolation_factor} k-points))"]
         else:
             raise ValueError("Invalid k-points interpolation factor")
+        
+    def generate_deterministic_command(self):
+        if self._deterministic:
+            return ["(set! deterministic? true)"]
+        else:
+            return ["(set! deterministic? false)"]
         
     def generate_extra_run_functions(self):
         functions = []
@@ -348,6 +383,8 @@ class MPBSchemeConfigurator():
              (arith-sequence 1 1 num-bands))
         (print "SYM_DATA_END_" parity "\n")))) ; Unique end tag
 """
+
+
         
         # Add all functions to the list
         functions.extend([
@@ -360,7 +397,7 @@ class MPBSchemeConfigurator():
             efield_nonbloch_z, 
             hfield_nonbloch_z,
             display_symmetries_c4v,
-            display_symmetries_c6v
+            display_symmetries_c6v,
         ])
         
         return functions

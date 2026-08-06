@@ -319,6 +319,16 @@ class Geometry:
                 value = value
             elif isinstance(value, mp.Vector3):
                 value = f"(vector3 {value.x} {value.y} {value.z})"
+            elif isinstance(value, list):
+                vec_strings = []
+                for v in value:
+                    if isinstance(v, mp.Vector3):
+                        vec_strings.append(f"(vector3 {v.x} {v.y} {v.z})")
+                    elif self.is_script_param_vector3(v):
+                        vec_strings.append(str(v))
+                    else:
+                        raise ValueError("List elements must be mp.Vector3 or ScriptParamVector3")
+                value = "(list " + " ".join(vec_strings) + ")"
             elif self.is_script_param(value):
                 value = str(value)
             else:
@@ -388,7 +398,14 @@ class Material:
     def epsilon(self):
         return self._epsilon
     
- 
+class MaterialFunction(Material):
+    def __init__(self, name, definition):
+        self.name = name
+        self.definition = definition # The Scheme code block
+        
+    def to_scheme(self):
+        # Tells Meep/MPB to use a function
+        return f"(make material-function (material-func {self.name}))"
 
 class BaseDielectricDistribution:
     def __init__(self, eps_bulk = 3.1**2, eps_atoms = 1, eps_background = 1, 
@@ -428,10 +445,33 @@ class BaseDielectricDistribution:
         if any(isinstance(val, ScriptParam) for val in (u, v, w)):
             return ScriptParamVector3(u, v, w)
         return mp.Vector3(u, v, w)
+    
+    def make_1a_daisy(self, r0=0.35, rd=0.08, m=6):
+        # Define the Scheme function definition
+        # Note: We use the r0, rd, m parameters directly in the Scheme string
+        daisy_def = f"""
+(define (daisy-dielectric p)
+  (let* ((cart-p (lattice->cartesian p))
+         (x (vector3-x cart-p))
+         (y (vector3-y cart-p))
+         (z (vector3-z cart-p))
+         (r (sqrt (+ (* x x) (* y y))))
+         (phi (atan y x))
+         (r-boundary (+ {r0} (* {rd} (cos (* {m} phi))))))
+    (if (and (< (abs z) (/ h 2)) (< r r-boundary))
+        (make dielectric (epsilon {self._material_atoms.epsilon}))
+        (make dielectric (epsilon {self._material_bulk.epsilon})))))
+"""
+        daisy_mat = MaterialFunction("daisy-dielectric", daisy_def)
         
-    # ==============================================================================
-    # Standard C6v (Hexagonal / p6mm) Wyckoff Positions
-    # ==============================================================================
+        # The block fills the whole unit cell; the material function logic "carves" the hole
+        daisy_block = Geometry(mp.Block, {
+            "size": self._bulk_size, 
+            "center": mp.Vector3(0, 0, 0), 
+            "material": daisy_mat
+        })
+        
+        return [daisy_block]
 
     def make_C6v_1a(self, radius=None):
         """1a Wyckoff position for C6v (Origin). 1 atom."""
@@ -667,19 +707,28 @@ class PhotonicCrystal:
             return "\n".join(commands)
         else:
             return ""
-
+        
+    def _get_material_function_defs(self) -> str:
+        defs = []
+        for atom in self._atoms:
+            mat = atom.params.get("material")
+            if isinstance(mat, MaterialFunction):
+                defs.append(mat.definition)
+        return "\n".join(set(defs))
     def to_scheme(self) -> str:
         """Convert the photonic crystal to a Scheme string.
         
         Returns:
             str: A Scheme string that defines the photonic crystal. 
         """
+        mat_defs = self._get_material_function_defs()
+
         commands_partial = self.to_scheme_list()
         command_lattice = f"(set! geometry-lattice {commands_partial[0]})"
         command_geometry = f"(set! geometry {commands_partial[1]})"
         
         command_script_params  = self._script_params_to_scheme_string()
-        return "\n".join([command_script_params, command_lattice, command_geometry])
+        return "\n".join([command_script_params, mat_defs, command_lattice, command_geometry])
     
 
     def print_script_params(self):

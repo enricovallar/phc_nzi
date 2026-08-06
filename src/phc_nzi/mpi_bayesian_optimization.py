@@ -30,6 +30,19 @@ from phc_nzi.lsf_job_configurator import LSFJobConfiguration
 # Global lock to synchronize printing among threads. 
 print_lock = threading.Lock()
 
+def _majority(iterable):
+    # Convert to a tuple to handle generators (which don't have a length)
+    items = tuple(iterable)
+    
+    # Handle empty iterables (any() returns False, all() returns True)
+    if not items:
+        return False 
+        
+    # Count how many items evaluate to True
+    truthy_count = sum(bool(x) for x in items)
+    
+    # Return True if the count is strictly greater than half the total length
+    return truthy_count > len(items) / 2
 
 def failsafe_irrep_mapping(target_irreps, degeneracy_tol, full_irrep_map, bands_to_check, log_file=None):
     """
@@ -53,25 +66,41 @@ def failsafe_irrep_mapping(target_irreps, degeneracy_tol, full_irrep_map, bands_
     """
     if degeneracy_tol is not None and target_irreps is not None:
         freqs = np.array([freq for _, _, freq in full_irrep_map.values()])
+        n_targets = len(target_irreps)
+
+        # PRE-CHECK: Skip correction if a valid consecutive set already exists
+        if len(freqs) >= n_targets:
+            for i in range(len(freqs) - n_targets + 1):
+                # Verify if these consecutive modes are within the degeneracy tolerance
+                is_degenerate = all(abs(freqs[i+k] - freqs[i+k+1]) < degeneracy_tol for k in range(n_targets - 1))
+                
+                if is_degenerate:
+                    current_irreps = [full_irrep_map[bands_to_check[i+k]][0] for k in range(n_targets)]
+                    if sorted(current_irreps) == sorted(target_irreps):
+                        # A perfectly matched set exists in the data. Abort failsafe.
+                        return
+
+        # Original correction logic for triplets
         for i in range(len(freqs)-2):
             if abs(freqs[i] - freqs[i+1]) < degeneracy_tol and abs(freqs[i+1] - freqs[i+2]) < degeneracy_tol:
                 triplet_irreps = [full_irrep_map[bands_to_check[i]][0], 
-                                    full_irrep_map[bands_to_check[i+1]][0], 
-                                    full_irrep_map[bands_to_check[i+2]][0]]
-                # Applay correction if not all of them are already correct independetly of order
+                                  full_irrep_map[bands_to_check[i+1]][0], 
+                                  full_irrep_map[bands_to_check[i+2]][0]]
+                
+                # Apply correction if not all of them are already correct independently of order
                 # if at least one of the triplet irreps has a low confidence. 
                 condition_1 = sorted(triplet_irreps) != sorted(target_irreps)
-                condition_2 = all(full_irrep_map[bands_to_check[j]][1] < 0.85 for j in range(i, i+3))
+                condition_2 = _majority(full_irrep_map[bands_to_check[j]][1] < 0.85 for j in range(i, i+3))
+
                 if condition_1 and condition_2:
 
-                    # If a there is a mode that is not in the target irreps
+                    # If there is a mode that is not in the target irreps
                     # And one of the modes has a high confidence, 
                     # we skip the correction because it is likely that the solver got it right and the degeneracy is just a coincidence.
                     condition_3 = any(full_irrep_map[bands_to_check[j]][0] not in target_irreps for j in range(i, i+3))
                     condition_4 = any(full_irrep_map[bands_to_check[j]][1] >= 0.85 for j in range(i, i+3))
                     if condition_3 and condition_4:
                         continue
-
 
                     # Check E mode count before this triplet
                     e_count_before = sum(1 for j in range(i) if full_irrep_map[bands_to_check[j]][0] is not None and full_irrep_map[bands_to_check[j]][0].startswith('E'))
@@ -83,6 +112,7 @@ def failsafe_irrep_mapping(target_irreps, degeneracy_tol, full_irrep_map, bands_
                                 f.write(msg)
                         else:
                             print(msg)
+                            
                         # Relabel the triplet to match target irreps
                         for j, target_irrep in enumerate(target_irreps):
                             full_irrep_map[bands_to_check[i+j]] = (target_irrep, full_irrep_map[bands_to_check[i+j]][1], full_irrep_map[bands_to_check[i+j]][2])
@@ -494,13 +524,14 @@ class MPIBayesianOptimizator:
             f"--maxiter={self.maxiter}",
             f"--polarization=\"{self.polarization}\"",
             f"--batch_size={self.batch_size}", 
-            f"--objective_mode=\"{self.objective_mode}\"",  # <-- ADDED FOR MPI ROUTING
+            f"--objective_mode=\"{self.objective_mode}\"",  
             f"--strategy=\"{self.strategy}\"",
         ]
         
         if self.target_cost is not None:
             cmd_args.append(f"--target_cost={self.target_cost}")
-
+        if self.degeneracy_tol is not None:
+            cmd_args.append(f"--degeneracy_tol={self.degeneracy_tol}")
         if self.bands:
             cmd_args.append(f"--bands {' '.join(map(str, self.bands))}")
         if self.target_irreps:
